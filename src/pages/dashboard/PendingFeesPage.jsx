@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { isFirebaseConfigured } from '../../firebase/config.js'
 import { subscribeStudents } from '../../firebase/studentRepository.js'
 import { subscribeAllFees } from '../../firebase/feeRepository.js'
+import { compareClasses } from '../../utils/studentSort.js'
 import TableSkeleton from '../../components/dashboard/TableSkeleton.jsx'
 
 const MONTH_NAMES = [
@@ -81,7 +82,11 @@ function PendingFeesPage() {
         pendingMonth: `${month} ${year}`,
         pendingAmount: '—',
       }))
-      .sort((a, b) => a.studentName.localeCompare(b.studentName))
+      .sort((a, b) => {
+        const classComp = compareClasses(a.class, b.class)
+        if (classComp !== 0) return classComp
+        return a.studentName.localeCompare(b.studentName)
+      })
   }, [students, paidStudentIdsForPeriod, month, year])
 
   const yearSelectOptions = useMemo(() => {

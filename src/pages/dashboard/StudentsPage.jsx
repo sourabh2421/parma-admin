@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { isFirebaseConfigured } from '../../firebase/config.js'
 import { softDeleteStudent, subscribeStudents } from '../../firebase/studentRepository.js'
 import { useToast } from '../../context/useToast.js'
-import { sortStudentsByClassThenId } from '../../utils/studentSort.js'
+import { sortClassNames, sortStudentsByClassThenId } from '../../utils/studentSort.js'
 import TableSkeleton from '../../components/dashboard/TableSkeleton.jsx'
 import StudentDetailModal from './StudentDetailModal.jsx'
 
@@ -42,7 +42,7 @@ function StudentsPage() {
       const c = String(s.class || '').trim()
       if (c) set.add(c)
     })
-    return [...set].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    return sortClassNames([...set])
   }, [students])
 
   const handleArchiveStudent = async (student) => {
