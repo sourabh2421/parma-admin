@@ -8,6 +8,11 @@ import {
   calculatePeriodMetrics,
   filterFeesByPeriod,
 } from '../../utils/feeFilter.js'
+import {
+  exportFeesToCsv,
+  exportFeesToExcel,
+  printFeeCollectionReport,
+} from '../../utils/feeReportExport.js'
 import ReceiptPrint from './ReceiptPrint.jsx'
 
 function formatDisplayDate(iso) {
@@ -87,6 +92,36 @@ function FeeRecordsPage() {
     return list
   }, [periodFees, searchQuery, statusFilter])
 
+  const selectedPeriodLabel = useMemo(() => {
+    return PERIOD_OPTIONS.find((p) => p.id === selectedPeriod)?.label || 'Selected Period'
+  }, [selectedPeriod])
+
+  const handleExportExcel = () => {
+    if (displayedFees.length === 0) {
+      showToast('No records to export for this period.', 'warning')
+      return
+    }
+    exportFeesToExcel(displayedFees, selectedPeriodLabel)
+    showToast(`Exported ${displayedFees.length} records to Excel.`, 'success')
+  }
+
+  const handleExportCsv = () => {
+    if (displayedFees.length === 0) {
+      showToast('No records to export for this period.', 'warning')
+      return
+    }
+    exportFeesToCsv(displayedFees, selectedPeriodLabel)
+    showToast(`Exported ${displayedFees.length} records to CSV.`, 'success')
+  }
+
+  const handlePrintReport = () => {
+    if (displayedFees.length === 0) {
+      showToast('No records to print for this period.', 'warning')
+      return
+    }
+    printFeeCollectionReport(displayedFees, selectedPeriodLabel, periodMetrics)
+  }
+
   const handleArchiveFee = async (fee) => {
     const ok = window.confirm(
       `Archive this fee row for ${fee.studentName} (${fee.month} ${fee.year})? It will disappear from lists but stays recoverable in Firestore.`,
@@ -114,13 +149,46 @@ function FeeRecordsPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      {/* Header & Export Actions */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-bold text-slate-900">Fee Records</h2>
           <p className="text-sm text-slate-600">
-            View, track, and filter student fee collections across time periods.
+            View, track, export, and print fee collection reports across time periods.
           </p>
+        </div>
+
+        {/* Print & Export Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handlePrintReport}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95"
+            title="Print or save as PDF fee report"
+          >
+            <span>🖨️</span>
+            <span>Print Report (PDF)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-600 bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition active:scale-95"
+            title="Export to Microsoft Excel spreadsheet"
+          >
+            <span>📊</span>
+            <span>Export Excel</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition active:scale-95"
+            title="Export as comma-separated values"
+          >
+            <span>📄</span>
+            <span>CSV</span>
+          </button>
         </div>
       </div>
 
