@@ -8,8 +8,10 @@ import {
   upsertStudentsFromImport,
 } from '../../firebase/studentRepository.js'
 import { subscribeAllFees } from '../../firebase/feeRepository.js'
+import { reconcileStudentsAndFees } from '../../firebase/reconcileRepository.js'
 import { exportStudentsAndFeesExcel, exportStudentsAndFeesJson } from '../../utils/backupExport.js'
 import { parseStudentImportSheet } from '../../utils/excelStudentImport.js'
+import { buildReconciliationPlan } from '../../utils/studentReconcile.js'
 import { sortStudentsByStudentId } from '../../utils/studentSort.js'
 import { useToast } from '../../context/useToast.js'
 import OverviewSummaryCards from '../../components/dashboard/OverviewSummaryCards.jsx'
@@ -41,6 +43,30 @@ function DashboardOverview() {
   )
   const [uploadBusy, setUploadBusy] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [reconcileBusy, setReconcileBusy] = useState(false)
+
+  const reconcilePlan = useMemo(() => buildReconciliationPlan(students, fees), [students, fees])
+
+  const handleReconcile = async () => {
+    const ok = window.confirm(
+      `Reconcile and merge duplicate student records?\n\n` +
+        `• Detected: ${reconcilePlan.summary.legacyDuplicatesCount} duplicate legacy student profiles\n` +
+        `• Fee Records to preserve & re-link: ${reconcilePlan.summary.feesToMigrateCount}\n` +
+        `• Clean students remaining: ${reconcilePlan.summary.remainingStudentsCount}\n\n` +
+        `All historical fee payment entries will be safely transferred to clean student profiles. Continue?`,
+    )
+    if (!ok) return
+
+    try {
+      setReconcileBusy(true)
+      const res = await reconcileStudentsAndFees()
+      showToast(res.message, 'success')
+    } catch (err) {
+      showToast(err?.message || 'Reconciliation failed.', 'error')
+    } finally {
+      setReconcileBusy(false)
+    }
+  }
 
   useEffect(() => {
     migrateLegacyStudentsIfEmpty().catch(() => {})
@@ -177,6 +203,35 @@ function DashboardOverview() {
         loading={loading && students.length === 0 && fees.length === 0}
       />
 
+      {reconcilePlan.summary.legacyDuplicatesCount > 0 ? (
+        <section className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 p-5 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">
+                  !
+                </span>
+                <h3 className="text-base font-medium text-amber-900">
+                  Duplicate / Legacy Student Records Detected ({reconcilePlan.summary.legacyDuplicatesCount} duplicates)
+                </h3>
+              </div>
+              <p className="text-sm text-amber-800">
+                Found {reconcilePlan.summary.legacyDuplicatesCount} duplicate profiles with legacy prefixes (e.g. <code className="rounded bg-amber-100 px-1 py-0.5 font-mono text-xs">S92</code> vs <code className="rounded bg-amber-100 px-1 py-0.5 font-mono text-xs">92</code>).
+                Merging will clean your student roster to <strong>{reconcilePlan.summary.remainingStudentsCount} students</strong> and safely transfer all <strong>{reconcilePlan.summary.feesToMigrateCount} fee payment records</strong> without data loss.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={reconcileBusy}
+              onClick={handleReconcile}
+              className="inline-flex shrink-0 items-center justify-center rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-amber-700 disabled:opacity-50"
+            >
+              {reconcileBusy ? 'Reconciling…' : 'Reconcile & Merge Now'}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
       <UploadPanel
         onUpload={handleUpload}
         uploadError={uploadError}
@@ -185,9 +240,9 @@ function DashboardOverview() {
       />
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-light text-slate-900">Backup / export</h3>
+        <h3 className="text-base font-light text-slate-900">Backup / export & Data maintenance</h3>
         <p className="mt-1 text-sm text-slate-600">
-          Download a snapshot of students and fee rows currently shown in the dashboard (active records only).
+          Download a snapshot of students and fee rows or reconcile duplicate student records.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <button
@@ -219,6 +274,14 @@ function DashboardOverview() {
             className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
           >
             Export Excel
+          </button>
+          <button
+            type="button"
+            disabled={reconcileBusy || students.length === 0}
+            onClick={handleReconcile}
+            className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100 disabled:opacity-50"
+          >
+            {reconcileBusy ? 'Reconciling…' : 'Reconcile Duplicates'}
           </button>
         </div>
       </section>
