@@ -15,6 +15,9 @@ export function AuthProvider({ children }) {
 
   const adminGateActive = isAdminGateActive()
   const isAdmin = isAuthorizedDashboardUser(user)
+  const role = getUserRole(user)
+  const hasFeeAccess = canAccessFeePortal(user)
+  const hasMarksheetAccess = canAccessMarksheetPortal(user)
   const canAccessDashboard = Boolean(user) && isAdmin
 
   useEffect(() => {
@@ -67,6 +70,9 @@ export function AuthProvider({ children }) {
       user,
       isAuthenticated: Boolean(user),
       isAdmin,
+      role,
+      hasFeeAccess,
+      hasMarksheetAccess,
       adminGateActive,
       canAccessDashboard,
       loading,
@@ -74,7 +80,19 @@ export function AuthProvider({ children }) {
       login,
       logout,
     }),
-    [user, isAdmin, adminGateActive, canAccessDashboard, loading, configError, login, logout],
+    [
+      user,
+      isAdmin,
+      role,
+      hasFeeAccess,
+      hasMarksheetAccess,
+      adminGateActive,
+      canAccessDashboard,
+      loading,
+      configError,
+      login,
+      logout,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

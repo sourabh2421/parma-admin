@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import useAuth from '../auth/useAuth.jsx'
 import { mapAuthErrorToMessage } from '../auth/mapAuthError.js'
 
 function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { loading, configError, login, canAccessDashboard } = useAuth()
+  const [searchParams] = useSearchParams()
+  const portalParam = searchParams.get('portal') || 'fees' // 'fees' | 'marksheet'
+  const isMarksheetPortal = portalParam === 'marksheet'
+
+  const { loading, configError, login, user, hasFeeAccess, hasMarksheetAccess } = useAuth()
 
   const [formData, setFormData] = useState({
     email: '',
@@ -16,7 +20,8 @@ function LoginPage() {
   const [authError, setAuthError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const fromPath = location.state?.from?.pathname || '/dashboard'
+  const defaultDestination = isMarksheetPortal ? '/marksheets' : '/dashboard'
+  const fromPath = location.state?.from?.pathname || defaultDestination
   const routeAuthNotice = location.state?.authNotice
 
   useEffect(() => {
@@ -25,20 +30,26 @@ function LoginPage() {
     }
   }, [routeAuthNotice])
 
-  if (loading && !configError) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-100">
-        <div
-          className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"
-          aria-hidden="true"
-        />
-        <p className="text-sm text-slate-600">Loading…</p>
-      </div>
-    )
+  // If already authenticated and authorized for this portal, redirect
+  if (!configError && user) {
+    if (isMarksheetPortal && hasMarksheetAccess) {
+      return <Navigate to="/marksheets" replace />
+    }
+    if (!isMarksheetPortal && hasFeeAccess) {
+      return <Navigate to="/dashboard" replace />
+    }
   }
 
-  if (!configError && canAccessDashboard) {
-    return <Navigate to="/dashboard" replace />
+  if (loading && !configError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-900 text-white">
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent"
+          aria-hidden="true"
+        />
+        <p className="text-sm text-slate-400">Verifying session…</p>
+      </div>
+    )
   }
 
   const handleChange = (event) => {
@@ -94,23 +105,65 @@ function LoginPage() {
   }
 
   return (
-    <section className="flex min-h-screen items-center justify-center bg-linear-to-b from-slate-50 to-slate-100 px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
-        <h1 className="text-center text-2xl font-bold text-slate-900">Welcome Back</h1>
-        <p className="mt-2 text-center text-sm text-slate-600">
-          Sign in with your admin account to open the dashboard.
-        </p>
+    <section className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 relative overflow-hidden">
+      {/* Background accents */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-40 ${isMarksheetPortal ? 'bg-indigo-600/20' : 'bg-emerald-600/20'} -left-40 w-96 h-96 rounded-full blur-3xl`} />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-cyan-600/15 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+        {/* Back Link */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition"
+          >
+            <span>←</span>
+            <span>All Portals</span>
+          </Link>
+
+          <span
+            className={`rounded-full px-3 py-1 text-[11px] font-bold ${
+              isMarksheetPortal
+                ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30'
+                : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+            }`}
+          >
+            {isMarksheetPortal ? '📊 Marksheet Portal' : '💳 Fee Desk Portal'}
+          </span>
+        </div>
+
+        {/* Branding Header */}
+        <div className="text-center mb-6">
+          <div className={`w-12 h-12 mx-auto rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg ${
+            isMarksheetPortal
+              ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 shadow-indigo-500/20'
+              : 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-emerald-500/20'
+          }`}>
+            {isMarksheetPortal ? '📊' : '💳'}
+          </div>
+
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            {isMarksheetPortal ? 'Marksheet Desk Login' : 'Fee Desk Login'}
+          </h1>
+          <p className="mt-1 text-xs text-slate-400">
+            {isMarksheetPortal
+              ? 'Sign in with your academic / examination credentials'
+              : 'Sign in with your office / accounts credentials'}
+          </p>
+        </div>
 
         {configError ? (
-          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-300">
             {configError}
           </div>
         ) : null}
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">
-              Email
+            <label htmlFor="email" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Email Address
             </label>
             <input
               id="email"
@@ -119,16 +172,20 @@ function LoginPage() {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-              placeholder="admin@school.edu"
+              className={`w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:bg-slate-800 ${
+                isMarksheetPortal
+                  ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+                  : 'focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+              }`}
+              placeholder={isMarksheetPortal ? 'exam@parmaacademy.com' : 'office@parmaacademy.com'}
             />
             {errors.email ? (
-              <p className="mt-1 text-sm font-medium text-red-600">{errors.email}</p>
+              <p className="mt-1 text-xs font-medium text-rose-400">{errors.email}</p>
             ) : null}
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="password" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-300">
               Password
             </label>
             <input
@@ -138,16 +195,20 @@ function LoginPage() {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-              placeholder="Password"
+              className={`w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:bg-slate-800 ${
+                isMarksheetPortal
+                  ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
+                  : 'focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+              }`}
+              placeholder="••••••••"
             />
             {errors.password ? (
-              <p className="mt-1 text-sm font-medium text-red-600">{errors.password}</p>
+              <p className="mt-1 text-xs font-medium text-rose-400">{errors.password}</p>
             ) : null}
           </div>
 
           {authError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+            <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2.5 text-xs font-medium text-rose-300">
               {authError}
             </div>
           ) : null}
@@ -155,11 +216,26 @@ function LoginPage() {
           <button
             type="submit"
             disabled={submitting || Boolean(configError)}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className={`w-full rounded-xl py-3 text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+              isMarksheetPortal
+                ? 'bg-indigo-600 shadow-indigo-600/30 hover:bg-indigo-500'
+                : 'bg-emerald-600 shadow-emerald-600/30 hover:bg-emerald-500'
+            }`}
           >
-            {submitting ? 'Signing in…' : 'Log In'}
+            {submitting ? 'Authenticating…' : `Sign In to ${isMarksheetPortal ? 'Marksheet Portal' : 'Fee Portal'}`}
           </button>
         </form>
+
+        {/* Portal Switcher Footer */}
+        <div className="mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
+          Looking for the other portal?{' '}
+          <Link
+            to={isMarksheetPortal ? '/login?portal=fees' : '/login?portal=marksheet'}
+            className={`font-semibold hover:underline ${isMarksheetPortal ? 'text-emerald-400' : 'text-indigo-400'}`}
+          >
+            Switch to {isMarksheetPortal ? 'Fee Management' : 'Marksheet Management'}
+          </Link>
+        </div>
       </div>
     </section>
   )

@@ -1,20 +1,29 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/LoginPage.jsx'
+import PortalSelectionPage from './pages/PortalSelectionPage.jsx'
 import DashboardLayout from './pages/DashboardLayout.jsx'
 import DashboardOverview from './pages/dashboard/DashboardOverview.jsx'
 import StudentsPage from './pages/dashboard/StudentsPage.jsx'
 import FeeRecordsPage from './pages/dashboard/FeeRecordsPage.jsx'
 import PendingFeesPage from './pages/dashboard/PendingFeesPage.jsx'
+import MarksheetLayout from './pages/MarksheetLayout.jsx'
+import MarksheetOverview from './pages/marksheet/MarksheetOverview.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function App() {
   return (
     <Routes>
+      {/* Portal Selection Landing Hub */}
+      <Route path="/" element={<PortalSelectionPage />} />
+
+      {/* Role & Portal-Aware Login */}
       <Route path="/login" element={<LoginPage />} />
+
+      {/* Fee Management Portal (Protected) */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute portal="fees">
             <DashboardLayout />
           </ProtectedRoute>
         }
@@ -24,8 +33,24 @@ function App() {
         <Route path="fees" element={<FeeRecordsPage />} />
         <Route path="pending" element={<PendingFeesPage />} />
       </Route>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Marksheet Management Portal (Protected) */}
+      <Route
+        path="/marksheets"
+        element={
+          <ProtectedRoute portal="marksheet">
+            <MarksheetLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<MarksheetOverview />} />
+        <Route path="entry" element={<MarksheetOverview />} />
+        <Route path="reports" element={<MarksheetOverview />} />
+        <Route path="subjects" element={<MarksheetOverview />} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
