@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import useAuth from '../auth/useAuth.jsx'
 
 export default function PortalSelectionPage() {
-  const { user, role, hasFeeAccess, hasMarksheetAccess, logout } = useAuth()
+  const { user, logout } = useAuth()
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
@@ -30,7 +30,7 @@ export default function PortalSelectionPage() {
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <div className="text-xs font-semibold text-slate-200">{user.email}</div>
-                <div className="text-[11px] text-emerald-400 capitalize font-medium">Role: {role?.replace('_', ' ')}</div>
+                <div className="text-[11px] text-emerald-400 font-medium">Fee Desk Active</div>
               </div>
               <button
                 type="button"
@@ -51,14 +51,14 @@ export default function PortalSelectionPage() {
       {/* Main Content */}
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-12 flex-1 flex flex-col justify-center">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold text-emerald-400 mb-4">
-            <span>🛡️</span> Role-Separated Administrative Portals
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3.5 py-1 text-xs font-bold text-slate-300 mb-4">
+            <span>🛡️</span> Departmental Portals
           </div>
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
             Select Management Portal
           </h2>
           <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
-            Please choose the departmental desk you wish to access. Each portal requires authorized credentials.
+            Please choose the departmental desk you wish to access. Each portal is password-protected and completely independent.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export default function PortalSelectionPage() {
                   💳
                 </div>
                 <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-bold text-emerald-400">
-                  Accounts & Office Desk
+                  Accounts Desk
                 </span>
               </div>
 
@@ -101,7 +101,7 @@ export default function PortalSelectionPage() {
 
             <div className="mt-8 pt-6 border-t border-slate-800">
               <Link
-                to={user ? (hasFeeAccess ? '/dashboard' : '/login?portal=fees') : '/login?portal=fees'}
+                to={user ? '/dashboard' : '/login'}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 transition active:scale-[0.98]"
               >
                 <span>Enter Fee Portal</span>
@@ -118,7 +118,7 @@ export default function PortalSelectionPage() {
                   📊
                 </div>
                 <span className="rounded-full bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-400">
-                  Examination & Academic Desk
+                  Examination Cell (Password Protected)
                 </span>
               </div>
 
@@ -147,10 +147,10 @@ export default function PortalSelectionPage() {
 
             <div className="mt-8 pt-6 border-t border-slate-800">
               <Link
-                to={user ? (hasMarksheetAccess ? '/marksheets' : '/login?portal=marksheet') : '/login?portal=marksheet'}
+                to="/marksheets"
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition active:scale-[0.98]"
               >
-                <span>Enter Marksheet Portal</span>
+                <span>Enter Marksheet Portal (Protected)</span>
                 <span>→</span>
               </Link>
             </div>

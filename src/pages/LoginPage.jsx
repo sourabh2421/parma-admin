@@ -1,16 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import useAuth from '../auth/useAuth.jsx'
 import { mapAuthErrorToMessage } from '../auth/mapAuthError.js'
 
 function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [searchParams] = useSearchParams()
-  const portalParam = searchParams.get('portal') || 'fees' // 'fees' | 'marksheet'
-  const isMarksheetPortal = portalParam === 'marksheet'
-
-  const { loading, configError, login, user, hasFeeAccess, hasMarksheetAccess } = useAuth()
+  const { loading, configError, login, user, hasFeeAccess } = useAuth()
 
   const [formData, setFormData] = useState({
     email: '',
@@ -20,8 +16,7 @@ function LoginPage() {
   const [authError, setAuthError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const defaultDestination = isMarksheetPortal ? '/marksheets' : '/dashboard'
-  const fromPath = location.state?.from?.pathname || defaultDestination
+  const fromPath = location.state?.from?.pathname || '/dashboard'
   const routeAuthNotice = location.state?.authNotice
 
   useEffect(() => {
@@ -30,14 +25,9 @@ function LoginPage() {
     }
   }, [routeAuthNotice])
 
-  // If already authenticated and authorized for this portal, redirect
-  if (!configError && user) {
-    if (isMarksheetPortal && hasMarksheetAccess) {
-      return <Navigate to="/marksheets" replace />
-    }
-    if (!isMarksheetPortal && hasFeeAccess) {
-      return <Navigate to="/dashboard" replace />
-    }
+  // If already authenticated and authorized for fee portal, redirect
+  if (!configError && user && hasFeeAccess) {
+    return <Navigate to="/dashboard" replace />
   }
 
   if (loading && !configError) {
@@ -108,7 +98,7 @@ function LoginPage() {
     <section className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 relative overflow-hidden">
       {/* Background accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute -top-40 ${isMarksheetPortal ? 'bg-indigo-600/20' : 'bg-emerald-600/20'} -left-40 w-96 h-96 rounded-full blur-3xl`} />
+        <div className="absolute -top-40 bg-emerald-600/20 -left-40 w-96 h-96 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-cyan-600/15 rounded-full blur-3xl" />
       </div>
 
@@ -120,37 +110,25 @@ function LoginPage() {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition"
           >
             <span>←</span>
-            <span>All Portals</span>
+            <span>Portal Selection</span>
           </Link>
 
-          <span
-            className={`rounded-full px-3 py-1 text-[11px] font-bold ${
-              isMarksheetPortal
-                ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30'
-                : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-            }`}
-          >
-            {isMarksheetPortal ? '📊 Marksheet Portal' : '💳 Fee Desk Portal'}
+          <span className="rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-3 py-1 text-[11px] font-bold">
+            💳 Accounts Desk
           </span>
         </div>
 
         {/* Branding Header */}
         <div className="text-center mb-6">
-          <div className={`w-12 h-12 mx-auto rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg ${
-            isMarksheetPortal
-              ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 shadow-indigo-500/20'
-              : 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-emerald-500/20'
-          }`}>
-            {isMarksheetPortal ? '📊' : '💳'}
+          <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center text-3xl mb-3 shadow-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-emerald-500/20">
+            💳
           </div>
 
           <h1 className="text-2xl font-black text-white tracking-tight">
-            {isMarksheetPortal ? 'Marksheet Desk Login' : 'Fee Desk Login'}
+            Fee Desk Login
           </h1>
           <p className="mt-1 text-xs text-slate-400">
-            {isMarksheetPortal
-              ? 'Sign in with your academic / examination credentials'
-              : 'Sign in with your office / accounts credentials'}
+            Sign in with your admin / accounts credentials to open Fee Management.
           </p>
         </div>
 
@@ -172,12 +150,8 @@ function LoginPage() {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:bg-slate-800 ${
-                isMarksheetPortal
-                  ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
-                  : 'focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
-              }`}
-              placeholder={isMarksheetPortal ? 'exam@parmaacademy.com' : 'office@parmaacademy.com'}
+              className="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:bg-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+              placeholder="admin@school.edu"
             />
             {errors.email ? (
               <p className="mt-1 text-xs font-medium text-rose-400">{errors.email}</p>
@@ -195,11 +169,7 @@ function LoginPage() {
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:bg-slate-800 ${
-                isMarksheetPortal
-                  ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
-                  : 'focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
-              }`}
+              className="w-full rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:bg-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               placeholder="••••••••"
             />
             {errors.password ? (
@@ -216,26 +186,11 @@ function LoginPage() {
           <button
             type="submit"
             disabled={submitting || Boolean(configError)}
-            className={`w-full rounded-xl py-3 text-sm font-bold text-white shadow-lg transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
-              isMarksheetPortal
-                ? 'bg-indigo-600 shadow-indigo-600/30 hover:bg-indigo-500'
-                : 'bg-emerald-600 shadow-emerald-600/30 hover:bg-emerald-500'
-            }`}
+            className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? 'Authenticating…' : `Sign In to ${isMarksheetPortal ? 'Marksheet Portal' : 'Fee Portal'}`}
+            {submitting ? 'Authenticating…' : 'Sign In to Fee Portal'}
           </button>
         </form>
-
-        {/* Portal Switcher Footer */}
-        <div className="mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
-          Looking for the other portal?{' '}
-          <Link
-            to={isMarksheetPortal ? '/login?portal=fees' : '/login?portal=marksheet'}
-            className={`font-semibold hover:underline ${isMarksheetPortal ? 'text-emerald-400' : 'text-indigo-400'}`}
-          >
-            Switch to {isMarksheetPortal ? 'Fee Management' : 'Marksheet Management'}
-          </Link>
-        </div>
       </div>
     </section>
   )

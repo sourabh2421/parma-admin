@@ -1,8 +1,14 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
-import useAuth from '../auth/useAuth.jsx'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useMarksheetAuth } from '../context/MarksheetAuthContext.jsx'
 
 export default function MarksheetLayout() {
-  const { user, role, hasFeeAccess, logout } = useAuth()
+  const { logout } = useMarksheetAuth()
+  const navigate = useNavigate()
+
+  const handleSignOut = () => {
+    logout()
+    navigate('/', { replace: true })
+  }
 
   const navItems = [
     { to: '/marksheets', label: 'Marksheet Overview', icon: '📊', end: true },
@@ -30,40 +36,24 @@ export default function MarksheetLayout() {
             </Link>
 
             <span className="hidden sm:inline-block rounded-md bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 text-[11px] font-bold text-indigo-300">
-              Exam Cell
+              Examination Cell
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Quick Switcher to Fee Desk if authorized */}
-            {hasFeeAccess && (
-              <Link
-                to="/dashboard"
-                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 transition"
-              >
-                <span>💳</span>
-                <span>Switch to Fee Portal</span>
-              </Link>
-            )}
-
             <Link
               to="/"
               className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
             >
-              Portal Hub
+              Portal Selection
             </Link>
-
-            <div className="hidden lg:block text-right border-l border-slate-800 pl-3">
-              <div className="text-xs font-bold text-slate-200">{user?.email}</div>
-              <div className="text-[10px] text-indigo-400 capitalize">Role: {role?.replace('_', ' ')}</div>
-            </div>
 
             <button
               type="button"
-              onClick={logout}
+              onClick={handleSignOut}
               className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-rose-400 hover:bg-rose-950/40 hover:border-rose-800 transition"
             >
-              Sign Out
+              Lock & Sign Out
             </button>
           </div>
         </div>
@@ -99,7 +89,7 @@ export default function MarksheetLayout() {
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-3.5 text-xs text-slate-400">
             <div className="font-bold text-slate-200 mb-1">ICSE Examination Desk</div>
             <p className="text-[11px] leading-relaxed text-slate-400">
-              Configure grading scales, enter term marks, and generate report cards.
+              Password-protected examination records and report cards.
             </p>
           </div>
         </aside>

@@ -1,9 +1,6 @@
 import { Link } from 'react-router-dom'
-import useAuth from '../../auth/useAuth.jsx'
 
 function DashboardTopbar({ onLogout }) {
-  const { user, role, hasMarksheetAccess } = useAuth()
-
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -19,22 +16,11 @@ function DashboardTopbar({ onLogout }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {hasMarksheetAccess && (
-          <Link
-            to="/marksheets"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/70 px-3.5 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition active:scale-95"
-            title="Switch to Marksheet Management Desk"
-          >
-            <span>📊</span>
-            <span>Switch to Marksheet Portal</span>
-          </Link>
-        )}
-
         <Link
           to="/"
           className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
         >
-          Portal Hub
+          Portal Selection
         </Link>
 
         <button
