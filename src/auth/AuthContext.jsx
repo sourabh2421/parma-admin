@@ -1,7 +1,13 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { getFirebaseAuth, isFirebaseConfigured } from '../firebase/config.js'
-import { isAdminGateActive, isAuthorizedDashboardUser } from './authPolicy.js'
+import {
+  canAccessFeePortal,
+  canAccessMarksheetPortal,
+  getUserRole,
+  isAdminGateActive,
+  isAuthorizedDashboardUser,
+} from './authPolicy.js'
 
 const AuthContext = createContext(null)
 
