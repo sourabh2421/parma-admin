@@ -1,26 +1,17 @@
 import { useEffect } from 'react'
+import { numberToWordsIndian } from '../../utils/numberToWords.js'
 
 /**
  * ReceiptPrint Component
  * 
- * Opens a new window with a printable fee receipt containing two identical copies.
- * Uses isolated print window approach to avoid printing the main dashboard.
+ * Opens a new window with a printable fee receipt containing two copies:
+ * 1. Parent Copy
+ * 2. School Copy
+ * 
+ * Styled to accurately match Parma Academy's official physical fee receipt book.
  */
 
-/**
- * Generates a unique receipt number in the format PA-{YYYY}{MM}-{studentId}
- * 
- * @param {number} year - Four-digit year (e.g., 2025)
- * @param {string} month - Month name (e.g., "January", "February", etc.)
- * @param {string} studentId - Student identifier
- * @returns {string} Formatted receipt number (e.g., "PA-202501-STU001")
- * 
- * @example
- * generateReceiptNumber(2025, "January", "STU001") // Returns "PA-202501-STU001"
- * generateReceiptNumber(2025, "December", "STU042") // Returns "PA-202512-STU042"
- */
 function generateReceiptNumber(year, month, studentId) {
-  // Map month names to two-digit numbers
   const monthMap = {
     'January': '01',
     'February': '02',
@@ -33,139 +24,249 @@ function generateReceiptNumber(year, month, studentId) {
     'September': '09',
     'October': '10',
     'November': '11',
-    'December': '12'
-  };
-  
-  const monthNum = monthMap[month];
-  
-  // Warn if month name is not recognized
-  if (!monthNum) {
-    console.warn(`Unrecognized month name: ${month}`);
+    'December': '12',
   }
   
-  // Truncate student ID to 20 characters if it exceeds that length
+  const monthNum = monthMap[month] || '00'
   const truncatedId = studentId && studentId.length > 20 
     ? studentId.slice(0, 20) 
-    : studentId || '';
+    : studentId || ''
   
-  return `PA-${year}${monthNum || '00'}-${truncatedId}`;
+  return `PA-${year}${monthNum}-${truncatedId}`
 }
 
-/**
- * Formats a payment date to dd/MM/yyyy format with error handling
- * 
- * @param {Date|string|null} paymentDate - Payment date as Date object or ISO string
- * @returns {string} Formatted date string (e.g., "15/01/2025") or "N/A" if invalid
- * 
- * @example
- * formatPaymentDate(new Date(2025, 0, 15)) // Returns "15/01/2025"
- * formatPaymentDate("2025-03-05T00:00:00Z") // Returns "05/03/2025"
- * formatPaymentDate(null) // Returns "N/A"
- * formatPaymentDate("invalid-date") // Returns "N/A"
- */
 function formatPaymentDate(paymentDate) {
-  if (!paymentDate) return 'N/A';
+  if (!paymentDate) {
+    const today = new Date()
+    return `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`
+  }
   
-  // Convert to Date object if it's a string
   const date = paymentDate instanceof Date 
     ? paymentDate 
-    : new Date(paymentDate);
+    : new Date(paymentDate)
   
-  // Check if date is valid
   if (isNaN(date.getTime())) {
-    console.warn('Invalid payment date:', paymentDate);
-    return 'N/A';
+    return 'N/A'
   }
   
-  // Format as dd/MM/yyyy with zero-padding
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
   
-  return `${day}/${month}/${year}`;
+  return `${day}/${month}/${year}`
 }
 
-/**
- * Formats an amount as "₹" with thousand separators and two decimals
- * 
- * @param {number} amount - Fee amount in INR
- * @returns {string} Formatted amount string (e.g., "₹5,000.00")
- * 
- * @example
- * formatAmount(5000) // Returns "₹5,000.00"
- * formatAmount(1234.56) // Returns "₹1,234.56"
- * formatAmount(0) // Returns "₹0.00"
- * formatAmount(NaN) // Returns "₹0.00"
- * formatAmount(-100) // Returns "₹0.00"
- */
 function formatAmount(amount) {
-  // Validate amount
   if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
-    console.warn('Invalid amount:', amount);
-    return '₹0.00';
+    return '0.00'
   }
-  
-  // Format with thousand separators and two decimal places
-  return `₹${amount.toLocaleString('en-IN', {
+  return amount.toLocaleString('en-IN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })}`;
+    maximumFractionDigits: 2,
+  })
 }
 
-/**
- * ReceiptPrint Component
- * 
- * Opens a new window with a printable fee receipt containing two copies.
- * Automatically triggers print dialog and closes window after printing.
- * 
- * @param {Object} props - Component props
- * @param {Object} props.student - Student information
- * @param {string} props.student.id - Student identifier
- * @param {string} props.student.name - Student full name
- * @param {string} props.student.class - Student class/grade
- * @param {string} props.student.parentName - Parent or guardian name
- * @param {Object} props.fee - Fee record information
- * @param {string} props.fee.month - Payment month name
- * @param {number} props.fee.year - Payment year (4 digits)
- * @param {number} props.fee.amount - Fee amount in INR
- * @param {string} props.fee.status - Payment status
- * @param {Date|string} props.fee.paymentDate - Payment date
- * @param {Function} props.onClose - Optional callback to hide receipt after printing
- */
+function parseClassAndSection(classStr = '') {
+  const cleaned = String(classStr || '').trim()
+  const match = cleaned.match(/^(.*?)(?:\s+|-)(Section\s+|Sec\s+)?([A-Z])$/i)
+  if (match) {
+    return {
+      className: match[1].trim(),
+      section: match[3].toUpperCase(),
+    }
+  }
+  return {
+    className: cleaned,
+    section: 'A',
+  }
+}
+
 export default function ReceiptPrint({ student, fee, onClose }) {
-  // Defensive rendering: return null if required props are missing
   if (!student || !fee) {
-    console.error('ReceiptPrint: Missing required props', { student, fee });
-    return null;
+    console.error('ReceiptPrint: Missing required props', { student, fee })
+    return null
   }
   
   useEffect(() => {
-    // Safe value accessor with fallback
-    const safeValue = (value, fallback = 'N/A') => {
-      return value ?? fallback;
-    };
+    const safeValue = (value, fallback = '—') => {
+      return (value !== undefined && value !== null && String(value).trim() !== '')
+        ? String(value).trim()
+        : fallback
+    }
     
-    // Generate receipt data
-    const receiptNumber = generateReceiptNumber(fee.year, fee.month, student.id);
-    const formattedDate = formatPaymentDate(fee.paymentDate);
+    const receiptNumber = generateReceiptNumber(fee.year, fee.month, student.id)
+    const formattedDate = formatPaymentDate(fee.paymentDate)
 
-    const paidAmount = Number(fee.amount) || 0;
+    const paidAmount = Number(fee.amount) || 0
+    const tFee = fee.tuitionFee != null ? Number(fee.tuitionFee) : paidAmount
+    const cFee = fee.conveyanceFee != null ? Number(fee.conveyanceFee) : 0
+    const eFee = fee.examFee != null ? Number(fee.examFee) : 0
+    const anFee = fee.annualFee != null ? Number(fee.annualFee) : 0
+    const adFee = fee.admissionFee != null ? Number(fee.admissionFee) : 0
+    const lFee = fee.lateFee != null ? Number(fee.lateFee) : 0
+
+    const scheduleSum = tFee + cFee + eFee + anFee + adFee + lFee
     const totalFee =
       fee.totalAmount != null
         ? Number(fee.totalAmount)
-        : fee.remainingAmount != null
-          ? paidAmount + Number(fee.remainingAmount)
-          : paidAmount;
+        : scheduleSum > 0
+          ? scheduleSum
+          : fee.remainingAmount != null
+            ? paidAmount + Number(fee.remainingAmount)
+            : paidAmount
+
     const remainingFee =
       fee.remainingAmount != null
         ? Number(fee.remainingAmount)
-        : Math.max(0, totalFee - paidAmount);
+        : Math.max(0, totalFee - paidAmount)
 
-    const formattedAmount = formatAmount(paidAmount);
-    const formattedTotalAmount = formatAmount(totalFee);
-    const formattedRemainingAmount = formatAmount(remainingFee);
-    
-    // Build receipt HTML with inline styles
+    const wordsText =
+      fee.amountInWords || numberToWordsIndian(paidAmount || totalFee)
+    const chequeText = fee.chequeNo
+      ? fee.chequeNo
+      : fee.status === 'paid'
+        ? 'Cash / Online'
+        : '—'
+
+    const { className, section } = parseClassAndSection(student.class)
+
+    const renderCopyHtml = (copyTitle) => `
+      <div class="receipt-copy">
+        <div class="header-container">
+          <div class="top-meta-row">
+            <span class="copy-badge">${copyTitle}</span>
+            <span class="school-phone">📞 9559993008</span>
+          </div>
+          <h1 class="school-title">PARMA ACADEMY</h1>
+          <div class="school-subtitle">Affiliated to ICSE New Delhi</div>
+        </div>
+
+        <div class="student-meta-table">
+          <div class="meta-row">
+            <div class="meta-cell" style="width: 55%;">
+              <span class="meta-label">Sr. No.</span>
+              <span class="meta-value underline">${receiptNumber}</span>
+            </div>
+            <div class="meta-cell" style="width: 45%; text-align: right;">
+              <span class="meta-label">Date:</span>
+              <span class="meta-value underline">${formattedDate}</span>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta-cell" style="width: 100%;">
+              <span class="meta-label">Name of Student:</span>
+              <span class="meta-value underline bold">${safeValue(student.name)}</span>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta-cell" style="width: 100%;">
+              <span class="meta-label">Father's Name:</span>
+              <span class="meta-value underline">${safeValue(student.parentName || student.fatherName)}</span>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta-cell" style="width: 55%;">
+              <span class="meta-label">Class:</span>
+              <span class="meta-value underline bold">${safeValue(className)}</span>
+            </div>
+            <div class="meta-cell" style="width: 45%; text-align: right;">
+              <span class="meta-label">Section:</span>
+              <span class="meta-value underline bold">${safeValue(section)}</span>
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <div class="meta-cell" style="width: 100%;">
+              <span class="meta-label">Month(s):</span>
+              <span class="meta-value underline bold">${safeValue(fee.month)} ${safeValue(fee.year)}</span>
+            </div>
+          </div>
+        </div>
+
+        <table class="fee-schedule-table">
+          <thead>
+            <tr>
+              <th style="width: 72%;">Fee Schedule</th>
+              <th style="width: 28%; text-align: right;">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. Tuition Fee</td>
+              <td class="amount-cell">${tFee > 0 ? formatAmount(tFee) : '—'}</td>
+            </tr>
+            <tr>
+              <td>2. Conveyance Fee</td>
+              <td class="amount-cell">${cFee > 0 ? formatAmount(cFee) : '—'}</td>
+            </tr>
+            <tr>
+              <td>3. Exam Fee</td>
+              <td class="amount-cell">${eFee > 0 ? formatAmount(eFee) : '—'}</td>
+            </tr>
+            <tr>
+              <td>4. Annual/Class Transfer Fee</td>
+              <td class="amount-cell">${anFee > 0 ? formatAmount(anFee) : '—'}</td>
+            </tr>
+            <tr>
+              <td>5. Admission/Re-Admission Fee</td>
+              <td class="amount-cell">${adFee > 0 ? formatAmount(adFee) : '—'}</td>
+            </tr>
+            <tr>
+              <td>6. Late Fee</td>
+              <td class="amount-cell">${lFee > 0 ? formatAmount(lFee) : '—'}</td>
+            </tr>
+            <tr class="total-row">
+              <td class="bold">Total ₹</td>
+              <td class="amount-cell bold">₹ ${formatAmount(totalFee)}</td>
+            </tr>
+            ${remainingFee > 0 ? `
+            <tr class="paid-row">
+              <td class="bold text-green">Amount Paid ₹</td>
+              <td class="amount-cell bold text-green">₹ ${formatAmount(paidAmount)}</td>
+            </tr>
+            <tr class="due-row">
+              <td class="bold text-red">Remaining Due ₹</td>
+              <td class="amount-cell bold text-red">₹ ${formatAmount(remainingFee)}</td>
+            </tr>
+            ` : `
+            <tr class="paid-row">
+              <td class="bold text-green">Amount Paid (Paid in Full) ₹</td>
+              <td class="amount-cell bold text-green">₹ ${formatAmount(paidAmount)}</td>
+            </tr>
+            `}
+          </tbody>
+        </table>
+
+        <div class="footer-meta">
+          <div class="meta-row">
+            <div class="meta-cell" style="width: 100%;">
+              <span class="meta-label">Amount in words:</span>
+              <span class="meta-value underline italic">${wordsText}</span>
+            </div>
+          </div>
+          <div class="meta-row" style="margin-top: 1mm;">
+            <div class="meta-cell" style="width: 100%;">
+              <span class="meta-label">Cheque No. / Ref:</span>
+              <span class="meta-value underline">${chequeText}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="receipt-bottom-bar">
+          <div class="fee-day-box">
+            Fee Day<br />
+            <strong>10th of the month</strong>
+          </div>
+          <div class="signature-box">
+            <div class="signature-line">Authorized Signature</div>
+          </div>
+        </div>
+      </div>
+    `
+
     const receiptHTML = `
       <!DOCTYPE html>
       <html>
@@ -175,7 +276,7 @@ export default function ReceiptPrint({ student, fee, onClose }) {
         <style>
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 8mm 10mm;
           }
           
           * {
@@ -185,173 +286,213 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           }
           
           body {
-            font-family: Arial, sans-serif;
-            font-size: 10pt;
-            line-height: 1.3;
+            font-family: 'Times New Roman', Times, serif, Arial, sans-serif;
+            font-size: 8.5pt;
+            line-height: 1.25;
             color: #000;
             background: #fff;
-            margin: 0;
-            padding: 0;
           }
           
           .receipt-container {
             width: 190mm;
-            height: 277mm;
+            height: 278mm;
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
+            justify-content: space-between;
           }
           
           .receipt-copy {
-            height: 133mm;
-            border: 2px solid #000;
-            padding: 5mm;
-            box-sizing: border-box;
+            height: 132mm;
+            border: 1.5px solid #222;
+            padding: 4mm 5mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            page-break-inside: avoid;
-            break-inside: avoid;
+            position: relative;
+            background: #fff;
           }
           
-          .copy-label {
+          .header-container {
             text-align: center;
-            font-weight: bold;
-            font-size: 9pt;
-            margin-bottom: 3mm;
-            text-transform: uppercase;
-          }
-          
-          .header {
-            text-align: center;
-            margin-bottom: 3mm;
-          }
-          
-          .header h1 {
-            font-size: 16pt;
-            font-weight: bold;
-            margin-bottom: 1mm;
-          }
-          
-          .header .subtitle {
-            font-size: 9pt;
-            color: #333;
-            margin-bottom: 0.5mm;
-          }
-          
-          .header .address,
-          .header .phone {
-            font-size: 8pt;
-            color: #555;
-          }
-          
-          .title-section {
-            text-align: center;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 1.5mm 0;
-            margin-bottom: 3mm;
-          }
-          
-          .title-section h2 {
-            font-size: 12pt;
-            font-weight: bold;
-            letter-spacing: 1px;
-          }
-          
-          .receipt-number {
-            text-align: right;
-            font-size: 8pt;
-            margin-bottom: 3mm;
-          }
-          
-          .info-grid {
-            display: table;
-            width: 100%;
+            border-bottom: 1.5px solid #222;
+            padding-bottom: 1.5mm;
             margin-bottom: 2mm;
           }
           
-          .info-column {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
-            padding: 0 2mm;
+          .top-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 7.5pt;
+            font-family: Arial, sans-serif;
+            margin-bottom: 0.5mm;
           }
           
-          .info-row {
-            margin-bottom: 1.5mm;
+          .copy-badge {
+            background: #111;
+            color: #fff;
+            padding: 0.5mm 2.5mm;
+            font-size: 7pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 1mm;
+          }
+          
+          .school-phone {
+            font-weight: bold;
+            letter-spacing: 0.5px;
+          }
+          
+          .school-title {
+            font-size: 16pt;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-family: 'Impact', 'Arial Black', Times, serif;
+            margin: 0.5mm 0;
+          }
+          
+          .school-subtitle {
+            font-size: 8.5pt;
+            font-weight: bold;
+            font-style: italic;
+          }
+          
+          .student-meta-table {
+            margin-bottom: 2mm;
+          }
+          
+          .meta-row {
+            display: flex;
+            margin-bottom: 1.2mm;
             font-size: 8.5pt;
           }
           
-          .info-label {
+          .meta-cell {
+            display: inline-flex;
+            align-items: baseline;
+          }
+          
+          .meta-label {
             font-weight: bold;
-            display: inline-block;
-            width: 42%;
+            white-space: nowrap;
+            margin-right: 1.5mm;
             font-size: 8pt;
           }
           
-          .info-value {
-            display: inline-block;
-            width: 55%;
+          .meta-value {
+            flex: 1;
+            padding: 0 1mm;
             font-size: 8.5pt;
           }
           
-          .amount-box {
-            background: #f8fafc;
-            border: 1.5px solid #000;
-            padding: 2mm 3mm;
-            text-align: center;
-            margin: 2mm 0;
+          .underline {
+            border-bottom: 1px dotted #555;
           }
           
-          .status-badge {
-            display: inline-block;
-            background: #d4edda;
-            border: 1.5px solid #28a745;
-            color: #155724;
-            padding: 1mm 3.5mm;
-            border-radius: 1.5mm;
+          .bold {
             font-weight: bold;
-            font-size: 8pt;
           }
           
-          .footer {
-            margin-top: auto;
-            padding-top: 2mm;
-            border-top: 1px solid #ccc;
+          .italic {
+            font-style: italic;
           }
           
-          .footer-row {
-            display: table;
+          .text-green {
+            color: #14532d;
+          }
+          
+          .text-red {
+            color: #991b1b;
+          }
+          
+          .fee-schedule-table {
             width: 100%;
-            margin-top: 1mm;
+            border-collapse: collapse;
+            font-size: 8pt;
+            margin-bottom: 2mm;
           }
           
-          .footer-column {
-            display: table-cell;
-            width: 50%;
+          .fee-schedule-table th,
+          .fee-schedule-table td {
+            border: 1px solid #444;
+            padding: 1mm 2mm;
+          }
+          
+          .fee-schedule-table th {
+            background: #f1f5f9;
+            font-weight: bold;
+            text-align: left;
             font-size: 8pt;
+          }
+          
+          .amount-cell {
+            text-align: right;
+            font-family: Arial, sans-serif;
+          }
+          
+          .total-row {
+            background: #f8fafc;
+            font-size: 8.5pt;
+          }
+          
+          .paid-row {
+            background: #f0fdf4;
+            font-size: 8.5pt;
+          }
+          
+          .due-row {
+            background: #fef2f2;
+            font-size: 8.5pt;
+          }
+          
+          .footer-meta {
+            margin-bottom: 2mm;
+          }
+          
+          .receipt-bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: auto;
+            padding-top: 1mm;
+          }
+          
+          .fee-day-box {
+            border: 1px solid #000;
+            border-radius: 1.5mm;
+            padding: 1mm 3mm;
+            font-size: 7.5pt;
+            text-align: center;
+            line-height: 1.2;
+            font-family: Arial, sans-serif;
+            background: #fafafa;
+          }
+          
+          .signature-box {
+            text-align: center;
           }
           
           .signature-line {
             border-top: 1px solid #000;
-            width: 40mm;
-            margin-top: 4mm;
+            width: 38mm;
             padding-top: 1mm;
-            text-align: center;
-            font-size: 7pt;
+            font-size: 7.5pt;
+            font-weight: bold;
           }
           
           .separator {
-            height: 6mm;
+            height: 7mm;
             text-align: center;
             position: relative;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #666;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: Arial, sans-serif;
           }
           
           .separator::before {
@@ -360,7 +501,7 @@ export default function ReceiptPrint({ student, fee, onClose }) {
             top: 50%;
             left: 0;
             right: 0;
-            border-top: 1px dashed #999;
+            border-top: 1px dashed #777;
             z-index: 0;
           }
           
@@ -375,230 +516,51 @@ export default function ReceiptPrint({ student, fee, onClose }) {
       <body>
         <div class="receipt-container">
           <!-- Parent Copy -->
-          <div class="receipt-copy">
-            <div>
-              <div class="copy-label">Parent Copy</div>
-              
-              <div class="header">
-                <h1>PARMA ACADEMY</h1>
-                <div class="subtitle">ICSE School, Ayodhya</div>
-                <div class="address">Parikrama Marg, Parmapuram, Ayodhya - 224123, U.P.</div>
-                <div class="phone">Phone: 05278-222222</div>
-              </div>
-              
-              <div class="title-section">
-                <h2>FEE RECEIPT</h2>
-              </div>
-              
-              <div class="receipt-number">
-                Receipt No: <strong>${receiptNumber}</strong>
-              </div>
-              
-              <div class="info-grid">
-                <div class="info-column">
-                  <div class="info-row">
-                    <span class="info-label">Student Name:</span>
-                    <span class="info-value">${safeValue(student.name)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Class:</span>
-                    <span class="info-value">${safeValue(student.class)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Parent Name:</span>
-                    <span class="info-value">${safeValue(student.parentName)}</span>
-                  </div>
-                </div>
-                
-                <div class="info-column">
-                  <div class="info-row">
-                    <span class="info-label">Month:</span>
-                    <span class="info-value">${safeValue(fee.month)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Year:</span>
-                    <span class="info-value">${safeValue(fee.year)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Payment Date:</span>
-                    <span class="info-value">${formattedDate}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="amount-box">
-                <div style="display: table; width: 100%; font-size: 8.5pt;">
-                  <div style="display: table-cell; width: 33.3%; text-align: left; vertical-align: middle;">
-                    <span style="color: #555; display: block; font-size: 7.5pt;">Total Fee</span>
-                    <strong style="font-size: 9.5pt;">${formattedTotalAmount}</strong>
-                  </div>
-                  <div style="display: table-cell; width: 33.3%; text-align: center; vertical-align: middle; border-left: 1px solid #ddd; border-right: 1px solid #ddd;">
-                    <span style="color: #155724; display: block; font-size: 7.5pt; font-weight: bold;">Amount Paid</span>
-                    <strong style="font-size: 12pt; color: #155724;">${formattedAmount}</strong>
-                  </div>
-                  <div style="display: table-cell; width: 33.3%; text-align: right; vertical-align: middle;">
-                    <span style="color: ${remainingFee > 0 ? '#991b1b' : '#555'}; display: block; font-size: 7.5pt;">Remaining Due</span>
-                    <strong style="font-size: 9.5pt; color: ${remainingFee > 0 ? '#991b1b' : '#155724'};">${formattedRemainingAmount}</strong>
-                  </div>
-                </div>
-              </div>
-              
-              <div style="text-align: center; margin: 2mm 0;">
-                ${remainingFee > 0
-                  ? `<span class="status-badge" style="background: #fef3c7; border-color: #f59e0b; color: #92400e;">PARTIAL PAYMENT — BALANCE DUE: ${formattedRemainingAmount}</span>`
-                  : `<span class="status-badge">PAID IN FULL</span>`
-                }
-              </div>
-            </div>
-            
-            <div class="footer">
-              <div class="footer-row">
-                <div class="footer-column">
-                  Date: ${formattedDate}
-                </div>
-                <div class="footer-column" style="text-align: right;">
-                  <div class="signature-line">Authorized Signature</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          ${renderCopyHtml('Parent Copy')}
           
-          <!-- Separator -->
+          <!-- Cut Separator -->
           <div class="separator">
             <span>✂ Cut along the line ✂</span>
           </div>
           
           <!-- School Copy -->
-          <div class="receipt-copy">
-            <div>
-              <div class="copy-label">School Copy</div>
-              
-              <div class="header">
-                <h1>PARMA ACADEMY</h1>
-                <div class="subtitle">ICSE School, Ayodhya</div>
-                <div class="address">Parikrama Marg, Parmapuram, Ayodhya - 224123, U.P.</div>
-                <div class="phone">Phone: 05278-222222</div>
-              </div>
-              
-              <div class="title-section">
-                <h2>FEE RECEIPT</h2>
-              </div>
-              
-              <div class="receipt-number">
-                Receipt No: <strong>${receiptNumber}</strong>
-              </div>
-              
-              <div class="info-grid">
-                <div class="info-column">
-                  <div class="info-row">
-                    <span class="info-label">Student Name:</span>
-                    <span class="info-value">${safeValue(student.name)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Class:</span>
-                    <span class="info-value">${safeValue(student.class)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Parent Name:</span>
-                    <span class="info-value">${safeValue(student.parentName)}</span>
-                  </div>
-                </div>
-                
-                <div class="info-column">
-                  <div class="info-row">
-                    <span class="info-label">Month:</span>
-                    <span class="info-value">${safeValue(fee.month)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Year:</span>
-                    <span class="info-value">${safeValue(fee.year)}</span>
-                  </div>
-                  <div class="info-row">
-                    <span class="info-label">Payment Date:</span>
-                    <span class="info-value">${formattedDate}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="amount-box">
-                <div style="display: table; width: 100%; font-size: 8.5pt;">
-                  <div style="display: table-cell; width: 33.3%; text-align: left; vertical-align: middle;">
-                    <span style="color: #555; display: block; font-size: 7.5pt;">Total Fee</span>
-                    <strong style="font-size: 9.5pt;">${formattedTotalAmount}</strong>
-                  </div>
-                  <div style="display: table-cell; width: 33.3%; text-align: center; vertical-align: middle; border-left: 1px solid #ddd; border-right: 1px solid #ddd;">
-                    <span style="color: #155724; display: block; font-size: 7.5pt; font-weight: bold;">Amount Paid</span>
-                    <strong style="font-size: 12pt; color: #155724;">${formattedAmount}</strong>
-                  </div>
-                  <div style="display: table-cell; width: 33.3%; text-align: right; vertical-align: middle;">
-                    <span style="color: ${remainingFee > 0 ? '#991b1b' : '#555'}; display: block; font-size: 7.5pt;">Remaining Due</span>
-                    <strong style="font-size: 9.5pt; color: ${remainingFee > 0 ? '#991b1b' : '#155724'};">${formattedRemainingAmount}</strong>
-                  </div>
-                </div>
-              </div>
-              
-              <div style="text-align: center; margin: 2mm 0;">
-                ${remainingFee > 0
-                  ? `<span class="status-badge" style="background: #fef3c7; border-color: #f59e0b; color: #92400e;">PARTIAL PAYMENT — BALANCE DUE: ${formattedRemainingAmount}</span>`
-                  : `<span class="status-badge">PAID IN FULL</span>`
-                }
-              </div>
-            </div>
-            
-            <div class="footer">
-              <div class="footer-row">
-                <div class="footer-column">
-                  Date: ${formattedDate}
-                </div>
-                <div class="footer-column" style="text-align: right;">
-                  <div class="signature-line">Authorized Signature</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          ${renderCopyHtml('School Copy')}
         </div>
       </body>
       </html>
-    `;
+    `
     
-    // Open new window
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    const printWindow = window.open('', '_blank', 'width=840,height=650')
     
     if (!printWindow) {
-      console.error('Failed to open print window. Popup may be blocked.');
-      if (onClose) onClose();
-      return;
+      console.error('Failed to open print window. Popup may be blocked.')
+      if (onClose) onClose()
+      return
     }
     
-    // Write receipt HTML to the new window
-    printWindow.document.write(receiptHTML);
-    printWindow.document.close();
+    printWindow.document.write(receiptHTML)
+    printWindow.document.close()
     
-    // Wait for content to load, then trigger print
     setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
+      printWindow.focus()
+      printWindow.print()
       
-      // Set up cleanup after print
       printWindow.onafterprint = () => {
-        printWindow.close();
-        if (onClose) onClose();
-      };
+        printWindow.close()
+        if (onClose) onClose()
+      }
       
-      // Fallback timeout in case onafterprint doesn't fire
       setTimeout(() => {
         if (!printWindow.closed) {
-          printWindow.close();
+          printWindow.close()
         }
-        if (onClose) onClose();
-      }, 1000);
-    }, 250);
+        if (onClose) onClose()
+      }, 1000)
+    }, 250)
     
-  }, [student, fee, onClose]);
+  }, [student, fee, onClose])
   
-  // Component returns null - it doesn't render anything in the main app
-  return null;
+  return null
 }
 
-// Export helper functions for testing
-export { generateReceiptNumber, formatPaymentDate, formatAmount };
+export { generateReceiptNumber, formatPaymentDate, formatAmount }

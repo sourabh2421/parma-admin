@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { createFeeRecord } from '../../firebase/feeRepository.js'
 import { useToast } from '../../context/useToast.js'
 import { validateInputs } from '../../utils/feeValidation.js'
 import { formatMonthRange } from '../../utils/monthRangeFormatter.js'
+import { numberToWordsIndian } from '../../utils/numberToWords.js'
 
 const MONTH_OPTIONS = [
   'January',
@@ -31,17 +32,79 @@ function AddFeeModal({ student, onClose, onCreated }) {
   const now = new Date()
   const [month, setMonth] = useState(MONTH_OPTIONS[now.getMonth()])
   const [year, setYear] = useState(now.getFullYear())
+
+  // 6-Item Fee Schedule (Physical Receipt Book)
+  const [tuitionFee, setTuitionFee] = useState('')
+  const [conveyanceFee, setConveyanceFee] = useState('')
+  const [examFee, setExamFee] = useState('')
+  const [annualFee, setAnnualFee] = useState('')
+  const [admissionFee, setAdmissionFee] = useState('')
+  const [lateFee, setLateFee] = useState('')
+
   const [totalAmount, setTotalAmount] = useState('')
   const [amount, setAmount] = useState('')
   const [remainingAmount, setRemainingAmount] = useState('')
+  const [chequeNo, setChequeNo] = useState('')
   const [status, setStatus] = useState('pending')
   const [paymentDate, setPaymentDate] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   
-  // Multi-month mode state (Requirement 1.1, 1.2, 1.3, 1.4)
+  // Multi-month mode state
   const [isMultiMonth, setIsMultiMonth] = useState(false)
   const [selectedMonths, setSelectedMonths] = useState(new Set())
   const [processingIndex, setProcessingIndex] = useState(0)
+
+  const recalculateFromSchedule = (overrides = {}) => {
+    const t = overrides.tuitionFee !== undefined ? overrides.tuitionFee : tuitionFee
+    const c = overrides.conveyanceFee !== undefined ? overrides.conveyanceFee : conveyanceFee
+    const e = overrides.examFee !== undefined ? overrides.examFee : examFee
+    const an = overrides.annualFee !== undefined ? overrides.annualFee : annualFee
+    const ad = overrides.admissionFee !== undefined ? overrides.admissionFee : admissionFee
+    const l = overrides.lateFee !== undefined ? overrides.lateFee : lateFee
+
+    const hasAnySchedule = [t, c, e, an, ad, l].some((v) => v !== '')
+    if (!hasAnySchedule) return
+
+    const sum =
+      (Number(t) || 0) +
+      (Number(c) || 0) +
+      (Number(e) || 0) +
+      (Number(an) || 0) +
+      (Number(ad) || 0) +
+      (Number(l) || 0)
+
+    setTotalAmount(String(sum))
+    if (status === 'paid') {
+      setAmount(String(sum))
+      setRemainingAmount('0')
+    } else {
+      const paid = Number(amount || 0)
+      setRemainingAmount(String(Math.max(0, sum - paid)))
+    }
+  }
+
+  const handleScheduleChange = (field, val) => {
+    if (field === 'tuition') setTuitionFee(val)
+    if (field === 'conveyance') setConveyanceFee(val)
+    if (field === 'exam') setExamFee(val)
+    if (field === 'annual') setAnnualFee(val)
+    if (field === 'admission') setAdmissionFee(val)
+    if (field === 'late') setLateFee(val)
+
+    recalculateFromSchedule({
+      [field === 'tuition'
+        ? 'tuitionFee'
+        : field === 'conveyance'
+          ? 'conveyanceFee'
+          : field === 'exam'
+            ? 'examFee'
+            : field === 'annual'
+              ? 'annualFee'
+              : field === 'admission'
+                ? 'admissionFee'
+                : 'lateFee']: val,
+    })
+  }
 
   const handleTotalAmountChange = (val) => {
     setTotalAmount(val)
@@ -94,6 +157,11 @@ function AddFeeModal({ student, onClose, onCreated }) {
     }
   }
 
+  const amountInWordsText = useMemo(() => {
+    const val = status === 'paid' ? amount || totalAmount : totalAmount || amount
+    return numberToWordsIndian(val)
+  }, [amount, totalAmount, status])
+
   // Handle mode toggle (Requirement 1.3, 1.4)
   const handleModeToggle = (checked) => {
     setIsMultiMonth(checked)
@@ -131,22 +199,32 @@ function AddFeeModal({ student, onClose, onCreated }) {
 
   if (!student) return null
 
-  // Single-month submission handler (extracted from original handleSubmit)
-  // Requirements 2.3, 2.4: Preserve existing single-month behavior
+  // Single-month submission handler
   const handleSingleMonthSubmit = async () => {
     setSubmitting(true)
     try {
       const paidNum = Number(amount || 0)
+      const tFee = Number(tuitionFee || 0)
+      const cFee = Number(conveyanceFee || 0)
+      const eFee = Number(examFee || 0)
+      const anFee = Number(annualFee || 0)
+      const adFee = Number(admissionFee || 0)
+      const lFee = Number(lateFee || 0)
+      const scheduleSum = tFee + cFee + eFee + anFee + adFee + lFee
+
       const totNum =
         totalAmount !== ''
           ? Number(totalAmount)
-          : remainingAmount !== ''
-            ? paidNum + Number(remainingAmount)
-            : paidNum
+          : scheduleSum > 0
+            ? scheduleSum
+            : remainingAmount !== ''
+              ? paidNum + Number(remainingAmount)
+              : paidNum
+
       const remNum =
         remainingAmount !== ''
           ? Number(remainingAmount)
-          : totalAmount !== ''
+          : totalAmount !== '' || scheduleSum > 0
             ? Math.max(0, totNum - paidNum)
             : 0
 
@@ -159,11 +237,18 @@ function AddFeeModal({ student, onClose, onCreated }) {
         amount: paidNum,
         totalAmount: totNum,
         remainingAmount: remNum,
+        tuitionFee: tFee,
+        conveyanceFee: cFee,
+        examFee: eFee,
+        annualFee: anFee,
+        admissionFee: adFee,
+        lateFee: lFee,
+        chequeNo: chequeNo.trim(),
+        amountInWords: amountInWordsText,
         status,
         paymentDate: status === 'paid' ? paymentDate : null,
       })
       
-      // Existing result handling: toast messages for merge/revival/update
       if (result?.mergedDuplicates > 0) {
         showToast(
           `Fee saved. ${result.mergedDuplicates} extra duplicate row(s) for this month were archived.`,
@@ -177,7 +262,6 @@ function AddFeeModal({ student, onClose, onCreated }) {
         showToast('Fee record saved.', 'success')
       }
       
-      // Modal close and callback
       onCreated?.()
       onClose()
     } catch (err) {
@@ -187,19 +271,15 @@ function AddFeeModal({ student, onClose, onCreated }) {
     }
   }
 
-  // Format success message for bulk creation results - Task 8.1
-  // Requirements 7.4, 8.1, 8.3: Handle full success/partial/total failure with counts, month range, metadata
+  // Format success message for bulk creation results
   const formatSuccessMessage = (results) => {
     const { successes, failures, mergedCount, revivedCount, updateCount } = results
     
     if (failures.length === 0) {
-      // Full success: all months created successfully (Requirement 8.1)
       const count = successes.length
       const monthRange = formatMonthRange(successes, year)
       let msg = `${count} fee record${count > 1 ? 's' : ''} created for ${monthRange}`
       
-      // Append metadata if present (Requirement 8.3)
-      // Add period before first metadata item
       let hasMetadata = false
       if (mergedCount > 0) {
         msg += `. ${mergedCount} duplicate row(s) were archived.`
@@ -215,23 +295,18 @@ function AddFeeModal({ student, onClose, onCreated }) {
       
       return msg
     } else if (successes.length > 0) {
-      // Partial success: some months succeeded, some failed (Requirement 7.4)
       const totalCount = successes.length + failures.length
-      const failedMonths = failures.map(f => f.month).join(', ')
+      const failedMonths = failures.map((f) => f.month).join(', ')
       return `${successes.length} of ${totalCount} fee records created. Failed months: ${failedMonths}`
     } else {
-      // Total failure: all months failed
       return 'Failed to create fee records for all selected months. Check console for details.'
     }
   }
 
-  // Multi-month submission handler - Task 7.1
-  // Requirements 6.1, 7.2: Bulk creation with result tracking
+  // Multi-month submission handler
   const handleMultiMonthSubmit = async () => {
-    // Convert selectedMonths Set to array
     const monthsArray = Array.from(selectedMonths)
     
-    // Initialize results tracking object
     const results = {
       successes: [],
       failures: [],
@@ -240,27 +315,36 @@ function AddFeeModal({ student, onClose, onCreated }) {
       updateCount: 0,
     }
     
-    // Set submitting to true
     setSubmitting(true)
     
     const paidNum = Number(amount || 0)
+    const tFee = Number(tuitionFee || 0)
+    const cFee = Number(conveyanceFee || 0)
+    const eFee = Number(examFee || 0)
+    const anFee = Number(annualFee || 0)
+    const adFee = Number(admissionFee || 0)
+    const lFee = Number(lateFee || 0)
+    const scheduleSum = tFee + cFee + eFee + anFee + adFee + lFee
+
     const totNum =
       totalAmount !== ''
         ? Number(totalAmount)
-        : remainingAmount !== ''
-          ? paidNum + Number(remainingAmount)
-          : paidNum
+        : scheduleSum > 0
+          ? scheduleSum
+          : remainingAmount !== ''
+            ? paidNum + Number(remainingAmount)
+            : paidNum
+
     const remNum =
       remainingAmount !== ''
         ? Number(remainingAmount)
-        : totalAmount !== ''
+        : totalAmount !== '' || scheduleSum > 0
           ? Math.max(0, totNum - paidNum)
           : 0
 
-    // Task 7.2: Sequential fee creation loop
     for (let i = 0; i < monthsArray.length; i++) {
       const currentMonth = monthsArray[i]
-      setProcessingIndex(i) // Update progress display (Requirement 8.4)
+      setProcessingIndex(i)
       
       try {
         const result = await createFeeRecord({
@@ -272,14 +356,20 @@ function AddFeeModal({ student, onClose, onCreated }) {
           amount: paidNum,
           totalAmount: totNum,
           remainingAmount: remNum,
+          tuitionFee: tFee,
+          conveyanceFee: cFee,
+          examFee: eFee,
+          annualFee: anFee,
+          admissionFee: adFee,
+          lateFee: lFee,
+          chequeNo: chequeNo.trim(),
+          amountInWords: amountInWordsText,
           status,
           paymentDate: status === 'paid' ? paymentDate : null,
         })
         
-        // Track success (Requirement 7.2)
         results.successes.push(currentMonth)
         
-        // Aggregate metadata for final message (Requirement 8.3)
         if (result?.mergedDuplicates > 0) {
           results.mergedCount += result.mergedDuplicates
         }
@@ -290,7 +380,6 @@ function AddFeeModal({ student, onClose, onCreated }) {
           results.updateCount += 1
         }
       } catch (err) {
-        // Track failure and continue to next month (Requirement 7.1, 7.2)
         results.failures.push({ 
           month: currentMonth, 
           error: err?.message || 'Unknown error' 
@@ -301,25 +390,21 @@ function AddFeeModal({ student, onClose, onCreated }) {
     
     setSubmitting(false)
     
-    // Task 8.3: Post-loop feedback and result aggregation
     const message = formatSuccessMessage(results)
     
     if (results.failures.length === 0) {
-      // Full success: all months created successfully
       showToast(message, 'success')
-      onCreated?.() // Refresh parent data
-      onClose() // Close modal
+      onCreated?.()
+      onClose()
     } else if (results.successes.length > 0) {
-      // Partial success: some months succeeded, some failed
       showToast(message, 'warning')
-      onCreated?.() // Refresh parent data to show partial results
+      onCreated?.()
     } else {
-      // Total failure: all months failed
       showToast(message, 'error')
     }
   }
 
-  // Main submission handler - Task 10
+  // Main submission handler
   const handleSubmit = async (event) => {
     event.preventDefault()
     
@@ -351,28 +436,33 @@ function AddFeeModal({ student, onClose, onCreated }) {
       aria-modal="true"
       aria-labelledby="add-fee-title"
     >
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-        <div className="flex items-start justify-between gap-3">
+      <div className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
-            <h2 id="add-fee-title" className="text-lg font-bold text-slate-900">
-              Add fee record
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 id="add-fee-title" className="text-lg font-bold text-slate-900">
+                Add Fee Record
+              </h2>
+              <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                Parma Academy
+              </span>
+            </div>
             <p className="mt-1 text-sm text-slate-600">
-              {student.name} · {student.id}
+              {student.name} · {student.id} · Class: {student.class}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-200 px-2 py-1 text-sm text-slate-600 hover:bg-slate-50"
+            className="rounded-lg border border-slate-200 px-2.5 py-1 text-sm font-medium text-slate-600 hover:bg-slate-50"
           >
             Close
           </button>
         </div>
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
           {/* Mode Toggle Control */}
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <input
               type="checkbox"
               checked={isMultiMonth}
@@ -386,7 +476,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
           {!isMultiMonth && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label htmlFor="fee-month" className="mb-1 block text-sm font-medium text-slate-700">
+                <label htmlFor="fee-month" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
                   Month
                 </label>
                 <select
@@ -403,7 +493,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 </select>
               </div>
               <div>
-                <label htmlFor="fee-year" className="mb-1 block text-sm font-medium text-slate-700">
+                <label htmlFor="fee-year" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
                   Year
                 </label>
                 <select
@@ -426,7 +516,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
           {isMultiMonth && (
             <div>
               <div>
-                <span className="mb-2 block text-sm font-medium text-slate-700">
+                <span className="mb-2 block text-xs font-semibold uppercase text-slate-600">
                   Select months (2-12)
                 </span>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -449,18 +539,13 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   ))}
                 </div>
                 {selectedMonths.size > 0 && selectedMonths.size < 2 && (
-                  <p className="mt-1 text-sm text-amber-600">
+                  <p className="mt-1 text-xs text-amber-600 font-medium">
                     Select at least 2 months
-                  </p>
-                )}
-                {selectedMonths.size >= 12 && (
-                  <p className="mt-1 text-sm text-slate-600">
-                    Maximum 12 months selected
                   </p>
                 )}
               </div>
               <div className="mt-3">
-                <label htmlFor="fee-year-multi" className="mb-1 block text-sm font-medium text-slate-700">
+                <label htmlFor="fee-year-multi" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
                   Year
                 </label>
                 <select
@@ -479,7 +564,111 @@ function AddFeeModal({ student, onClose, onCreated }) {
             </div>
           )}
 
-          {/* Fee Amounts Breakdown (Total, Paid, Remaining) */}
+          {/* Parma Academy Fee Schedule (Physical Receipt Schedule) */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Fee Schedule Breakdown
+              </h3>
+              <span className="text-[11px] text-slate-500">
+                As per physical receipt
+              </span>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label htmlFor="fee-tuition" className="mb-1 block text-xs font-medium text-slate-700">
+                  1. Tuition Fee (₹)
+                </label>
+                <input
+                  id="fee-tuition"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={tuitionFee}
+                  onChange={(e) => handleScheduleChange('tuition', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fee-conveyance" className="mb-1 block text-xs font-medium text-slate-700">
+                  2. Conveyance Fee (₹)
+                </label>
+                <input
+                  id="fee-conveyance"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={conveyanceFee}
+                  onChange={(e) => handleScheduleChange('conveyance', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fee-exam" className="mb-1 block text-xs font-medium text-slate-700">
+                  3. Exam Fee (₹)
+                </label>
+                <input
+                  id="fee-exam"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={examFee}
+                  onChange={(e) => handleScheduleChange('exam', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fee-annual" className="mb-1 block text-xs font-medium text-slate-700">
+                  4. Annual / Transfer Fee (₹)
+                </label>
+                <input
+                  id="fee-annual"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={annualFee}
+                  onChange={(e) => handleScheduleChange('annual', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fee-admission" className="mb-1 block text-xs font-medium text-slate-700">
+                  5. Admission / Re-Admission Fee (₹)
+                </label>
+                <input
+                  id="fee-admission"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={admissionFee}
+                  onChange={(e) => handleScheduleChange('admission', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fee-late" className="mb-1 block text-xs font-medium text-slate-700">
+                  6. Late Fee (₹)
+                </label>
+                <input
+                  id="fee-late"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={lateFee}
+                  onChange={(e) => handleScheduleChange('late', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Fee Totals & Payment Summary (Total, Paid, Remaining) */}
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label htmlFor="fee-total-amount" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
@@ -493,7 +682,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 placeholder="e.g. 2000"
                 value={totalAmount}
                 onChange={(e) => handleTotalAmountChange(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
               />
             </div>
             <div>
@@ -508,7 +697,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 placeholder="e.g. 1500"
                 value={amount}
                 onChange={(e) => handlePaidAmountChange(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-emerald-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 required
               />
             </div>
@@ -521,61 +710,87 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 type="number"
                 min="0"
                 step="1"
-                placeholder="e.g. 500"
+                placeholder="0"
                 value={remainingAmount}
                 onChange={(e) => handleRemainingAmountChange(e.target.value)}
                 className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 ${
                   Number(remainingAmount) > 0
-                    ? 'border-amber-400 bg-amber-50/60 font-semibold text-amber-900 focus:border-amber-500 focus:ring-amber-200'
+                    ? 'border-amber-400 bg-amber-50/70 font-semibold text-amber-900 focus:border-amber-500 focus:ring-amber-200'
                     : 'border-slate-300 bg-slate-50 text-slate-700 focus:border-emerald-500 focus:ring-emerald-200'
                 }`}
               />
             </div>
           </div>
 
+          {/* Amount in words live box */}
+          {amountInWordsText ? (
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+              <span className="font-semibold text-slate-900">Amount in Words:</span>{' '}
+              <span className="italic">{amountInWordsText}</span>
+            </div>
+          ) : null}
+
           {Number(remainingAmount) > 0 ? (
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-              ⚠️ <strong>Partial payment noted:</strong> ₹{Number(amount || 0).toLocaleString()} paid, leaving a remaining balance of <strong>₹{Number(remainingAmount).toLocaleString()}</strong> which will be printed on both School & Parent receipts.
+              ⚠️ <strong>Partial payment:</strong> ₹{Number(amount || 0).toLocaleString()} paid, leaving a remaining balance of <strong>₹{Number(remainingAmount).toLocaleString()}</strong> which will be printed on both School & Parent receipts.
             </div>
           ) : null}
 
+          {/* Cheque / Reference Number */}
           <div>
-            <span className="mb-1 block text-sm font-medium text-slate-700">Status</span>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="radio"
-                  name="fee-status"
-                  checked={status === 'pending'}
-                  onChange={setPending}
-                />
-                Pending
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="radio"
-                  name="fee-status"
-                  checked={status === 'paid'}
-                  onChange={setPaid}
-                />
-                Paid
-              </label>
-            </div>
+            <label htmlFor="fee-cheque-no" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
+              Cheque No. / Transaction Ref. (Optional)
+            </label>
+            <input
+              id="fee-cheque-no"
+              type="text"
+              placeholder="e.g. CHQ-994821 or UPI Ref"
+              value={chequeNo}
+              onChange={(e) => setChequeNo(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+            />
           </div>
 
-          {status === 'paid' ? (
+          {/* Status & Payment Date */}
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <span className="mb-1 block text-sm font-medium text-slate-700">Payment date</span>
-              <DatePicker
-                selected={paymentDate}
-                onChange={setPaymentDate}
-                dateFormat="dd/MM/yyyy"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-              />
+              <span className="mb-1 block text-xs font-semibold uppercase text-slate-600">Status</span>
+              <div className="flex gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="radio"
+                    name="fee-status"
+                    checked={status === 'pending'}
+                    onChange={setPending}
+                  />
+                  Pending
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="radio"
+                    name="fee-status"
+                    checked={status === 'paid'}
+                    onChange={setPaid}
+                  />
+                  Paid
+                </label>
+              </div>
             </div>
-          ) : null}
 
-          <div className="flex flex-wrap gap-2 pt-2">
+            {status === 'paid' ? (
+              <div>
+                <span className="mb-1 block text-xs font-semibold uppercase text-slate-600">Payment date</span>
+                <DatePicker
+                  selected={paymentDate}
+                  onChange={setPaymentDate}
+                  dateFormat="dd/MM/yyyy"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                />
+              </div>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
             <button
               type="submit"
               disabled={submitting}

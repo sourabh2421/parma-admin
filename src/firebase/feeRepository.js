@@ -69,12 +69,25 @@ export function mapFeeDoc(snapshot) {
   if (d.deleted === true) return null
 
   const amount = Number(d.amount) || 0
+  const tuitionFee = d.tuitionFee != null ? Number(d.tuitionFee) : amount
+  const conveyanceFee = d.conveyanceFee != null ? Number(d.conveyanceFee) : 0
+  const examFee = d.examFee != null ? Number(d.examFee) : 0
+  const annualFee = d.annualFee != null ? Number(d.annualFee) : 0
+  const admissionFee = d.admissionFee != null ? Number(d.admissionFee) : 0
+  const lateFee = d.lateFee != null ? Number(d.lateFee) : 0
+
+  const computedScheduleTotal =
+    tuitionFee + conveyanceFee + examFee + annualFee + admissionFee + lateFee
+
   const totalAmount =
     d.totalAmount != null
       ? Number(d.totalAmount)
-      : d.remainingAmount != null
-        ? amount + Number(d.remainingAmount)
-        : amount
+      : computedScheduleTotal > 0
+        ? computedScheduleTotal
+        : d.remainingAmount != null
+          ? amount + Number(d.remainingAmount)
+          : amount
+
   const remainingAmount =
     d.remainingAmount != null
       ? Number(d.remainingAmount)
@@ -90,6 +103,14 @@ export function mapFeeDoc(snapshot) {
     amount,
     totalAmount,
     remainingAmount,
+    tuitionFee,
+    conveyanceFee,
+    examFee,
+    annualFee,
+    admissionFee,
+    lateFee,
+    chequeNo: String(d.chequeNo ?? '').trim(),
+    amountInWords: String(d.amountInWords ?? '').trim(),
     status: String(d.status ?? 'pending').toLowerCase() === 'paid' ? 'paid' : 'pending',
     paymentDate: coerceTimestamp(d.paymentDate),
     createdAt: coerceTimestamp(d.createdAt),
@@ -172,6 +193,14 @@ export async function createFeeRecord({
   amount,
   totalAmount,
   remainingAmount,
+  tuitionFee,
+  conveyanceFee,
+  examFee,
+  annualFee,
+  admissionFee,
+  lateFee,
+  chequeNo,
+  amountInWords,
   status,
   paymentDate,
 }) {
@@ -189,12 +218,24 @@ export async function createFeeRecord({
   const paymentTs = buildPaymentTimestamp(status === 'paid' ? 'paid' : 'pending', paymentDate)
 
   const paidAmt = Number(amount) || 0
+  const tFee = tuitionFee != null ? Number(tuitionFee) : paidAmt
+  const cFee = conveyanceFee != null ? Number(conveyanceFee) : 0
+  const eFee = examFee != null ? Number(examFee) : 0
+  const anFee = annualFee != null ? Number(annualFee) : 0
+  const adFee = admissionFee != null ? Number(admissionFee) : 0
+  const lFee = lateFee != null ? Number(lateFee) : 0
+
+  const scheduleSum = tFee + cFee + eFee + anFee + adFee + lFee
+
   const totAmt =
     totalAmount != null
       ? Number(totalAmount)
-      : remainingAmount != null
-        ? paidAmt + Number(remainingAmount)
-        : paidAmt
+      : scheduleSum > 0
+        ? scheduleSum
+        : remainingAmount != null
+          ? paidAmt + Number(remainingAmount)
+          : paidAmt
+
   const remAmt =
     remainingAmount != null
       ? Number(remainingAmount)
@@ -209,6 +250,14 @@ export async function createFeeRecord({
     amount: paidAmt,
     totalAmount: totAmt,
     remainingAmount: remAmt,
+    tuitionFee: tFee,
+    conveyanceFee: cFee,
+    examFee: eFee,
+    annualFee: anFee,
+    admissionFee: adFee,
+    lateFee: lFee,
+    chequeNo: String(chequeNo ?? '').trim(),
+    amountInWords: String(amountInWords ?? '').trim(),
     status: status === 'paid' ? 'paid' : 'pending',
     paymentDate: paymentTs,
     deleted: false,
