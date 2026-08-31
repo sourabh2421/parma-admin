@@ -67,6 +67,19 @@ export function mapFeeDoc(snapshot) {
   const d = snapshot.data()
   if (!d) return null
   if (d.deleted === true) return null
+
+  const amount = Number(d.amount) || 0
+  const totalAmount =
+    d.totalAmount != null
+      ? Number(d.totalAmount)
+      : d.remainingAmount != null
+        ? amount + Number(d.remainingAmount)
+        : amount
+  const remainingAmount =
+    d.remainingAmount != null
+      ? Number(d.remainingAmount)
+      : Math.max(0, totalAmount - amount)
+
   return {
     docId: snapshot.id,
     studentId: String(d.studentId ?? '').trim(),
@@ -74,7 +87,9 @@ export function mapFeeDoc(snapshot) {
     class: String(d.class ?? '').trim(),
     month: String(d.month ?? '').trim(),
     year: Number(d.year) || 0,
-    amount: Number(d.amount) || 0,
+    amount,
+    totalAmount,
+    remainingAmount,
     status: String(d.status ?? 'pending').toLowerCase() === 'paid' ? 'paid' : 'pending',
     paymentDate: coerceTimestamp(d.paymentDate),
     createdAt: coerceTimestamp(d.createdAt),
@@ -120,7 +135,13 @@ export function subscribeFeesForStudent(studentId, onData, onError) {
     return () => {}
   }
 
-  const q = query(collection(db, COLLECTION_FEES), where('studentId', '==', studentId))
+  const sid = String(studentId ?? '').trim()
+  if (!sid) {
+    onData([])
+    return () => {}
+  }
+
+  const q = query(collection(db, COLLECTION_FEES), where('studentId', '==', sid))
 
   return onSnapshot(
     q,
@@ -149,6 +170,8 @@ export async function createFeeRecord({
   month,
   year,
   amount,
+  totalAmount,
+  remainingAmount,
   status,
   paymentDate,
 }) {
@@ -165,13 +188,27 @@ export async function createFeeRecord({
   const y = Number(year)
   const paymentTs = buildPaymentTimestamp(status === 'paid' ? 'paid' : 'pending', paymentDate)
 
+  const paidAmt = Number(amount) || 0
+  const totAmt =
+    totalAmount != null
+      ? Number(totalAmount)
+      : remainingAmount != null
+        ? paidAmt + Number(remainingAmount)
+        : paidAmt
+  const remAmt =
+    remainingAmount != null
+      ? Number(remainingAmount)
+      : Math.max(0, totAmt - paidAmt)
+
   const baseFields = {
     studentId: sid,
     studentName: String(studentName ?? '').trim(),
     class: String(className ?? '').trim(),
     month: m,
     year: y,
-    amount: Number(amount) || 0,
+    amount: paidAmt,
+    totalAmount: totAmt,
+    remainingAmount: remAmt,
     status: status === 'paid' ? 'paid' : 'pending',
     paymentDate: paymentTs,
     deleted: false,

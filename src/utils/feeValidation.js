@@ -9,19 +9,41 @@
  * @param {Set<string>} inputs.selectedMonths - The set of selected months (only used in multi-month mode)
  * @returns {{ valid: boolean, error?: string }} Validation result
  */
-export function validateInputs({ amount, status, paymentDate, isMultiMonth, selectedMonths }) {
-  // Requirement 10.1: Amount must be finite and non-negative
+export function validateInputs({
+  amount,
+  totalAmount,
+  remainingAmount,
+  status,
+  paymentDate,
+  isMultiMonth,
+  selectedMonths,
+}) {
+  // Amount must be finite and non-negative
   const num = Number(amount)
   if (!Number.isFinite(num) || num < 0) {
     return { valid: false, error: 'Enter a valid fee amount.' }
   }
 
-  // Requirement 10.3: Payment date required when paid
+  if (totalAmount !== undefined && totalAmount !== '') {
+    const totNum = Number(totalAmount)
+    if (!Number.isFinite(totNum) || totNum < 0) {
+      return { valid: false, error: 'Enter a valid total fee amount.' }
+    }
+  }
+
+  if (remainingAmount !== undefined && remainingAmount !== '') {
+    const remNum = Number(remainingAmount)
+    if (!Number.isFinite(remNum) || remNum < 0) {
+      return { valid: false, error: 'Enter a valid remaining fee amount.' }
+    }
+  }
+
+  // Payment date required when paid and amount > 0
   if (status === 'paid' && !paymentDate) {
     return { valid: false, error: 'Select a payment date for paid fees.' }
   }
 
-  // Requirements 10.2: Month selection validation in Multi-Month Mode
+  // Month selection validation in Multi-Month Mode
   if (isMultiMonth) {
     if (selectedMonths.size === 0) {
       return { valid: false, error: 'Select at least one month.' }

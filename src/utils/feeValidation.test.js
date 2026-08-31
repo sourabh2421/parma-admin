@@ -328,4 +328,33 @@ describe('validateInputs - Task 5.1', () => {
       expect(result.error.length).toBeGreaterThan(0)
     })
   })
+
+  describe('Partial payment and remaining amount validation', () => {
+    it('should validate partial payment with totalAmount and remainingAmount', () => {
+      const result = validateInputs({
+        amount: '1500',
+        totalAmount: '2000',
+        remainingAmount: '500',
+        status: 'paid',
+        paymentDate: new Date(),
+        isMultiMonth: false,
+        selectedMonths: new Set(),
+      })
+      expect(result).toEqual({ valid: true })
+    })
+
+    it('should reject negative remainingAmount', () => {
+      const result = validateInputs({
+        amount: '1500',
+        totalAmount: '2000',
+        remainingAmount: '-500',
+        status: 'paid',
+        paymentDate: new Date(),
+        isMultiMonth: false,
+        selectedMonths: new Set(),
+      })
+      expect(result.valid).toBe(false)
+      expect(result.error).toContain('remaining fee')
+    })
+  })
 })

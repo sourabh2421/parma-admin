@@ -148,7 +148,22 @@ export default function ReceiptPrint({ student, fee, onClose }) {
     // Generate receipt data
     const receiptNumber = generateReceiptNumber(fee.year, fee.month, student.id);
     const formattedDate = formatPaymentDate(fee.paymentDate);
-    const formattedAmount = formatAmount(fee.amount);
+
+    const paidAmount = Number(fee.amount) || 0;
+    const totalFee =
+      fee.totalAmount != null
+        ? Number(fee.totalAmount)
+        : fee.remainingAmount != null
+          ? paidAmount + Number(fee.remainingAmount)
+          : paidAmount;
+    const remainingFee =
+      fee.remainingAmount != null
+        ? Number(fee.remainingAmount)
+        : Math.max(0, totalFee - paidAmount);
+
+    const formattedAmount = formatAmount(paidAmount);
+    const formattedTotalAmount = formatAmount(totalFee);
+    const formattedRemainingAmount = formatAmount(remainingFee);
     
     // Build receipt HTML with inline styles
     const receiptHTML = `
@@ -221,39 +236,40 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           
           .header .subtitle {
             font-size: 9pt;
+            color: #333;
             margin-bottom: 0.5mm;
           }
           
           .header .address,
           .header .phone {
             font-size: 8pt;
-            color: #333;
-            margin-bottom: 0.5mm;
+            color: #555;
           }
           
           .title-section {
             text-align: center;
-            margin-bottom: 3mm;
-            padding: 2mm 0;
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
+            padding: 1.5mm 0;
+            margin-bottom: 3mm;
           }
           
           .title-section h2 {
             font-size: 12pt;
             font-weight: bold;
+            letter-spacing: 1px;
           }
           
           .receipt-number {
-            text-align: center;
-            font-size: 9pt;
+            text-align: right;
+            font-size: 8pt;
             margin-bottom: 3mm;
           }
           
           .info-grid {
             display: table;
             width: 100%;
-            margin-bottom: 3mm;
+            margin-bottom: 2mm;
           }
           
           .info-column {
@@ -264,8 +280,8 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           }
           
           .info-row {
-            margin-bottom: 2mm;
-            font-size: 9pt;
+            margin-bottom: 1.5mm;
+            font-size: 8.5pt;
           }
           
           .info-label {
@@ -278,36 +294,26 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           .info-value {
             display: inline-block;
             width: 55%;
-            font-size: 9pt;
+            font-size: 8.5pt;
           }
           
           .amount-box {
-            background: #f0f0f0;
-            border: 2px solid #000;
-            padding: 3mm;
+            background: #f8fafc;
+            border: 1.5px solid #000;
+            padding: 2mm 3mm;
             text-align: center;
-            margin: 3mm 0;
-          }
-          
-          .amount-box .label {
-            font-size: 9pt;
-            margin-bottom: 1mm;
-          }
-          
-          .amount-box .amount {
-            font-size: 16pt;
-            font-weight: bold;
+            margin: 2mm 0;
           }
           
           .status-badge {
             display: inline-block;
             background: #d4edda;
-            border: 2px solid #28a745;
+            border: 1.5px solid #28a745;
             color: #155724;
-            padding: 1.5mm 4mm;
-            border-radius: 2mm;
+            padding: 1mm 3.5mm;
+            border-radius: 1.5mm;
             font-weight: bold;
-            font-size: 9pt;
+            font-size: 8pt;
           }
           
           .footer {
@@ -319,7 +325,7 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           .footer-row {
             display: table;
             width: 100%;
-            margin-top: 2mm;
+            margin-top: 1mm;
           }
           
           .footer-column {
@@ -331,7 +337,7 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           .signature-line {
             border-top: 1px solid #000;
             width: 40mm;
-            margin-top: 5mm;
+            margin-top: 4mm;
             padding-top: 1mm;
             text-align: center;
             font-size: 7pt;
@@ -421,12 +427,27 @@ export default function ReceiptPrint({ student, fee, onClose }) {
               </div>
               
               <div class="amount-box">
-                <div class="label">Amount Paid</div>
-                <div class="amount">${formattedAmount}</div>
+                <div style="display: table; width: 100%; font-size: 8.5pt;">
+                  <div style="display: table-cell; width: 33.3%; text-align: left; vertical-align: middle;">
+                    <span style="color: #555; display: block; font-size: 7.5pt;">Total Fee</span>
+                    <strong style="font-size: 9.5pt;">${formattedTotalAmount}</strong>
+                  </div>
+                  <div style="display: table-cell; width: 33.3%; text-align: center; vertical-align: middle; border-left: 1px solid #ddd; border-right: 1px solid #ddd;">
+                    <span style="color: #155724; display: block; font-size: 7.5pt; font-weight: bold;">Amount Paid</span>
+                    <strong style="font-size: 12pt; color: #155724;">${formattedAmount}</strong>
+                  </div>
+                  <div style="display: table-cell; width: 33.3%; text-align: right; vertical-align: middle;">
+                    <span style="color: ${remainingFee > 0 ? '#991b1b' : '#555'}; display: block; font-size: 7.5pt;">Remaining Due</span>
+                    <strong style="font-size: 9.5pt; color: ${remainingFee > 0 ? '#991b1b' : '#155724'};">${formattedRemainingAmount}</strong>
+                  </div>
+                </div>
               </div>
               
-              <div style="text-align: center; margin: 3mm 0;">
-                <span class="status-badge">PAID</span>
+              <div style="text-align: center; margin: 2mm 0;">
+                ${remainingFee > 0
+                  ? `<span class="status-badge" style="background: #fef3c7; border-color: #f59e0b; color: #92400e;">PARTIAL PAYMENT — BALANCE DUE: ${formattedRemainingAmount}</span>`
+                  : `<span class="status-badge">PAID IN FULL</span>`
+                }
               </div>
             </div>
             
@@ -500,12 +521,27 @@ export default function ReceiptPrint({ student, fee, onClose }) {
               </div>
               
               <div class="amount-box">
-                <div class="label">Amount Paid</div>
-                <div class="amount">${formattedAmount}</div>
+                <div style="display: table; width: 100%; font-size: 8.5pt;">
+                  <div style="display: table-cell; width: 33.3%; text-align: left; vertical-align: middle;">
+                    <span style="color: #555; display: block; font-size: 7.5pt;">Total Fee</span>
+                    <strong style="font-size: 9.5pt;">${formattedTotalAmount}</strong>
+                  </div>
+                  <div style="display: table-cell; width: 33.3%; text-align: center; vertical-align: middle; border-left: 1px solid #ddd; border-right: 1px solid #ddd;">
+                    <span style="color: #155724; display: block; font-size: 7.5pt; font-weight: bold;">Amount Paid</span>
+                    <strong style="font-size: 12pt; color: #155724;">${formattedAmount}</strong>
+                  </div>
+                  <div style="display: table-cell; width: 33.3%; text-align: right; vertical-align: middle;">
+                    <span style="color: ${remainingFee > 0 ? '#991b1b' : '#555'}; display: block; font-size: 7.5pt;">Remaining Due</span>
+                    <strong style="font-size: 9.5pt; color: ${remainingFee > 0 ? '#991b1b' : '#155724'};">${formattedRemainingAmount}</strong>
+                  </div>
+                </div>
               </div>
               
-              <div style="text-align: center; margin: 3mm 0;">
-                <span class="status-badge">PAID</span>
+              <div style="text-align: center; margin: 2mm 0;">
+                ${remainingFee > 0
+                  ? `<span class="status-badge" style="background: #fef3c7; border-color: #f59e0b; color: #92400e;">PARTIAL PAYMENT — BALANCE DUE: ${formattedRemainingAmount}</span>`
+                  : `<span class="status-badge">PAID IN FULL</span>`
+                }
               </div>
             </div>
             

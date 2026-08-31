@@ -105,15 +105,28 @@ function FeeRecordsPage() {
                       <td className="px-3 py-3 text-slate-700">{fee.month}</td>
                       <td className="px-3 py-3 text-slate-700">{fee.year}</td>
                       <td className="px-3 py-3 font-medium text-slate-900">
-                        INR {fee.amount.toLocaleString()}
+                        <div>INR {fee.amount.toLocaleString()}</div>
+                        {fee.remainingAmount > 0 ? (
+                          <div className="text-xs font-semibold text-amber-700">
+                            Due: INR {fee.remainingAmount.toLocaleString()}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="px-3 py-3">
                         <span
                           className={
-                            fee.status === 'paid' ? 'font-semibold text-emerald-700' : 'font-semibold text-rose-700'
+                            fee.status === 'paid'
+                              ? fee.remainingAmount > 0
+                                ? 'font-semibold text-amber-700'
+                                : 'font-semibold text-emerald-700'
+                              : 'font-semibold text-rose-700'
                           }
                         >
-                          {fee.status === 'paid' ? 'Paid' : 'Pending'}
+                          {fee.status === 'paid'
+                            ? fee.remainingAmount > 0
+                              ? 'Partial'
+                              : 'Paid'
+                            : 'Pending'}
                         </span>
                       </td>
                       <td className="px-3 py-3 text-slate-600">{formatDisplayDate(fee.paymentDate)}</td>

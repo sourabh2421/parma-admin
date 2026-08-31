@@ -126,14 +126,29 @@ function StudentDetailModal({ student, onClose }) {
                     <tr key={fee.docId} className="border-b border-slate-100">
                       <td className="px-3 py-2 text-slate-800">{fee.month}</td>
                       <td className="px-3 py-2 text-slate-800">{fee.year}</td>
-                      <td className="px-3 py-2 text-slate-800">INR {fee.amount.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-slate-800">
+                        <div>INR {fee.amount.toLocaleString()}</div>
+                        {fee.remainingAmount > 0 ? (
+                          <div className="text-xs font-semibold text-amber-700">
+                            Due: INR {fee.remainingAmount.toLocaleString()}
+                          </div>
+                        ) : null}
+                      </td>
                       <td className="px-3 py-2">
                         <span
                           className={
-                            fee.status === 'paid' ? 'font-medium text-emerald-700' : 'font-medium text-rose-700'
+                            fee.status === 'paid'
+                              ? fee.remainingAmount > 0
+                                ? 'font-medium text-amber-700'
+                                : 'font-medium text-emerald-700'
+                              : 'font-medium text-rose-700'
                           }
                         >
-                          {fee.status === 'paid' ? 'Paid' : 'Pending'}
+                          {fee.status === 'paid'
+                            ? fee.remainingAmount > 0
+                              ? 'Partial'
+                              : 'Paid'
+                            : 'Pending'}
                         </span>
                       </td>
                       <td className="px-3 py-2 text-slate-700">{formatDisplayDate(fee.paymentDate)}</td>

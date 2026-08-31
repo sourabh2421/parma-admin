@@ -31,7 +31,9 @@ function AddFeeModal({ student, onClose, onCreated }) {
   const now = new Date()
   const [month, setMonth] = useState(MONTH_OPTIONS[now.getMonth()])
   const [year, setYear] = useState(now.getFullYear())
+  const [totalAmount, setTotalAmount] = useState('')
   const [amount, setAmount] = useState('')
+  const [remainingAmount, setRemainingAmount] = useState('')
   const [status, setStatus] = useState('pending')
   const [paymentDate, setPaymentDate] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -40,6 +42,57 @@ function AddFeeModal({ student, onClose, onCreated }) {
   const [isMultiMonth, setIsMultiMonth] = useState(false)
   const [selectedMonths, setSelectedMonths] = useState(new Set())
   const [processingIndex, setProcessingIndex] = useState(0)
+
+  const handleTotalAmountChange = (val) => {
+    setTotalAmount(val)
+    if (val === '') {
+      setRemainingAmount('')
+      return
+    }
+    const tot = Number(val)
+    if (amount !== '') {
+      const paid = Number(amount)
+      setRemainingAmount(String(Math.max(0, tot - paid)))
+    } else if (status === 'paid') {
+      setAmount(val)
+      setRemainingAmount('0')
+    } else {
+      setRemainingAmount(val)
+    }
+  }
+
+  const handlePaidAmountChange = (val) => {
+    setAmount(val)
+    if (val === '') {
+      if (totalAmount !== '') {
+        setRemainingAmount(totalAmount)
+      } else {
+        setRemainingAmount('')
+      }
+      return
+    }
+    const paid = Number(val)
+    if (totalAmount !== '') {
+      const tot = Number(totalAmount)
+      setRemainingAmount(String(Math.max(0, tot - paid)))
+    } else {
+      setRemainingAmount('0')
+      setTotalAmount(val)
+    }
+  }
+
+  const handleRemainingAmountChange = (val) => {
+    setRemainingAmount(val)
+    if (val === '') return
+    const rem = Number(val)
+    if (totalAmount !== '') {
+      const tot = Number(totalAmount)
+      setAmount(String(Math.max(0, tot - rem)))
+    } else if (amount !== '') {
+      const paid = Number(amount)
+      setTotalAmount(String(paid + rem))
+    }
+  }
 
   // Handle mode toggle (Requirement 1.3, 1.4)
   const handleModeToggle = (checked) => {
@@ -83,13 +136,29 @@ function AddFeeModal({ student, onClose, onCreated }) {
   const handleSingleMonthSubmit = async () => {
     setSubmitting(true)
     try {
+      const paidNum = Number(amount || 0)
+      const totNum =
+        totalAmount !== ''
+          ? Number(totalAmount)
+          : remainingAmount !== ''
+            ? paidNum + Number(remainingAmount)
+            : paidNum
+      const remNum =
+        remainingAmount !== ''
+          ? Number(remainingAmount)
+          : totalAmount !== ''
+            ? Math.max(0, totNum - paidNum)
+            : 0
+
       const result = await createFeeRecord({
         studentId: student.id,
         studentName: student.name,
         class: student.class,
         month,
         year,
-        amount: Number(amount),
+        amount: paidNum,
+        totalAmount: totNum,
+        remainingAmount: remNum,
         status,
         paymentDate: status === 'paid' ? paymentDate : null,
       })
@@ -174,10 +243,21 @@ function AddFeeModal({ student, onClose, onCreated }) {
     // Set submitting to true
     setSubmitting(true)
     
+    const paidNum = Number(amount || 0)
+    const totNum =
+      totalAmount !== ''
+        ? Number(totalAmount)
+        : remainingAmount !== ''
+          ? paidNum + Number(remainingAmount)
+          : paidNum
+    const remNum =
+      remainingAmount !== ''
+        ? Number(remainingAmount)
+        : totalAmount !== ''
+          ? Math.max(0, totNum - paidNum)
+          : 0
+
     // Task 7.2: Sequential fee creation loop
-    // Requirements 6.1, 6.2: Call createFeeRecord N times with unique month, shared fee details
-    // Requirement 7.1: Continue processing on failure
-    // Requirement 7.3: Do not roll back successful records
     for (let i = 0; i < monthsArray.length; i++) {
       const currentMonth = monthsArray[i]
       setProcessingIndex(i) // Update progress display (Requirement 8.4)
@@ -187,11 +267,13 @@ function AddFeeModal({ student, onClose, onCreated }) {
           studentId: student.id,
           studentName: student.name,
           class: student.class,
-          month: currentMonth, // Unique month parameter (Requirement 6.2)
-          year, // Shared fee detail (Requirement 4.4, 6.2)
-          amount: Number(amount), // Shared fee detail (Requirement 4.4, 6.2)
-          status, // Shared fee detail (Requirement 4.5, 6.2)
-          paymentDate: status === 'paid' ? paymentDate : null, // Shared fee detail (Requirement 4.6, 6.2)
+          month: currentMonth,
+          year,
+          amount: paidNum,
+          totalAmount: totNum,
+          remainingAmount: remNum,
+          status,
+          paymentDate: status === 'paid' ? paymentDate : null,
         })
         
         // Track success (Requirement 7.2)
@@ -220,7 +302,6 @@ function AddFeeModal({ student, onClose, onCreated }) {
     setSubmitting(false)
     
     // Task 8.3: Post-loop feedback and result aggregation
-    // Requirements 7.4, 8.1, 8.2, 8.3, 9.1, 9.2
     const message = formatSuccessMessage(results)
     
     if (results.failures.length === 0) {
@@ -232,28 +313,30 @@ function AddFeeModal({ student, onClose, onCreated }) {
       // Partial success: some months succeeded, some failed
       showToast(message, 'warning')
       onCreated?.() // Refresh parent data to show partial results
-      // Keep modal open so user can see failures and retry
     } else {
       // Total failure: all months failed
       showToast(message, 'error')
-      // Keep modal open, do not call onCreated
     }
   }
 
   // Main submission handler - Task 10
-  // Requirements 10.1, 10.2, 10.3: Validate inputs, show errors, branch on mode
   const handleSubmit = async (event) => {
     event.preventDefault()
     
-    // Task 10: Call validateInputs with all required params (Requirement 10.1)
-    const validation = validateInputs({ amount, status, paymentDate, isMultiMonth, selectedMonths })
+    const validation = validateInputs({
+      amount,
+      totalAmount,
+      remainingAmount,
+      status,
+      paymentDate,
+      isMultiMonth,
+      selectedMonths,
+    })
     if (!validation.valid) {
-      // Task 10: Show toast on validation error (Requirement 10.2)
       showToast(validation.error, 'error')
       return
     }
 
-    // Task 10: Branch on isMultiMonth to call appropriate submission handler (Requirement 10.3)
     if (isMultiMonth) {
       await handleMultiMonthSubmit()
     } else {
@@ -288,7 +371,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
         </div>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          {/* Mode Toggle Control (Requirement 1.1) */}
+          {/* Mode Toggle Control */}
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
@@ -299,7 +382,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
             Create fees for multiple months
           </label>
 
-          {/* Single Month Dropdown - Requirement 2.1 */}
+          {/* Single Month Dropdown */}
           {!isMultiMonth && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
@@ -339,7 +422,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
             </div>
           )}
 
-          {/* Multi-Month Checkbox Grid - Requirement 3.1 */}
+          {/* Multi-Month Checkbox Grid */}
           {isMultiMonth && (
             <div>
               <div>
@@ -396,21 +479,65 @@ function AddFeeModal({ student, onClose, onCreated }) {
             </div>
           )}
 
-          <div>
-            <label htmlFor="fee-amount" className="mb-1 block text-sm font-medium text-slate-700">
-              Fee amount (INR)
-            </label>
-            <input
-              id="fee-amount"
-              type="number"
-              min="0"
-              step="1"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-              required
-            />
+          {/* Fee Amounts Breakdown (Total, Paid, Remaining) */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <label htmlFor="fee-total-amount" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
+                Total Fee (INR)
+              </label>
+              <input
+                id="fee-total-amount"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 2000"
+                value={totalAmount}
+                onChange={(e) => handleTotalAmountChange(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+              />
+            </div>
+            <div>
+              <label htmlFor="fee-amount" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
+                Amount Paid (INR)
+              </label>
+              <input
+                id="fee-amount"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 1500"
+                value={amount}
+                onChange={(e) => handlePaidAmountChange(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="fee-remaining" className="mb-1 block text-xs font-semibold uppercase text-slate-600">
+                Remaining Due (INR)
+              </label>
+              <input
+                id="fee-remaining"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 500"
+                value={remainingAmount}
+                onChange={(e) => handleRemainingAmountChange(e.target.value)}
+                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 ${
+                  Number(remainingAmount) > 0
+                    ? 'border-amber-400 bg-amber-50/60 font-semibold text-amber-900 focus:border-amber-500 focus:ring-amber-200'
+                    : 'border-slate-300 bg-slate-50 text-slate-700 focus:border-emerald-500 focus:ring-emerald-200'
+                }`}
+              />
+            </div>
           </div>
+
+          {Number(remainingAmount) > 0 ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+              ⚠️ <strong>Partial payment noted:</strong> ₹{Number(amount || 0).toLocaleString()} paid, leaving a remaining balance of <strong>₹{Number(remainingAmount).toLocaleString()}</strong> which will be printed on both School & Parent receipts.
+            </div>
+          ) : null}
 
           <div>
             <span className="mb-1 block text-sm font-medium text-slate-700">Status</span>
