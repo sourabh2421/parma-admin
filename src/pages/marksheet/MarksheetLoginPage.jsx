@@ -5,6 +5,7 @@ import { useMarksheetAuth } from '../../context/MarksheetAuthContext.jsx'
 export default function MarksheetLoginPage() {
   const navigate = useNavigate()
   const { login } = useMarksheetAuth()
+  const [teacherName, setTeacherName] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -13,12 +14,12 @@ export default function MarksheetLoginPage() {
     e.preventDefault()
     setError('')
     if (!password) {
-      setError('Please enter the password.')
+      setError('Please enter the Teacher Access Password.')
       return
     }
 
     setSubmitting(true)
-    const result = login(password)
+    const result = login(password, teacherName)
     setSubmitting(false)
 
     if (result.success) {
@@ -48,7 +49,7 @@ export default function MarksheetLoginPage() {
           </Link>
 
           <span className="rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 px-3 py-1 text-[11px] font-bold">
-            📊 Examination Cell
+            👩‍🏫 Teacher Desk
           </span>
         </div>
 
@@ -58,18 +59,32 @@ export default function MarksheetLoginPage() {
             📊
           </div>
 
-          <h1 className="text-2xl font-black text-white tracking-tight">
-            Marksheet Portal Access
+          <h1 className="text-2xl text-white tracking-tight zen-dots-regular">
+            Teacher Marksheet Login
           </h1>
           <p className="mt-1.5 text-xs text-slate-400">
-            Enter the marksheet access password to open the examination desk.
+            Authorized for Parma Academy <strong>Teachers & Academic Staff</strong> to enter marks and generate report cards.
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
+            <label htmlFor="teacher-name" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Teacher Name / Subject <span className="text-slate-500 font-normal lowercase">(optional)</span>
+            </label>
+            <input
+              id="teacher-name"
+              type="text"
+              value={teacherName}
+              onChange={(e) => setTeacherName(e.target.value)}
+              placeholder="e.g. Class Teacher, Mrs. Sharma"
+              className="w-full rounded-xl border border-slate-700 bg-slate-800/90 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-indigo-500 focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20"
+            />
+          </div>
+
+          <div>
             <label htmlFor="marksheet-password" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-300">
-              Access Password
+              Teacher Access Password
             </label>
             <input
               id="marksheet-password"
@@ -96,9 +111,18 @@ export default function MarksheetLoginPage() {
             disabled={submitting}
             className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition active:scale-[0.98] disabled:opacity-60"
           >
-            {submitting ? 'Verifying…' : 'Unlock Marksheet Portal'}
+            {submitting ? 'Authenticating…' : 'Sign In to Marksheet Portal'}
           </button>
         </form>
+
+        <div className="mt-6 pt-4 border-t border-slate-800 text-center">
+          <p className="text-[11px] text-slate-500">
+            Looking for Fee Management?{' '}
+            <Link to="/login" className="text-emerald-400 font-semibold hover:underline">
+              Switch to Office Fee Desk
+            </Link>
+          </p>
+        </div>
       </div>
     </section>
   )

@@ -2,18 +2,107 @@
 
 :root {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: #fff9fb;
+  background-color: #252627;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+
+  /* Parma Academy Custom Palette */
+  --color-alabaster: #d3d4d9;
+  --color-airforce: #4b88a2;
+  --color-brick: #bb0a21;
+  --color-carbon: #252627;
+  --color-carbon-dark: #191a1a;
+  --color-carbon-card: #202122;
+  --color-carbon-border: #333538;
+  --color-snow: #fff9fb;
+}
+
+.zen-dots-regular {
+  font-family: "Zen Dots", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #f1f5f9;
+  background-color: #191a1a;
+  color: #d3d4d9;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #191a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #333538;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b88a2;
+}
+
+/* Global Print Stylesheet for Clean A4 Printing */
+@media print {
+  html, body, #root {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header,
+  aside,
+  nav,
+  .no-print,
+  button,
+  .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block !important;
+    overflow: visible !important;
+    border: none !important;
+  }
+
+  .printable-card-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
 }

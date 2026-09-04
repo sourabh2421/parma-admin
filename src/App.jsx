@@ -8,6 +8,9 @@ import FeeRecordsPage from './pages/dashboard/FeeRecordsPage.jsx'
 import PendingFeesPage from './pages/dashboard/PendingFeesPage.jsx'
 import MarksheetLayout from './pages/MarksheetLayout.jsx'
 import MarksheetOverview from './pages/marksheet/MarksheetOverview.jsx'
+import MarksEntryPage from './pages/marksheet/MarksEntryPage.jsx'
+import ReportCardsPage from './pages/marksheet/ReportCardsPage.jsx'
+import SubjectsMasterPage from './pages/marksheet/SubjectsMasterPage.jsx'
 import MarksheetLoginPage from './pages/marksheet/MarksheetLoginPage.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import MarksheetProtectedRoute from './components/MarksheetProtectedRoute.jsx'
@@ -49,9 +52,9 @@ function App() {
           }
         >
           <Route index element={<MarksheetOverview />} />
-          <Route path="entry" element={<MarksheetOverview />} />
-          <Route path="reports" element={<MarksheetOverview />} />
-          <Route path="subjects" element={<MarksheetOverview />} />
+          <Route path="entry" element={<MarksEntryPage />} />
+          <Route path="reports" element={<ReportCardsPage />} />
+          <Route path="subjects" element={<SubjectsMasterPage />} />
         </Route>
 
         {/* Fallback */}

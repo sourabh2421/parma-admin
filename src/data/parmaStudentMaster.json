@@ -1,0 +1,2562 @@
+[
+  {
+    "id": "1",
+    "name": "Kabir Yadav",
+    "class": "NURSERY",
+    "fatherName": "Mr. Mukesh Yadav",
+    "address": "Madharajiya Majha Barethiya",
+    "phone": "7408809737"
+  },
+  {
+    "id": "2",
+    "name": "Saransh Yadav",
+    "class": "NURSERY",
+    "fatherName": "Babu ram yadav",
+    "address": "Madharajiya Majha Barethiya",
+    "phone": "6306419877"
+  },
+  {
+    "id": "3",
+    "name": "Anvi Yadav",
+    "class": "NURSERY",
+    "fatherName": "Mr Garjan yadav",
+    "address": "Kashiram Awas Colony",
+    "phone": "9569069797"
+  },
+  {
+    "id": "5",
+    "name": "Sajan Sonker",
+    "class": "NURSERY",
+    "fatherName": "Mr. Pintu Sonkar",
+    "address": "Kashiram Awas Colony",
+    "phone": "9044141298"
+  },
+  {
+    "id": "6",
+    "name": "Aditi Nishad",
+    "class": "NURSERY",
+    "fatherName": "INDRAJ NISHAD",
+    "address": "Khale Ka Purwa, Ramghat, Ayodhya",
+    "phone": "9565784000"
+  },
+  {
+    "id": "7",
+    "name": "VINAYAK YADAV",
+    "class": "NURSERY",
+    "fatherName": "Mr. PREM KUMAR YADAV",
+    "address": "VISHNU PURAM COLONY BADA",
+    "phone": "9369209717"
+  },
+  {
+    "id": "8",
+    "name": "AYRA",
+    "class": "NURSERY",
+    "fatherName": "Mr BHOLA YADAV",
+    "address": "Badaki Majhahaniya Faizabad",
+    "phone": "6386230885"
+  },
+  {
+    "id": "9",
+    "name": "SHREYAS SHARMA",
+    "class": "NURSERY",
+    "fatherName": "KAUSHAL KISHOR SHARMA",
+    "address": "TULSIPUR RAMGHAT HOSPITAL",
+    "phone": "7319753487"
+  },
+  {
+    "id": "10",
+    "name": "SHIVANSHI NISHAD",
+    "class": "NURSERY",
+    "fatherName": "SIVARAM NISHAD",
+    "address": "Anangpuram Colony",
+    "phone": "8451973258"
+  },
+  {
+    "id": "12",
+    "name": "AYUSHI SAHU",
+    "class": "NURSERY",
+    "fatherName": "Mr. KISHAN SAHU",
+    "address": "Ronvari Purwa chandanwala",
+    "phone": "8382889720"
+  },
+  {
+    "id": "13",
+    "name": "ADITI YADAV",
+    "class": "NURSERY",
+    "fatherName": "Mr. RAMBABU",
+    "address": "KHALE KA PURWA RAMGHAT",
+    "phone": "6388214047"
+  },
+  {
+    "id": "14",
+    "name": "AKRITI NISHAD",
+    "class": "NURSERY",
+    "fatherName": "ASHUTOSH NISHAD",
+    "address": "Aryanpuram Parikrama Marg",
+    "phone": "8114084972"
+  },
+  {
+    "id": "15",
+    "name": "ABHIRAL",
+    "class": "NURSERY",
+    "fatherName": "PINTU YADAV",
+    "address": "Vll-Ranpuri Ka Purwa Majha Barethiya",
+    "phone": "7311116525"
+  },
+  {
+    "id": "16",
+    "name": "RUDRIKA PANDAY",
+    "class": "NURSERY",
+    "fatherName": "Kripa Datt Pandey",
+    "address": "Janki Ghat Ayodhya",
+    "phone": "8317048212"
+  },
+  {
+    "id": "17",
+    "name": "VAISHNAVI YADAV",
+    "class": "NURSERY",
+    "fatherName": "PRADEEP YADAV",
+    "address": "Dharmu ka purwa mantha",
+    "phone": "9707617009"
+  },
+  {
+    "id": "18",
+    "name": "YASH SHARMA",
+    "class": "NURSERY",
+    "fatherName": "YOGESH SHARMA",
+    "address": "RANIPUR (BASTI) 2012",
+    "phone": "9919918689"
+  },
+  {
+    "id": "19",
+    "name": "RIYA YADAV",
+    "class": "NURSERY",
+    "fatherName": "SUNIL YADAV",
+    "address": "BADI MUJANTYA MANTHA",
+    "phone": "7379376188"
+  },
+  {
+    "id": "20",
+    "name": "AIRYA YADAV",
+    "class": "NURSERY",
+    "fatherName": "MUKESH YADAV",
+    "address": "Mauni Baba Ayodhya",
+    "phone": "9335538688"
+  },
+  {
+    "id": "21",
+    "name": "SIMONIKA",
+    "class": "NURSERY",
+    "fatherName": "GOVIND CHAUHAN",
+    "address": "BANSI SIDDHARTHNAGAR",
+    "phone": "9236553081"
+  },
+  {
+    "id": "22",
+    "name": "REYANSH TIWARI",
+    "class": "NURSERY",
+    "fatherName": "RITESH TIWARI",
+    "address": "ADITI PURMA VEVANSHI D.Co",
+    "phone": "9554108072"
+  },
+  {
+    "id": "23",
+    "name": "KRITIMAN TIWARI",
+    "class": "NURSERY",
+    "fatherName": "RAJESH KUMAR TIWARI",
+    "address": "ARANYA PURAM COLONEY",
+    "phone": "7379315708"
+  },
+  {
+    "id": "24",
+    "name": "ANIKET TRIPATHI",
+    "class": "NURSERY",
+    "fatherName": "RAVI KANT TRIPATHI",
+    "address": "REEWAN, BELWA BAGHANALA",
+    "phone": ""
+  },
+  {
+    "id": "25",
+    "name": "PRANJAL VERMA",
+    "class": "NURSERY",
+    "fatherName": "PAPPU VERMA",
+    "address": "PARASRAMPUR SHANKARPUR BASTI",
+    "phone": "6394880891"
+  },
+  {
+    "id": "26",
+    "name": "SHIVENDRA PANDEY",
+    "class": "NURSERY",
+    "fatherName": "RAGHVENDRA PANDEY",
+    "address": "Maharshi road Jankivallabh  Puram Colony",
+    "phone": "9205006465"
+  },
+  {
+    "id": "27",
+    "name": "RADHESHYAM  PANDEY",
+    "class": "NURSERY",
+    "fatherName": "ROSHAN KUMAR PANDEY",
+    "address": "BELWA BIHAR",
+    "phone": ""
+  },
+  {
+    "id": "28",
+    "name": "Yati Pandey",
+    "class": "LKG",
+    "fatherName": "Rajnish Kumar",
+    "address": "Harowra Gandhi churaha , Dostdawan Kurd Ayodhya",
+    "phone": "9161081091"
+  },
+  {
+    "id": "29",
+    "name": "Vinayak Singh",
+    "class": "LKG",
+    "fatherName": "Digamber Singh",
+    "address": "Adityangar colony Near Pamma Academy Ayodhya",
+    "phone": "9415211736"
+  },
+  {
+    "id": "31",
+    "name": "Kinjal Sonkar",
+    "class": "LKG",
+    "fatherName": "Arjun Sonkar",
+    "address": "",
+    "phone": "9336280250"
+  },
+  {
+    "id": "32",
+    "name": "Soham Pandey",
+    "class": "LKG",
+    "fatherName": "Sandeep Pandey",
+    "address": "Aryanpuram Parikrama Marg",
+    "phone": "9161512909"
+  },
+  {
+    "id": "34",
+    "name": "Bhargavi Pathak",
+    "class": "LKG",
+    "fatherName": "Rahul Pathak",
+    "address": "",
+    "phone": "3839114421"
+  },
+  {
+    "id": "36",
+    "name": "Vedika Yadav",
+    "class": "LKG",
+    "fatherName": "Vishnu Kumar Yadav",
+    "address": "Ramghat ahirana ayodhya",
+    "phone": "7007537740"
+  },
+  {
+    "id": "37",
+    "name": "Divyansh Sonkar",
+    "class": "LKG",
+    "fatherName": "Shivam",
+    "address": "Ahirana ayodhya",
+    "phone": "8454938436"
+  },
+  {
+    "id": "38",
+    "name": "Vedant Shukla",
+    "class": "LKG",
+    "fatherName": "Shivam Shukla",
+    "address": "Haibatpur parikarma marg dasrathkund ayodhya",
+    "phone": "9984823400"
+  },
+  {
+    "id": "39",
+    "name": "Bomika",
+    "class": "LKG",
+    "fatherName": "Rajesh Lochan Sharan",
+    "address": "Badhai bhavan swarg dwar Ayodhya",
+    "phone": "8881425000"
+  },
+  {
+    "id": "40",
+    "name": "Advik Singh Rao",
+    "class": "LKG",
+    "fatherName": "Amar Kumar",
+    "address": "Ramghat Manas bhwan Ayodhya",
+    "phone": "7965556080"
+  },
+  {
+    "id": "41",
+    "name": "Yuvraj Diwedi",
+    "class": "LKG",
+    "fatherName": "Surya Prakash Dhar Diwedi",
+    "address": "Sona devi marg vasudevghat ayodhya",
+    "phone": "9451323238"
+  },
+  {
+    "id": "42",
+    "name": "Navya Yadav",
+    "class": "LKG",
+    "fatherName": "Pintu Yadav",
+    "address": "Banwari purwa manjha baretha ayodhya",
+    "phone": "9415252899"
+  },
+  {
+    "id": "43",
+    "name": "Anmol Mishra",
+    "class": "LKG",
+    "fatherName": "Pankaj Kumar Mishra",
+    "address": "Shri Ramnagar Colony Khale Kapurwa Ramghat Ayodhya",
+    "phone": "7651838253"
+  },
+  {
+    "id": "44",
+    "name": "Ayansh Mishra",
+    "class": "LKG",
+    "fatherName": "Ajay Kumar",
+    "address": "Muranpur Yusuf Pur Shivraj Nagar Colony Gonda",
+    "phone": "9140474002"
+  },
+  {
+    "id": "45",
+    "name": "Aditi Nishad",
+    "class": "LKG",
+    "fatherName": "",
+    "address": "Aditya Nagar Colony Ayodhya",
+    "phone": "9889734714"
+  },
+  {
+    "id": "46",
+    "name": "Tejash Yadav",
+    "class": "LKG",
+    "fatherName": "Sunil Kumar Yadav",
+    "address": "Kalyani Devi Kaldhi Nekut Post Nehula District Basti",
+    "phone": "9648535376"
+  },
+  {
+    "id": "47",
+    "name": "Advik Upadhyay",
+    "class": "LKG",
+    "fatherName": "Ramesh Chandra Upadhyay",
+    "address": "Luv Kush Nagar Ramghat Ayodhya",
+    "phone": "9670190872"
+  },
+  {
+    "id": "48",
+    "name": "Mansi Yadav",
+    "class": "LKG",
+    "fatherName": "Mr deep narayan yadav",
+    "address": "Ramghat Chauraha Near Manas Bhavan Khale ka Purwa",
+    "phone": "9838959612"
+  },
+  {
+    "id": "49",
+    "name": "Arnav mishra",
+    "class": "LKG",
+    "fatherName": "Atul Mishra",
+    "address": "Ramghat Ayodhya",
+    "phone": "9838959612"
+  },
+  {
+    "id": "50",
+    "name": "Viwan  Gupta",
+    "class": "LKG",
+    "fatherName": "Mr. Vinod Kumar Yadav",
+    "address": "Ramghat Ayodhya",
+    "phone": "7266989933"
+  },
+  {
+    "id": "51",
+    "name": "Aanya Yadav",
+    "class": "UKG",
+    "fatherName": "Raksha Ram Yadav",
+    "address": "Madrahiya Ayodhya",
+    "phone": "7985687481"
+  },
+  {
+    "id": "52",
+    "name": "Krishna Sonkar",
+    "class": "UKG",
+    "fatherName": "Pintu Sonkar",
+    "address": "Babu Bazar Ayodhya",
+    "phone": "9044141298"
+  },
+  {
+    "id": "53",
+    "name": "Akshita Singh",
+    "class": "UKG",
+    "fatherName": "Durga Prasad",
+    "address": "Dwarikadheesh Madhi Rayghat Colony Ayodhya",
+    "phone": "7001527090"
+  },
+  {
+    "id": "55",
+    "name": "Kartik Pratap Yadav",
+    "class": "UKG",
+    "fatherName": "Krishna Gopal Yadav",
+    "address": "Manjha baretha",
+    "phone": "9161047664"
+  },
+  {
+    "id": "56",
+    "name": "Rajvi Yadav",
+    "class": "UKG",
+    "fatherName": "Rajdev Yadav",
+    "address": "Dharmsala Purwa Manjha Rathara",
+    "phone": "9161992500"
+  },
+  {
+    "id": "58",
+    "name": "Vidya Yadav",
+    "class": "UKG",
+    "fatherName": "Vinay Yadav",
+    "address": "Lavkushnagar ayodhya",
+    "phone": "7007405684"
+  },
+  {
+    "id": "59",
+    "name": "Samridhi Maurya",
+    "class": "UKG",
+    "fatherName": "Kuldeep Maurya",
+    "address": "118 Naya Tola Naya Nayaghat Ayodhya",
+    "phone": "9255787209"
+  },
+  {
+    "id": "60",
+    "name": "Avyakt Mishra",
+    "class": "UKG",
+    "fatherName": "Mohit Mishra",
+    "address": "khale ka purwa",
+    "phone": "9151246700"
+  },
+  {
+    "id": "62",
+    "name": "Aryan Pandey",
+    "class": "UKG",
+    "fatherName": "Sandeep Pandey",
+    "address": "Raiganj",
+    "phone": "9120637690"
+  },
+  {
+    "id": "63",
+    "name": "Sambhavi Shukla",
+    "class": "UKG",
+    "fatherName": "Pankaj Shukla",
+    "address": "Sarayu Puram Colony Ayodhya",
+    "phone": "9810370011"
+  },
+  {
+    "id": "64",
+    "name": "Divyanshi",
+    "class": "UKG",
+    "fatherName": "Rajit Ram",
+    "address": "Ashifbagh Darshan Nagar Ayodhya",
+    "phone": "8423106790"
+  },
+  {
+    "id": "65",
+    "name": "Anvi Verma",
+    "class": "UKG",
+    "fatherName": "Rahul Kumar Verma",
+    "address": "Kurmi Purwa Pramodvan Mahalla Ayodhya",
+    "phone": "8052829850"
+  },
+  {
+    "id": "66",
+    "name": "Abhinav Singh",
+    "class": "UKG",
+    "fatherName": "Pawan Kumar Singh",
+    "address": "Imam Umartal Post-Umarat Purwa Near Amarsangha Garage",
+    "phone": "0121905649"
+  },
+  {
+    "id": "67",
+    "name": "Ruhi Yadav",
+    "class": "UKG",
+    "fatherName": "Ajay Kumar",
+    "address": "Khale Ka Purwa",
+    "phone": "8795497750"
+  },
+  {
+    "id": "68",
+    "name": "Dharmik Pandey",
+    "class": "UKG",
+    "fatherName": "Adarsh Pandey",
+    "address": "Ramghat ayodhya",
+    "phone": "7525884361"
+  },
+  {
+    "id": "69",
+    "name": "Ritika Sonkar",
+    "class": "UKG",
+    "fatherName": "Ranjeet Sonkar",
+    "address": "Tedhi Bazar",
+    "phone": "9453179222"
+  },
+  {
+    "id": "70",
+    "name": "Pranjal Yadav",
+    "class": "UKG",
+    "fatherName": "Pradeep yadav",
+    "address": "Manjha baretha",
+    "phone": "6388134770"
+  },
+  {
+    "id": "71",
+    "name": "Mishthi",
+    "class": "UKG",
+    "fatherName": "Pankaj Shukla",
+    "address": "Awadh palace pura bazar",
+    "phone": "9451113828"
+  },
+  {
+    "id": "72",
+    "name": "Devansh Singh",
+    "class": "I",
+    "fatherName": "Durga Prasad",
+    "address": "Dwarika Deesh Mandir",
+    "phone": "7007527090"
+  },
+  {
+    "id": "73",
+    "name": "Akhand Tripathi",
+    "class": "I",
+    "fatherName": "Rajkumar Tripathi",
+    "address": "Tiwari Ka Purwa Ayodhya",
+    "phone": "7888717368"
+  },
+  {
+    "id": "74",
+    "name": "Saksham Yadav",
+    "class": "I",
+    "fatherName": "Mr. Sanjay Yadav",
+    "address": "Tiwari Ka Purwa Ayodhya",
+    "phone": "8295128707"
+  },
+  {
+    "id": "75",
+    "name": "Vibhunarayan Pandey",
+    "class": "I",
+    "fatherName": "Mr. Prabhakar Pandey",
+    "address": "Katra Police Chowki",
+    "phone": "6386370751"
+  },
+  {
+    "id": "76",
+    "name": "Darshika Tiwari",
+    "class": "I",
+    "fatherName": "Rajesh Kumar Tiwari",
+    "address": "Aryan Puram Colony",
+    "phone": "7379315708"
+  },
+  {
+    "id": "77",
+    "name": "Saksham Dwivedi",
+    "class": "I",
+    "fatherName": "Bal Krishn Dwivedi",
+    "address": "Aryan Puram Colony",
+    "phone": ""
+  },
+  {
+    "id": "78",
+    "name": "Satvik Tiwari",
+    "class": "I",
+    "fatherName": "Aditya Tiwari",
+    "address": "Tulsi badi, Ayodhya",
+    "phone": "9026969441"
+  },
+  {
+    "id": "79",
+    "name": "Mohd Adnan Ansari",
+    "class": "I",
+    "fatherName": "Asif",
+    "address": "Subhas Nagar Faizabad",
+    "phone": "8318859801"
+  },
+  {
+    "id": "80",
+    "name": "Prabal Gupta",
+    "class": "I",
+    "fatherName": "Durgesh Kumar Gupta",
+    "address": "Katra Bhola Chauraha gonda",
+    "phone": "9839700123"
+  },
+  {
+    "id": "81",
+    "name": "Yuvraj Yadav",
+    "class": "I",
+    "fatherName": "Bhola Yadav",
+    "address": "",
+    "phone": ""
+  },
+  {
+    "id": "82",
+    "name": "Aadya",
+    "class": "I",
+    "fatherName": "Kaushal Kishor Sharma",
+    "address": "Janki Ghat Ayodhya",
+    "phone": "7319753484"
+  },
+  {
+    "id": "83",
+    "name": "Adarsh Tripathi",
+    "class": "I",
+    "fatherName": "Sachchidanand Tripathi",
+    "address": "Vyas Ashram",
+    "phone": ""
+  },
+  {
+    "id": "84",
+    "name": "Pragyan Chauhan",
+    "class": "I",
+    "fatherName": "Rahul Chauhan",
+    "address": "Dant Dhawan Kund",
+    "phone": "9792278024"
+  },
+  {
+    "id": "85",
+    "name": "Rudra Yadav",
+    "class": "I",
+    "fatherName": "Vijay Yadav",
+    "address": "Ramghat Khaki Ka Purwa",
+    "phone": "8360378844"
+  },
+  {
+    "id": "86",
+    "name": "Shivansh Singh",
+    "class": "I",
+    "fatherName": "Prashant Singh",
+    "address": "Anandpuram Colony",
+    "phone": "7307584605"
+  },
+  {
+    "id": "87",
+    "name": "Shivansh Yadav",
+    "class": "I",
+    "fatherName": "Shiv Balak Yadav",
+    "address": "Paraspur Bhaisahwa",
+    "phone": "6392001872"
+  },
+  {
+    "id": "88",
+    "name": "Aadvik Yadav",
+    "class": "I",
+    "fatherName": "Ratnesh Kumar Yadav",
+    "address": "Pacherwa Kalan basti",
+    "phone": "9335678344"
+  },
+  {
+    "id": "89",
+    "name": "Vedanjli",
+    "class": "I",
+    "fatherName": "Brijnandan",
+    "address": "Pali - Amart Bazar Basti",
+    "phone": "9369623451"
+  },
+  {
+    "id": "90",
+    "name": "Pushpendra Chauhan",
+    "class": "I",
+    "fatherName": "Sadavaat Yadav",
+    "address": "Reserve Police Line",
+    "phone": "6386510090"
+  },
+  {
+    "id": "91",
+    "name": "Ayushman Tiwari",
+    "class": "I",
+    "fatherName": "Ram Prakash Tiwari",
+    "address": "Khale ka Purwa ramghat",
+    "phone": ""
+  },
+  {
+    "id": "92",
+    "name": "Deveshna Singh",
+    "class": "I",
+    "fatherName": "Neeraj Kumar Singh",
+    "address": "Janki Ballabh Puram",
+    "phone": ""
+  },
+  {
+    "id": "93",
+    "name": "Athrav",
+    "class": "I",
+    "fatherName": "Satish Chandra Sharma",
+    "address": "Luv Kush Nagar",
+    "phone": ""
+  },
+  {
+    "id": "94",
+    "name": "Atul Kumar",
+    "class": "II",
+    "fatherName": "Abhimanyu",
+    "address": "Kashiram Colony, Ayodhya",
+    "phone": "6386230047"
+  },
+  {
+    "id": "95",
+    "name": "Akshita Ranjan",
+    "class": "II",
+    "fatherName": "Ratan Kumar",
+    "address": "Mohabaar bazar ayodhya",
+    "phone": "6388547004"
+  },
+  {
+    "id": "96",
+    "name": "Bhaskar Upadhyay",
+    "class": "II",
+    "fatherName": "Sunil Kumar",
+    "address": "Sripalpur, Sillow, Basti",
+    "phone": "6186891805"
+  },
+  {
+    "id": "97",
+    "name": "Manya Yadav",
+    "class": "II",
+    "fatherName": "Dinesh Kumar Yadav",
+    "address": "Dharmo ka purwa ayodhya",
+    "phone": "8601247555"
+  },
+  {
+    "id": "98",
+    "name": "Ritik Yadav",
+    "class": "II",
+    "fatherName": "Rambabu Yadav",
+    "address": "Madraiya",
+    "phone": "6394431257"
+  },
+  {
+    "id": "99",
+    "name": "Sitiza Srivastava",
+    "class": "II",
+    "fatherName": "Ravikant Srivastava",
+    "address": "Araynpuram colony",
+    "phone": "7905252800"
+  },
+  {
+    "id": "100",
+    "name": "Swastik Pratap Singh Yadav",
+    "class": "II",
+    "fatherName": "Sunil Kumar Yadav",
+    "address": "Manjha Baretha",
+    "phone": "9415142213"
+  },
+  {
+    "id": "101",
+    "name": "Surbhi Singh",
+    "class": "II",
+    "fatherName": "Digamber Singh",
+    "address": "Adityangar colony Near Pamma Academy Ayodhya",
+    "phone": "9415117236"
+  },
+  {
+    "id": "102",
+    "name": "Virat Yadav",
+    "class": "II",
+    "fatherName": "Krishnagopal Yadav",
+    "address": "Dharmo ka purwa ayodhya",
+    "phone": "9415211336"
+  },
+  {
+    "id": "103",
+    "name": "Anika Singh",
+    "class": "II",
+    "fatherName": "Satendra Singh",
+    "address": "Tulsibadi, Ayodhya",
+    "phone": "7052862051"
+  },
+  {
+    "id": "104",
+    "name": "Aradhya Chaudhary",
+    "class": "II",
+    "fatherName": "Alok Kumar Arya",
+    "address": "Raiganj hanuman kund Ayodhya",
+    "phone": "9839052518"
+  },
+  {
+    "id": "105",
+    "name": "Aadarsh Gupta",
+    "class": "II",
+    "fatherName": "Sunil Kumar",
+    "address": "ramghat ayodhya",
+    "phone": "9984427743"
+  },
+  {
+    "id": "106",
+    "name": "Rudrapratap Singh",
+    "class": "II",
+    "fatherName": "Devvrat Singh",
+    "address": "Vasudev ghat tedhi bazar ayodhya",
+    "phone": "7383376266"
+  },
+  {
+    "id": "107",
+    "name": "Sita ram panday",
+    "class": "II",
+    "fatherName": "Roshan kumar Panday",
+    "address": "ramghat ayodhya",
+    "phone": ""
+  },
+  {
+    "id": "108",
+    "name": "Rudra Tripathi",
+    "class": "II",
+    "fatherName": "Raj Kumar",
+    "address": "kashiram colony ayodhay",
+    "phone": "7888717368"
+  },
+  {
+    "id": "109",
+    "name": "Astha Tiwari",
+    "class": "III",
+    "fatherName": "Rajesh Kumar Tiwari",
+    "address": "Aryan  Puram Ayodhya",
+    "phone": "7379315708"
+  },
+  {
+    "id": "110",
+    "name": "Ananya Mishra",
+    "class": "III",
+    "fatherName": "Mr. Tajbhan Mishra",
+    "address": "Matakripalini devi marg vasudev ghat",
+    "phone": "9889250934"
+  },
+  {
+    "id": "111",
+    "name": "Sia Yadav",
+    "class": "III",
+    "fatherName": "Mr. Shwag Yadav",
+    "address": "Maderiya Ayodhya",
+    "phone": "9956763632"
+  },
+  {
+    "id": "112",
+    "name": "Vidhi Yadav",
+    "class": "III",
+    "fatherName": "Mr. Vinay Yadav",
+    "address": "Vivek Vihar Colony Ayodhya",
+    "phone": "8707486546"
+  },
+  {
+    "id": "113",
+    "name": "Raj Nandini Pandey",
+    "class": "III",
+    "fatherName": "Ram pandey",
+    "address": "chakratirth parikrma marg Ayodhya",
+    "phone": "-"
+  },
+  {
+    "id": "114",
+    "name": "Prasidhi Singh",
+    "class": "III",
+    "fatherName": "Chandra Bhushan Verma",
+    "address": "Aditya Nagar Colony Ayodhya",
+    "phone": "-"
+  },
+  {
+    "id": "115",
+    "name": "Ardhya Yadav",
+    "class": "III",
+    "fatherName": "Sunil Kumar yadav",
+    "address": "Manjha Baretha, Ayodhya",
+    "phone": "9792961951"
+  },
+  {
+    "id": "116",
+    "name": "Myra Yadav",
+    "class": "III",
+    "fatherName": "Mr. Ravindra Kumar Yadav",
+    "address": "Durg ganga city gonda",
+    "phone": "9451879750"
+  },
+  {
+    "id": "117",
+    "name": "Aadarsh Chaudhary",
+    "class": "III",
+    "fatherName": "Mr. Arvind Kumar",
+    "address": "Durga Puri city Banda (Unnao)",
+    "phone": "7205223081"
+  },
+  {
+    "id": "118",
+    "name": "Arushi",
+    "class": "III",
+    "fatherName": "Brijesh Pal",
+    "address": "Parikrama Marg,Ayodhya",
+    "phone": "9615485361"
+  },
+  {
+    "id": "119",
+    "name": "Chhavi",
+    "class": "III",
+    "fatherName": "Mr. Pawan Kumar",
+    "address": "Ramnagar Badi Kutiya Faizabad",
+    "phone": "8787088262"
+  },
+  {
+    "id": "121",
+    "name": "Ansuda",
+    "class": "III",
+    "fatherName": "sadavrat chuhan",
+    "address": "police line ayodhya",
+    "phone": "6386510090"
+  },
+  {
+    "id": "122",
+    "name": "Surabi Yadav",
+    "class": "III",
+    "fatherName": "Pushpendra Kumar",
+    "address": "Shiv Kotna Bhush...",
+    "phone": "9839510644"
+  },
+  {
+    "id": "123",
+    "name": "Akriti",
+    "class": "III",
+    "fatherName": "yogesh sharma",
+    "address": "Aditya Nagar Colony Ayodhya",
+    "phone": "9919918689"
+  },
+  {
+    "id": "124",
+    "name": "Prince Yadav",
+    "class": "III",
+    "fatherName": "Ajay Yadav",
+    "address": "Marha Baretha",
+    "phone": "9839646722"
+  },
+  {
+    "id": "125",
+    "name": "Aadya Tiwari",
+    "class": "III",
+    "fatherName": "Rakesh Tiwari",
+    "address": "Near Aditya Bhawan",
+    "phone": "9554108072"
+  },
+  {
+    "id": "126",
+    "name": "Vatsal",
+    "class": "III",
+    "fatherName": "Srikant Mandal",
+    "address": "ARAYAN Puram",
+    "phone": "7081259136"
+  },
+  {
+    "id": "127",
+    "name": "Kritika",
+    "class": "III",
+    "fatherName": "Shailendra Kumar",
+    "address": "Ramsewakpuram Ranopali Ayodhya",
+    "phone": "8962534005"
+  },
+  {
+    "id": "128",
+    "name": "Manjali Pandey",
+    "class": "III",
+    "fatherName": "Rajuu Pandey",
+    "address": "Ekdalla Huseinpur Tanda Kalpa Ayodhya",
+    "phone": "7706020664"
+  },
+  {
+    "id": "129",
+    "name": "Priya singh",
+    "class": "III",
+    "fatherName": "Shailendra Kumar",
+    "address": "vidyakund ayodhya",
+    "phone": "8650959632"
+  },
+  {
+    "id": "130",
+    "name": "Gauri Gupta",
+    "class": "III",
+    "fatherName": "Mr. Chandan Gupta",
+    "address": "SHINGAR GHAT HANUMAN GARHI AYODHYA",
+    "phone": "9120617063"
+  },
+  {
+    "id": "131",
+    "name": "Rishabh Yadav",
+    "class": "IV",
+    "fatherName": "Vijay Yadav",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "9140695558"
+  },
+  {
+    "id": "132",
+    "name": "Aureet Yadav",
+    "class": "IV",
+    "fatherName": "Vinod Kumar Yadav",
+    "address": "Aditya Puram, Ayodhya",
+    "phone": "9453392514"
+  },
+  {
+    "id": "133",
+    "name": "Ayanshi Yadav",
+    "class": "IV",
+    "fatherName": "Satya Prakash Yadav",
+    "address": "Vikas Pradhikaran, Naya Ghat SSB, Ayodhya",
+    "phone": "9935277857"
+  },
+  {
+    "id": "134",
+    "name": "Taniya Jaiswal",
+    "class": "IV",
+    "fatherName": "Bechulal Jaiswal",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "9628377019"
+  },
+  {
+    "id": "135",
+    "name": "Shivani Yadav",
+    "class": "IV",
+    "fatherName": "Radhe Shyam Yadav",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "8858883246"
+  },
+  {
+    "id": "136",
+    "name": "Annu Yadav",
+    "class": "IV",
+    "fatherName": "Ajay Yadav",
+    "address": "Malakpur, Ayodhya",
+    "phone": "9839646722"
+  },
+  {
+    "id": "137",
+    "name": "Shruti Tiwari",
+    "class": "IV",
+    "fatherName": "Shivshankar Tiwari",
+    "address": "Khale Ka Purwa, Ramghat, Ayodhya",
+    "phone": "8795223746"
+  },
+  {
+    "id": "138",
+    "name": "Abhi Yadav",
+    "class": "IV",
+    "fatherName": "Ram Babu Yadav",
+    "address": "Madrahiya, Ayodhya",
+    "phone": "6394431257"
+  },
+  {
+    "id": "139",
+    "name": "Siddharth Kumar",
+    "class": "IV",
+    "fatherName": "Rajesh Kumar",
+    "address": "Meerapur Bulandi, Rajghat, Ayodhya",
+    "phone": "7007806014"
+  },
+  {
+    "id": "140",
+    "name": "Anuj Yadav",
+    "class": "IV",
+    "fatherName": "Ram Panji Yadav",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "9918709264"
+  },
+  {
+    "id": "141",
+    "name": "Sudhanshu Yadav",
+    "class": "IV",
+    "fatherName": "Shiv Vachan Yadav",
+    "address": "Katra Durga Garj, Ayodhya",
+    "phone": "7618305239"
+  },
+  {
+    "id": "142",
+    "name": "Hemant Pandey",
+    "class": "IV",
+    "fatherName": "Surendra Pandey",
+    "address": "Birla Dharmshala, Ayodhya",
+    "phone": "8957953640"
+  },
+  {
+    "id": "143",
+    "name": "Kavya Yadav",
+    "class": "IV",
+    "fatherName": "Ashok Yadav",
+    "address": "Madrahiya, Ayodhya",
+    "phone": "9653039439"
+  },
+  {
+    "id": "144",
+    "name": "Rudra Narayan Shukla",
+    "class": "IV",
+    "fatherName": "Pankaj Shukla",
+    "address": "Vishnupuram Colony, Khale Ka Purwa, Ayodhya",
+    "phone": "9569810150"
+  },
+  {
+    "id": "145",
+    "name": "Kirti Patwa",
+    "class": "IV",
+    "fatherName": "Ram Tirath Patwa",
+    "address": "Janki Vallabh Puram, Mauni Baba, Ayodhya",
+    "phone": "9938121931"
+  },
+  {
+    "id": "146",
+    "name": "Harshita",
+    "class": "IV",
+    "fatherName": "Mahant Rajiv Lochan Sharan",
+    "address": "Badhari Bhawan, Swargdwar, Ayodhya",
+    "phone": "9839804676"
+  },
+  {
+    "id": "147",
+    "name": "Vibhor Shukla",
+    "class": "IV",
+    "fatherName": "Marutendra Shukla",
+    "address": "Karigary Vidyakund Road, Ayodhya",
+    "phone": "9452602266"
+  },
+  {
+    "id": "148",
+    "name": "Arushi Gupta",
+    "class": "IV",
+    "fatherName": "Anil Gupta",
+    "address": "247/3A Near Divyanshi Degree College, Pakari Colony, Ayodhya",
+    "phone": "7317494709"
+  },
+  {
+    "id": "149",
+    "name": "Shourya Pratap Mishra",
+    "class": "IV",
+    "fatherName": "Manish Pratap Mishra",
+    "address": "lavkush Nagar, Ramghat, Ayodhya",
+    "phone": "9938375241"
+  },
+  {
+    "id": "150",
+    "name": "Raghvendra Yadav",
+    "class": "IV",
+    "fatherName": "Umesh Chandra Yadav",
+    "address": "Sant Tulsi Ghat, Ayodhya",
+    "phone": "8957304230"
+  },
+  {
+    "id": "151",
+    "name": "Ganesh",
+    "class": "IV",
+    "fatherName": "Ram Kishan",
+    "address": "Isha Nagar, Siddharth Nagar",
+    "phone": "8960227558"
+  },
+  {
+    "id": "152",
+    "name": "Anand",
+    "class": "IV",
+    "fatherName": "Chandan tiwari",
+    "address": "kashiram colony",
+    "phone": "9598104009"
+  },
+  {
+    "id": "153",
+    "name": "Anshika Yadav",
+    "class": "IV",
+    "fatherName": "Deep Narayan Yadav",
+    "address": "Kohrayan Kaithi, Post Meduta, Dist. Basti",
+    "phone": "-"
+  },
+  {
+    "id": "154",
+    "name": "Ansh",
+    "class": "IV",
+    "fatherName": "Ashok Yadav",
+    "address": "khale ka purwa",
+    "phone": "9838633414"
+  },
+  {
+    "id": "155",
+    "name": "Yuvraj Singh",
+    "class": "V",
+    "fatherName": "Shailendra Kumar",
+    "address": "Kanjaganj, Ayodhya Ward",
+    "phone": "7706020664"
+  },
+  {
+    "id": "156",
+    "name": "Shreya Yadav",
+    "class": "V",
+    "fatherName": "Nandlal Yadav",
+    "address": "Aditya Bhavan, Ranopali, Near Mary Temple, Ayodhya",
+    "phone": "9451193236"
+  },
+  {
+    "id": "157",
+    "name": "Dharna Dwivedi",
+    "class": "V",
+    "fatherName": "Bal Krishna Dwivedi",
+    "address": "Laukush Nagar, Ranopali, Ayodhya",
+    "phone": "7355014700"
+  },
+  {
+    "id": "158",
+    "name": "Abhinav Tiwari",
+    "class": "V",
+    "fatherName": "Dev Kumar Tiwari",
+    "address": "Govindpur, Rasulabad, Ayodhya",
+    "phone": "8808509196"
+  },
+  {
+    "id": "159",
+    "name": "Anvi Yadav",
+    "class": "V",
+    "fatherName": "Shiv Narayan Yadav",
+    "address": "Asarni, Purwa",
+    "phone": "7007341577"
+  },
+  {
+    "id": "160",
+    "name": "Kritika Gupta",
+    "class": "V",
+    "fatherName": "Vishal Gupta",
+    "address": "Daddhorwa Kund",
+    "phone": "7524019510"
+  },
+  {
+    "id": "161",
+    "name": "Prithvi Chauhan",
+    "class": "V",
+    "fatherName": "Sadavrat Chauhan",
+    "address": "Reserve Police Line",
+    "phone": "6386510090"
+  },
+  {
+    "id": "162",
+    "name": "Shivansh Dubey",
+    "class": "V",
+    "fatherName": "Kuldeep Kr. Dubey",
+    "address": "79 Kadipur (Barun Bazar), Ayodhya",
+    "phone": "9919501305"
+  },
+  {
+    "id": "163",
+    "name": "Lakshya Srivastava",
+    "class": "V",
+    "fatherName": "Ashish Srivastava",
+    "address": "Ayodhya, Dhikbandha Nagar, Khalipura, Mansa Bhavan",
+    "phone": "8467098744"
+  },
+  {
+    "id": "164",
+    "name": "Parineeti Tiwari",
+    "class": "V",
+    "fatherName": "Arun Tiwari",
+    "address": "Shivpuri Mandir, Raibareli Road",
+    "phone": "9140093091"
+  },
+  {
+    "id": "165",
+    "name": "Abhimanyu Gupta",
+    "class": "V",
+    "fatherName": "Chandan Gupta",
+    "address": "Sringavghat, Hanuman Garhi, Ayodhya",
+    "phone": "6307467797"
+  },
+  {
+    "id": "166",
+    "name": "Arthav Singh",
+    "class": "V",
+    "fatherName": "Shrikant Singh",
+    "address": "Anandpuram, Ayodhya",
+    "phone": "9120617063"
+  },
+  {
+    "id": "167",
+    "name": "Vedika Singh",
+    "class": "V",
+    "fatherName": "Durgesh Kr. Singh",
+    "address": "Near R.K. Hotel, Raibareli Road, Ayodhya",
+    "phone": "8318396142"
+  },
+  {
+    "id": "168",
+    "name": "Avyaansh Agrahari",
+    "class": "V",
+    "fatherName": "Daulat Ram Gupta",
+    "address": "Hanuman Garhi Chauroha",
+    "phone": "7081259136"
+  },
+  {
+    "id": "169",
+    "name": "Shaurabh Yadav",
+    "class": "V",
+    "fatherName": "Radhe Shyam",
+    "address": "Maheshpur Post-Katra, Shivdaly Pur",
+    "phone": "9140473016"
+  },
+  {
+    "id": "170",
+    "name": "Aarush Shukla",
+    "class": "V",
+    "fatherName": "Raghvendra Shukla",
+    "address": "Khali Ki Pipra, Seeta, Rameswaram Colony, Ayodhya",
+    "phone": "9792726210"
+  },
+  {
+    "id": "171",
+    "name": "Prabhu Narayan Pandey",
+    "class": "V",
+    "fatherName": "Prabhakar Pandey",
+    "address": "Katra Police Chauki",
+    "phone": "6387075946"
+  },
+  {
+    "id": "172",
+    "name": "Ayushi Gupta",
+    "class": "V",
+    "fatherName": "Bhagwanji Gupta",
+    "address": "Begampura, Ayodhya",
+    "phone": "0858883246"
+  },
+  {
+    "id": "173",
+    "name": "Abhishek Kr. Pandey",
+    "class": "V",
+    "fatherName": "Raj Kr. Pandey",
+    "address": "Vasudev Ghat, Ayodhya",
+    "phone": "7319176779"
+  },
+  {
+    "id": "174",
+    "name": "Alok Kr. Pandey",
+    "class": "V",
+    "fatherName": "Avinash Chandra Pandey",
+    "address": "Pramodvan New Colony, Ayodhya",
+    "phone": "0750099125"
+  },
+  {
+    "id": "175",
+    "name": "Kavya Pandey",
+    "class": "V",
+    "fatherName": "Avinash Chandra Pandey",
+    "address": "Katra Police Chauki",
+    "phone": "8353997975"
+  },
+  {
+    "id": "176",
+    "name": "Humay Habib",
+    "class": "V",
+    "fatherName": "Jameel Ahmad",
+    "address": "Maniparvat, Ayodhya",
+    "phone": "8601473101"
+  },
+  {
+    "id": "177",
+    "name": "Bhumika Dwivedi",
+    "class": "V",
+    "fatherName": "Awanish Kr. Dwivedi",
+    "address": "Pramodvan New Colony, Ayodhya",
+    "phone": "0318610073"
+  },
+  {
+    "id": "178",
+    "name": "Rishit Pandey",
+    "class": "V",
+    "fatherName": "Avinash Chandra Pandey",
+    "address": "Aditya Nagar",
+    "phone": "7080586054"
+  },
+  {
+    "id": "179",
+    "name": "Hardik Verma",
+    "class": "V",
+    "fatherName": "Vinay Kr.",
+    "address": "Nazanpur, Jaganpur, Mau-UP",
+    "phone": "9451007959"
+  },
+  {
+    "id": "180",
+    "name": "Aaditya Tripathi",
+    "class": "V",
+    "fatherName": "Chandra Prakash Tripathi",
+    "address": "Panch Kosi Parikrama Marg, Adhyatampuram Colony, Ayodhya",
+    "phone": "9805699440"
+  },
+  {
+    "id": "181",
+    "name": "Abhijeet Singh",
+    "class": "VI",
+    "fatherName": "Karamveer Singh",
+    "address": "Ranopali Ayodhya",
+    "phone": "9721488605"
+  },
+  {
+    "id": "182",
+    "name": "Aarti Gupta",
+    "class": "VI",
+    "fatherName": "Gopal Gupta",
+    "address": "",
+    "phone": "9005581025"
+  },
+  {
+    "id": "183",
+    "name": "Ayush Yadav",
+    "class": "VI",
+    "fatherName": "Narendra Yadav",
+    "address": "Lavkush Nagar, Ramghat Ayodhya (Near Ayodhya Eye Hospital)",
+    "phone": "9839016350"
+  },
+  {
+    "id": "184",
+    "name": "Virat Yadav",
+    "class": "VI",
+    "fatherName": "Ram Babu Yadav",
+    "address": "Madhorahiya, Ayodhya",
+    "phone": "6394431257"
+  },
+  {
+    "id": "185",
+    "name": "Rudra Prajapati",
+    "class": "VI",
+    "fatherName": "Prabhu Narayan Prajapati",
+    "address": "Swargdwar, Ayodhya",
+    "phone": "7985958230"
+  },
+  {
+    "id": "186",
+    "name": "Ayush Gupta",
+    "class": "VI",
+    "fatherName": "Mr. Shivamji Gupta",
+    "address": "Begampura, Ayodhya",
+    "phone": "8353997175"
+  },
+  {
+    "id": "187",
+    "name": "Sumit Singh",
+    "class": "VI",
+    "fatherName": "Parshram Singh",
+    "address": "Manjha Barhata, Ayodhya",
+    "phone": "9984586236"
+  },
+  {
+    "id": "188",
+    "name": "Shashank Dubey",
+    "class": "VI",
+    "fatherName": "Anup Kumar Dubey",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "7275089091"
+  },
+  {
+    "id": "189",
+    "name": "Pranav",
+    "class": "VI",
+    "fatherName": "Kanhaiya Lal",
+    "address": "Ramghat Ayodhya",
+    "phone": "9919682102"
+  },
+  {
+    "id": "190",
+    "name": "Shredee Gupta",
+    "class": "VI",
+    "fatherName": "Santosh Kumar Gupta",
+    "address": "Raipur Sikandar Pur Basti Tinnichamo Balthira Road Ballia, Khale Ka Purwa, Ramghat Ayodhya",
+    "phone": "9950575909"
+  },
+  {
+    "id": "191",
+    "name": "Sneha Yadav",
+    "class": "VI",
+    "fatherName": "Ramji Yadav",
+    "address": "Ramghat, Khale Purwa, Ayodhya",
+    "phone": "9918769264"
+  },
+  {
+    "id": "192",
+    "name": "Pratush Yadav",
+    "class": "VI",
+    "fatherName": "Devender Bahadur Yadav",
+    "address": "Ramghat Ayodhya",
+    "phone": "8174965805"
+  },
+  {
+    "id": "194",
+    "name": "Raghuveer Tiwari",
+    "class": "VI",
+    "fatherName": "Mr. Shashi Mali Tiwari",
+    "address": "Lata Chowk Nayaghat, Ayodhya",
+    "phone": "7355985655"
+  },
+  {
+    "id": "195",
+    "name": "Ayush Yadav",
+    "class": "VI",
+    "fatherName": "Mr. Ramjas Yadav",
+    "address": "Paras-rampur Harnahiya Basti",
+    "phone": "9918394863"
+  },
+  {
+    "id": "196",
+    "name": "Abhay Tiwari",
+    "class": "VI",
+    "fatherName": "Mr. Deo Kumar Tiwari",
+    "address": "Near Padma Academy Behind Dadaji Mart Ayodhya",
+    "phone": "7081601275"
+  },
+  {
+    "id": "197",
+    "name": "Adhikansh Singh",
+    "class": "VI",
+    "fatherName": "Mr. Satyendra Kumar Singh",
+    "address": "Panch Kosi Parikrama Marg, Aditya Nagar Ayodhya",
+    "phone": "7985125980"
+  },
+  {
+    "id": "198",
+    "name": "Krishna Gupta",
+    "class": "VI",
+    "fatherName": "Mr. Ramesh Gupta",
+    "address": "Aashesth Kund Ayodhya Dham",
+    "phone": "7395029685"
+  },
+  {
+    "id": "199",
+    "name": "Alok Yadav",
+    "class": "VI",
+    "fatherName": "Mr. Sarvan Yadav",
+    "address": "Sh Khale ka Purwa Ramghat Ayodhya",
+    "phone": "9550655429"
+  },
+  {
+    "id": "200",
+    "name": "Ankita Yadav",
+    "class": "VII",
+    "fatherName": "Mr. Vinod Kumar Yadav",
+    "address": "Mat Ram Ayodhya",
+    "phone": "9453392514"
+  },
+  {
+    "id": "201",
+    "name": "Anshika Yadav",
+    "class": "VII",
+    "fatherName": "Mr. Kashiram Yadav",
+    "address": "Makkapur Ayodhya",
+    "phone": "7379690200"
+  },
+  {
+    "id": "202",
+    "name": "Ayansh Yadav",
+    "class": "VII",
+    "fatherName": "Mr. Satya Prakash Yadav",
+    "address": "Near Matgajraj Chauraha Ayodhya",
+    "phone": "8574455235"
+  },
+  {
+    "id": "203",
+    "name": "Ayush Kumar Verma",
+    "class": "VII",
+    "fatherName": "Mr. Manoj Kumar Chaudhary",
+    "address": "Nawalpur Post - Dhauraha",
+    "phone": "7007171908"
+  },
+  {
+    "id": "204",
+    "name": "Aradhya Shukla",
+    "class": "VII",
+    "fatherName": "Mr. Raghvendra Shukla",
+    "address": "Khale Kapurwa Seetaram Bus Puram",
+    "phone": "7379170779"
+  },
+  {
+    "id": "205",
+    "name": "Ishan Verma",
+    "class": "VII",
+    "fatherName": "Mr. Vikas Verma",
+    "address": "Khale Ka Purwa",
+    "phone": "9026383317"
+  },
+  {
+    "id": "206",
+    "name": "Kartik Verma",
+    "class": "VII",
+    "fatherName": "Mr. Vinay Kumar",
+    "address": "Khale Ka Purwa",
+    "phone": "8305699480"
+  },
+  {
+    "id": "207",
+    "name": "Manas Mishra",
+    "class": "VII",
+    "fatherName": "Mr. Awadh Mishra",
+    "address": "Vasudev Ghat Ayodhya",
+    "phone": "9450719052"
+  },
+  {
+    "id": "208",
+    "name": "Nancy Yadav",
+    "class": "VII",
+    "fatherName": "Mr. Shiv Kumar Yadav",
+    "address": "Vasudev Ghat Sona Marg Devi Marg",
+    "phone": "6392159377"
+  },
+  {
+    "id": "209",
+    "name": "Krispy",
+    "class": "VII",
+    "fatherName": "Ram kishun",
+    "address": "Kashiram colony",
+    "phone": "9236553081"
+  },
+  {
+    "id": "210",
+    "name": "Palak",
+    "class": "VII",
+    "fatherName": "Mr. Ramesh Kumar Chaubey",
+    "address": "Sriramnagar Colony Ramghat Ayodhya",
+    "phone": "7800160000"
+  },
+  {
+    "id": "212",
+    "name": "Raja Pandey",
+    "class": "VII",
+    "fatherName": "Mr. Raju Pandey",
+    "address": "tedhi bazar ayodhay",
+    "phone": "8948266065"
+  },
+  {
+    "id": "213",
+    "name": "Shiwangi Yadav",
+    "class": "VII",
+    "fatherName": "Mr. Shivnarayan Yadav",
+    "address": "raiganj ayodhya",
+    "phone": "7007341577"
+  },
+  {
+    "id": "214",
+    "name": "Shantanu Mishra",
+    "class": "VII",
+    "fatherName": "Mr. Mohit Mishra",
+    "address": "Shree Guru Kripa Kunja Ayodhya",
+    "phone": "9151296700"
+  },
+  {
+    "id": "215",
+    "name": "Shreya Yadav",
+    "class": "VII",
+    "fatherName": "Mr. Narendra Kumar Yadav",
+    "address": "Lavkushnagar Ramghat (Sahani Gau Near)",
+    "phone": "9839016350"
+  },
+  {
+    "id": "216",
+    "name": "Tanisha",
+    "class": "VII",
+    "fatherName": "Mr. Kuldeep Singh",
+    "address": "Manjhma Barchta Ayodhya",
+    "phone": "6393764636"
+  },
+  {
+    "id": "217",
+    "name": "Vijay Laxmi",
+    "class": "VII",
+    "fatherName": "Mr. Pannalal",
+    "address": "Khali Pura Sitaram Colony",
+    "phone": "6307443497"
+  },
+  {
+    "id": "218",
+    "name": "Yashwardhan",
+    "class": "VII",
+    "fatherName": "Hari naam singh",
+    "address": "Datt nagar colony",
+    "phone": "9984791290"
+  },
+  {
+    "id": "219",
+    "name": "Swayam Maurya",
+    "class": "VII",
+    "fatherName": "Mr. Ram Krishan Maurya",
+    "address": "Haifat Pur Darshan Nagar Ayodhya",
+    "phone": "8318590026"
+  },
+  {
+    "id": "220",
+    "name": "AARAV UPADHAYAY",
+    "class": "VIII",
+    "fatherName": "Suresh Chandra Upadhyay",
+    "address": "Near Parma Academy",
+    "phone": "7860051820"
+  },
+  {
+    "id": "221",
+    "name": "SAKSHI GUPTA",
+    "class": "VIII",
+    "fatherName": "Amit Kumar Gupta",
+    "address": "Gola Ghat Road Pump House 5 No. Mughal Pura Ayodhya",
+    "phone": "9839513126"
+  },
+  {
+    "id": "222",
+    "name": "SMRITI YADAY",
+    "class": "VIII",
+    "fatherName": "Pushpendra Kumar",
+    "address": "Saketpuri Colony",
+    "phone": "9839510644"
+  },
+  {
+    "id": "223",
+    "name": "PRANJAL MISHRA",
+    "class": "VIII",
+    "fatherName": "Rajesh Kumar Mishra",
+    "address": "Dant Dhawan, Kund Ayodhya",
+    "phone": "6394978584"
+  },
+  {
+    "id": "224",
+    "name": "VIHAAN SHARMA",
+    "class": "VIII",
+    "fatherName": "Sandeep Kumar Sharma",
+    "address": "Vairangpuri Near Shaheed Marg Ayodhya",
+    "phone": "9889969572"
+  },
+  {
+    "id": "225",
+    "name": "AAYUSH TIWARI",
+    "class": "VIII",
+    "fatherName": "Ramanuj Tiwari",
+    "address": "Maharishi Ved Vigyan Ayodhya",
+    "phone": "9868535347"
+  },
+  {
+    "id": "226",
+    "name": "TANAY SAINI",
+    "class": "VIII",
+    "fatherName": "Ranjay Saini",
+    "address": "Katra Police Chowki",
+    "phone": "8115334844"
+  },
+  {
+    "id": "227",
+    "name": "DEEKSHA PANDEY",
+    "class": "VIII",
+    "fatherName": "Raghvendra Pandey",
+    "address": "Jai Singhpur Yagyavalki Raniganj",
+    "phone": "8525666247"
+  },
+  {
+    "id": "228",
+    "name": "ARADHYA SINGH",
+    "class": "VIII",
+    "fatherName": "Satyendra Kumar Singh",
+    "address": "Aditya Bhawan",
+    "phone": "7985125980"
+  },
+  {
+    "id": "229",
+    "name": "AARADHYA GUPTA",
+    "class": "VIII",
+    "fatherName": "Sunil Kumar",
+    "address": "Vasudevghat yaodhya, Ayodhya",
+    "phone": "9984427743"
+  },
+  {
+    "id": "230",
+    "name": "AMIT YADAV",
+    "class": "VIII",
+    "fatherName": "Santlal Yadav",
+    "address": "Parikrma marg Ayodhya",
+    "phone": "9569753341"
+  },
+  {
+    "id": "231",
+    "name": "PARI GUPTA",
+    "class": "VIII",
+    "fatherName": "Vinod Kumar Gupta",
+    "address": "Near Manas Bhavan Ayq",
+    "phone": "7266989933"
+  },
+  {
+    "id": "232",
+    "name": "ABHISHEK YADAV",
+    "class": "VIII",
+    "fatherName": "Kripa Shankar Yadav",
+    "address": "Deenbandhu Vashudev Ghat",
+    "phone": "9628151476"
+  },
+  {
+    "id": "233",
+    "name": "PRINCE SAHU",
+    "class": "VIII",
+    "fatherName": "Rakesh Kumar Sahu",
+    "address": "Pandari Para Sarai Ingyathok Gonda U.P.",
+    "phone": "8303525739"
+  },
+  {
+    "id": "234",
+    "name": "Pragati  Mandal",
+    "class": "IX",
+    "fatherName": "Mr. Ranchit Mandal",
+    "address": "Kar sevak puram",
+    "phone": "6001543411"
+  },
+  {
+    "id": "235",
+    "name": "Shivani Yadav",
+    "class": "IX",
+    "fatherName": "Ram Govind Yadav",
+    "address": "Ramghat Churaha, near khale ka purwa",
+    "phone": "9565921733"
+  },
+  {
+    "id": "236",
+    "name": "Yogesh Singh",
+    "class": "IX",
+    "fatherName": "Mr. Nirpendra Singh",
+    "address": "Ramghat churaha, rambhag",
+    "phone": "9792362957"
+  },
+  {
+    "id": "237",
+    "name": "Rudra Singh",
+    "class": "IX",
+    "fatherName": "Rajendra Singh",
+    "address": "Navi nagar ramkot ayodhya",
+    "phone": "7523956153"
+  },
+  {
+    "id": "238",
+    "name": "Vikash Nishad",
+    "class": "IX",
+    "fatherName": "Mr. Jaiprakash",
+    "address": "Durjanpur parsham gonda",
+    "phone": "9628735512"
+  },
+  {
+    "id": "239",
+    "name": "Anmol Saini",
+    "class": "IX",
+    "fatherName": "Aniruddh Saini",
+    "address": "Asharfi bhawan ayodhya",
+    "phone": "7860701786"
+  },
+  {
+    "id": "240",
+    "name": "Harsh Chaubey",
+    "class": "IX",
+    "fatherName": "Mo. Ramesh Chaubey",
+    "address": "Ramghat Ayodhya",
+    "phone": "7800160000"
+  },
+  {
+    "id": "241",
+    "name": "Amarjeet Yadav",
+    "class": "IX",
+    "fatherName": "Mr. Kashiram Yadav",
+    "address": "Mahobara bazar",
+    "phone": "7379690000"
+  },
+  {
+    "id": "242",
+    "name": "Tejasvi Yadav",
+    "class": "IX",
+    "fatherName": "Mr. Surya Prakash",
+    "address": "Durjanpur katra gonda",
+    "phone": "9452803202"
+  },
+  {
+    "id": "243",
+    "name": "Subhash Jaiswal",
+    "class": "IX",
+    "fatherName": "Mr. Vijay Kumar",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "9620337019"
+  },
+  {
+    "id": "244",
+    "name": "Sushant Yadav",
+    "class": "IX",
+    "fatherName": "Mr. Shiv Bachan Yadav",
+    "address": "Katra Durga Ganj, Ayodhya",
+    "phone": "7618305239"
+  },
+  {
+    "id": "245",
+    "name": "Divyanshi Verma",
+    "class": "IX",
+    "fatherName": "Basant Kumar",
+    "address": "Khale Ka Purwa, Ayodhya",
+    "phone": "8604653190"
+  },
+  {
+    "id": "246",
+    "name": "Arpita",
+    "class": "IX",
+    "fatherName": "Mr. Yogesh Sharma",
+    "address": "RANIPUR BASTI",
+    "phone": "9919910189"
+  },
+  {
+    "id": "247",
+    "name": "Adarsh Yadav",
+    "class": "IX",
+    "fatherName": "Shesha Ram Yadav",
+    "address": "Banwari purwa madashiya ayodhya",
+    "phone": "9451317325"
+  },
+  {
+    "id": "248",
+    "name": "Abhay Pratap",
+    "class": "IX",
+    "fatherName": "Mr. Chandra Pratap",
+    "address": "Aditi puram colony",
+    "phone": "9696026766"
+  },
+  {
+    "id": "249",
+    "name": "Sarthak Singh",
+    "class": "IX",
+    "fatherName": "Shiv Kumar Singh",
+    "address": "Dharauli trabganj gonda",
+    "phone": "8299537558"
+  },
+  {
+    "id": "250",
+    "name": "Astha Verma",
+    "class": "IX",
+    "fatherName": "Santosh Verma",
+    "address": "khale ka purwa",
+    "phone": "-"
+  },
+  {
+    "id": "251",
+    "name": "Ansh Pratap Singh",
+    "class": "IX",
+    "fatherName": "Hari naam singh",
+    "address": "Dattnagar Gonda",
+    "phone": "9984791290"
+  },
+  {
+    "id": "252",
+    "name": "Abhilasha Singh",
+    "class": "X",
+    "fatherName": "Karm Veer Singh",
+    "address": "Bhakti Ashram, Ramkot, Ayodhya",
+    "phone": "6307494437"
+  },
+  {
+    "id": "253",
+    "name": "Akshay Yadav",
+    "class": "X",
+    "fatherName": "Babu Ram",
+    "address": "MADRHIYA,",
+    "phone": "6306419877"
+  },
+  {
+    "id": "254",
+    "name": "Arpita Manjhi",
+    "class": "X",
+    "fatherName": "Shyam Babu",
+    "address": "Darsan nagar Ayodhya",
+    "phone": "9044922010"
+  },
+  {
+    "id": "255",
+    "name": "Arpita Yadav",
+    "class": "X",
+    "fatherName": "Vinod Kumar Yadav",
+    "address": "Bakhopur chauraha katehri",
+    "phone": "9453392514"
+  },
+  {
+    "id": "256",
+    "name": "Garima Nishad",
+    "class": "X",
+    "fatherName": "Jay Prakash",
+    "address": "Jamy Parsahana, Lidehna, Gonda",
+    "phone": "9628735512"
+  },
+  {
+    "id": "257",
+    "name": "Harshit Dubey",
+    "class": "X",
+    "fatherName": "Ramesh Chandra",
+    "address": "Lakhan Purwa, Post - Sehuda Kala - Rudhauli Kurmi, Basti",
+    "phone": "9565874309"
+  },
+  {
+    "id": "259",
+    "name": "Mayank Mishra",
+    "class": "X",
+    "fatherName": "Ram Avadh Mishra",
+    "address": "Sitaram das Ramghat Ayodhya",
+    "phone": "9450719052"
+  },
+  {
+    "id": "260",
+    "name": "Niskersh Sen",
+    "class": "X",
+    "fatherName": "Pawan Kumar Sen",
+    "address": "Raj Ganj, Ayodhya",
+    "phone": "9415466938"
+  },
+  {
+    "id": "261",
+    "name": "Payal",
+    "class": "X",
+    "fatherName": "Ramesh Chaubey",
+    "address": "Aimi, Ala Pur, Rasulabad, Post - Rasulabad, Ayodhya",
+    "phone": "7800160000"
+  },
+  {
+    "id": "262",
+    "name": "Rameswar Tiwari",
+    "class": "X",
+    "fatherName": "Shashi Mol Tiwari",
+    "address": "Naya Ghat, Ayodhya",
+    "phone": "7355985655"
+  },
+  {
+    "id": "263",
+    "name": "Raveena",
+    "class": "X",
+    "fatherName": "Monu",
+    "address": "Aditys bhavan Ayodhya",
+    "phone": "8953816873"
+  },
+  {
+    "id": "264",
+    "name": "Ritesh Yadav",
+    "class": "X",
+    "fatherName": "Shivkumar Yadav",
+    "address": "Payer Khas, Post - Shitalganj Grant, Paira Khas, Gonda",
+    "phone": "9918200461"
+  },
+  {
+    "id": "265",
+    "name": "Rudransh Pandey",
+    "class": "X",
+    "fatherName": "Ashwani Pandey",
+    "address": "Lavkush nagar Ramghat Ayodhya",
+    "phone": "9651215738"
+  },
+  {
+    "id": "266",
+    "name": "Shagun Sharma",
+    "class": "X",
+    "fatherName": "Sandeep Kumar Sharma",
+    "address": "Khale ka Purwa, Ramghat, Ayodhya",
+    "phone": "9598289226"
+  },
+  {
+    "id": "267",
+    "name": "Shashwat Yadav",
+    "class": "X",
+    "fatherName": "Virendra Bahadur",
+    "address": "Khale ka Purwa, Ramghat, Ayodhya",
+    "phone": "7081692432"
+  },
+  {
+    "id": "268",
+    "name": "Shaksham Gupta",
+    "class": "X",
+    "fatherName": "Amit Kumar Gupta",
+    "address": "Asarfi bhawan Chauraha  Pupmhouse Ayodhya",
+    "phone": "9839113126"
+  },
+  {
+    "id": "269",
+    "name": "Shaurya Mishra",
+    "class": "X",
+    "fatherName": "Rajesh Mishra",
+    "address": "Ayodhya, dant dhawan Kund",
+    "phone": "9616344426"
+  },
+  {
+    "id": "271",
+    "name": "SONY GOSWAMI",
+    "class": "XI",
+    "fatherName": "Ram Suresh Goswami",
+    "address": "Choti deokali ayodhya",
+    "phone": "9838945173"
+  },
+  {
+    "id": "272",
+    "name": "RITIKA RANJAN",
+    "class": "XI",
+    "fatherName": "Ratan kumar",
+    "address": "Meerapur bulandi rajghat ayodhya",
+    "phone": "7007041008"
+  },
+  {
+    "id": "274",
+    "name": "SHANI YADAV",
+    "class": "XI",
+    "fatherName": "Siyaram Yadav",
+    "address": "KHALE KA PURWA, RAMGHAT AYODHYA",
+    "phone": "7408909100"
+  },
+  {
+    "id": "275",
+    "name": "KANIKA DWIVEDI",
+    "class": "XI",
+    "fatherName": "Surendra dhar  Dwivedi",
+    "address": "Mirapur Near choti deokali ayodhya",
+    "phone": "9140141154"
+  },
+  {
+    "id": "276",
+    "name": "SHIKHA VERMA",
+    "class": "XI",
+    "fatherName": "Ved Prakash verma",
+    "address": "nashierpura kakoli",
+    "phone": "9026292038"
+  },
+  {
+    "id": "277",
+    "name": "VASU KUMAR",
+    "class": "XI",
+    "fatherName": "Arvind kumar",
+    "address": "Thathraya chauk ayodhya",
+    "phone": "7355720599"
+  },
+  {
+    "id": "278",
+    "name": "ANIKA GUPTA",
+    "class": "XI",
+    "fatherName": "Susheel Gupta",
+    "address": "RAIGANJ AYODHYA",
+    "phone": "8601155836"
+  },
+  {
+    "id": "279",
+    "name": "AKSHITA SHRIVASTAVA",
+    "class": "XI",
+    "fatherName": "Manoj Kumar Shrivastav",
+    "address": "Maharishi Ashram Ayodhya",
+    "phone": "8319287552"
+  },
+  {
+    "id": "280",
+    "name": "SHAIL BALENDU SINGH",
+    "class": "XI",
+    "fatherName": "Baladitya Singh",
+    "address": "HANUMAT NAGAR COLONY, AYODHYA",
+    "phone": "8299875521"
+  },
+  {
+    "id": "281",
+    "name": "LAVI MISHRA",
+    "class": "XI",
+    "fatherName": "Ramendra Mishra",
+    "address": "DALPATPUR PAHLI NAWABGANJ GONDA",
+    "phone": "8009942260"
+  },
+  {
+    "id": "282",
+    "name": "KHUSHBU YADAV",
+    "class": "XI",
+    "fatherName": "Ashok yadav",
+    "address": "KATRA SHIVDAYAL GANJ GONDA",
+    "phone": "9792563471"
+  },
+  {
+    "id": "283",
+    "name": "KHUSHI YADAV",
+    "class": "XI",
+    "fatherName": "Surendra yadav",
+    "address": "KATRA SHIVDAYALGNJ NAWABGANJ GONDA",
+    "phone": "7310182005"
+  },
+  {
+    "id": "284",
+    "name": "SANSKRITI TIWARI",
+    "class": "XI",
+    "fatherName": "Dileep kumar tiwari",
+    "address": "Shankerkund badi chawni ayodhya",
+    "phone": "9555181158"
+  },
+  {
+    "id": "285",
+    "name": "UJJWAL YADAV",
+    "class": "XI",
+    "fatherName": "Narendra Yadav",
+    "address": "KHALE KA PURWA, RAMGHAT AYODHYA",
+    "phone": "7275436138"
+  },
+  {
+    "id": "286",
+    "name": "VIVEK SINGH",
+    "class": "XI",
+    "fatherName": "Sunil singh",
+    "address": "KHALE KA PURWA, RAMGHAT AYODHYA",
+    "phone": "9895576012"
+  },
+  {
+    "id": "287",
+    "name": "ASHNA YADAV",
+    "class": "XI",
+    "fatherName": "Ashok Yadav",
+    "address": "Madharahiya near maharisi ashram ayodhya",
+    "phone": "7080367354"
+  },
+  {
+    "id": "288",
+    "name": "PALLAVI SINGH",
+    "class": "XI",
+    "fatherName": "virendra Kumar Singh",
+    "address": "Aditiya nagar colony",
+    "phone": "7318108651"
+  },
+  {
+    "id": "289",
+    "name": "Krishna Mishra",
+    "class": "XII",
+    "fatherName": "Mr. Nitin Mishra",
+    "address": "Halkara ka Purwa Sadar Ayodhya",
+    "phone": "9044136621"
+  },
+  {
+    "id": "290",
+    "name": "Amit Yadav",
+    "class": "XII",
+    "fatherName": "Mr. Ramprakash Yadav",
+    "address": "Madraiya Miyjan Bairata",
+    "phone": "9115126621"
+  },
+  {
+    "id": "291",
+    "name": "Anshika Yadav",
+    "class": "XII",
+    "fatherName": "Mr. Rajnarayan Yadav",
+    "address": "Vasudev Ghat, Ayodhya",
+    "phone": "9125579748"
+  },
+  {
+    "id": "293",
+    "name": "Khushboo",
+    "class": "XII",
+    "fatherName": "Mr. Munna Lal",
+    "address": "Vasudev Ghat, Ayodhya",
+    "phone": "9044287802"
+  },
+  {
+    "id": "294",
+    "name": "Ananya Singh",
+    "class": "XII",
+    "fatherName": "Mr. Karamveer Singh",
+    "address": "Dashrath Kund, Ayodhya",
+    "phone": "9336542824"
+  },
+  {
+    "id": "295",
+    "name": "Sweksha Pandey",
+    "class": "XII",
+    "fatherName": "Mr. Avinash Chandra",
+    "address": "Bramhadvan - New colony",
+    "phone": "9838314631"
+  },
+  {
+    "id": "296",
+    "name": "Vandana Yadav",
+    "class": "XII",
+    "fatherName": "Mr. Santlal Yadav",
+    "address": "Aditnagar Colony, Ayodhya",
+    "phone": "8318610010"
+  },
+  {
+    "id": "297",
+    "name": "Supriya Upadhyay",
+    "class": "XII",
+    "fatherName": "Mr. Sudhakar Upadhyay",
+    "address": "Kariyana, Tedhi Bazar, Ayodhya",
+    "phone": "9569763841"
+  },
+  {
+    "id": "298",
+    "name": "Suprabhat Upadhyay",
+    "class": "XII",
+    "fatherName": "Mr. Sudhakar Upadhyay",
+    "address": "Kariyana, Tedhi Bazar, Ayodhya",
+    "phone": "9450189255"
+  },
+  {
+    "id": "299",
+    "name": "Kashish Srivastava",
+    "class": "XII",
+    "fatherName": "Mr. Dharmendra Srivastava",
+    "address": "145, Booth no. 4 Tiwaripur, Purwa, Ayodhya",
+    "phone": "6292013418"
+  },
+  {
+    "id": "300",
+    "name": "Mansi Pandey",
+    "class": "XII",
+    "fatherName": "Mr. Ashwini Kumar Pandey",
+    "address": "Ramghat, Ayodhya",
+    "phone": "9450347213"
+  },
+  {
+    "id": "301",
+    "name": "Vedgarbha",
+    "class": "I",
+    "fatherName": "Roshan Kumar panday",
+    "address": "Belwa Narkhatiya, sheohar bihar",
+    "phone": ""
+  },
+  {
+    "id": "302",
+    "name": "Divyansh Yadav",
+    "class": "I",
+    "fatherName": "Paramjeet yadav",
+    "address": "Vasudev ghat ayodhya",
+    "phone": "9682017325"
+  },
+  {
+    "id": "303",
+    "name": "Aditiya Yadav",
+    "class": "I",
+    "fatherName": "Sursh yadav",
+    "address": "Sona devi marg vasudev ghat ayodhya",
+    "phone": "9235198479"
+  },
+  {
+    "id": "304",
+    "name": "Avyansh Sharma",
+    "class": "I",
+    "fatherName": "Sandeep Sharma",
+    "address": "Sheed marg tulsi smarak ayodhya",
+    "phone": "6368513783"
+  },
+  {
+    "id": "305",
+    "name": "Raghav Shukla",
+    "class": "I",
+    "fatherName": "Rahul Shukla",
+    "address": "Parikrma marg",
+    "phone": "933650007"
+  },
+  {
+    "id": "306",
+    "name": "Vanika Gupta",
+    "class": "I",
+    "fatherName": "Vishl",
+    "address": "Raiganj",
+    "phone": "7524019518"
+  },
+  {
+    "id": "307",
+    "name": "Satyam Jaiswal",
+    "class": "I",
+    "fatherName": "Rajesh Jaiswal",
+    "address": "Near eye hospital Khwaspura ayodhya",
+    "phone": "988971077"
+  },
+  {
+    "id": "308",
+    "name": "Gauri Gupta",
+    "class": "I",
+    "fatherName": "Ramesh Gupta",
+    "address": "tedhi  bazar ayodhya",
+    "phone": "7395024685"
+  },
+  {
+    "id": "309",
+    "name": "Devanshi panday",
+    "class": "I",
+    "fatherName": "shiv shankar kumar",
+    "address": "ramghat chauhara",
+    "phone": "7525884161"
+  },
+  {
+    "id": "310",
+    "name": "Shlok yadav",
+    "class": "III",
+    "fatherName": "rajendra yadav",
+    "address": "Ramghat ayodhya",
+    "phone": "7390980405"
+  },
+  {
+    "id": "311",
+    "name": "Shreya",
+    "class": "III",
+    "fatherName": "rahul singh",
+    "address": "nirmohi bazar ramghat",
+    "phone": "7355152210"
+  },
+  {
+    "id": "312",
+    "name": "Vikas",
+    "class": "IV",
+    "fatherName": "Jay chand yadav",
+    "address": "khale ka purwa Ayodhya",
+    "phone": "9140411638"
+  },
+  {
+    "id": "313",
+    "name": "Ananya",
+    "class": "IV",
+    "fatherName": "Rajesh Yadav",
+    "address": "",
+    "phone": "9984145031"
+  },
+  {
+    "id": "314",
+    "name": "Ankur pal",
+    "class": "IV",
+    "fatherName": "Brijiesh pal",
+    "address": "",
+    "phone": "9142898857"
+  },
+  {
+    "id": "315",
+    "name": "Eklavya",
+    "class": "IV",
+    "fatherName": "Kuldeep singh",
+    "address": "khale ka purwa Ayodhya",
+    "phone": "9935893626"
+  },
+  {
+    "id": "316",
+    "name": "Harsh Manjhi",
+    "class": "XII",
+    "fatherName": "Shyam Manjhi",
+    "address": "darsan nagar",
+    "phone": "9044922010"
+  },
+  {
+    "id": "3171",
+    "name": "Sanidhya",
+    "class": "XII",
+    "fatherName": "Devender Bahadur Yadav",
+    "address": "Ramghat ayodhya",
+    "phone": "8174965805"
+  },
+  {
+    "id": "317",
+    "name": "Riddhi singh",
+    "class": "VI",
+    "fatherName": "Bhupendra kr singh",
+    "address": "Katra shivdayal ganj gonda",
+    "phone": "9984845031"
+  },
+  {
+    "id": "318",
+    "name": "Anshika Gupta",
+    "class": "XI",
+    "fatherName": "Ashwini kumar Gupta",
+    "address": "Rampath road babu bazar,ayodhya dham",
+    "phone": "9838706555"
+  },
+  {
+    "id": "319",
+    "name": "Aradhya Singh",
+    "class": "II",
+    "fatherName": "Pawan Singh",
+    "address": "Imam Umartal Post-Umarat Purwa Near Amarsangha Garage",
+    "phone": ""
+  },
+  {
+    "id": "320",
+    "name": "Aryan tripathi",
+    "class": "II",
+    "fatherName": "Chandra praksh Tripathi",
+    "address": "Aditipuram colony, ayodhya",
+    "phone": "9336725602"
+  },
+  {
+    "id": "321",
+    "name": "Divya",
+    "class": "Ii",
+    "fatherName": "Rajesh Yadav",
+    "address": "kanakpur shivdayal ganj",
+    "phone": "9230553081"
+  },
+  {
+    "id": "322",
+    "name": "Shiksha",
+    "class": "II",
+    "fatherName": "Sadavrat chauhan",
+    "address": "Dashrath kund Ayodhya",
+    "phone": "9198049121"
+  },
+  {
+    "id": "323",
+    "name": "Shivanya",
+    "class": "II",
+    "fatherName": "Ashutosh nishad",
+    "address": "Aryanpuram parikrm marg ayodhya",
+    "phone": "8114084372"
+  },
+  {
+    "id": "324",
+    "name": "Vedansh Pandey",
+    "class": "II",
+    "fatherName": "Vinod pandey",
+    "address": "Dasrath kund Ayodhya",
+    "phone": ""
+  },
+  {
+    "id": "325",
+    "name": "Sakshi Yadav",
+    "class": "II",
+    "fatherName": "Rajesh Yadav",
+    "address": "Katra Gonda",
+    "phone": "9984845031"
+  },
+  {
+    "id": "326",
+    "name": "Akhilesh Panday",
+    "class": "IX",
+    "fatherName": "Rajendra kumar pandey",
+    "address": "Chakrateerth parikarma marg ayodhya",
+    "phone": "9455180919"
+  },
+  {
+    "id": "327",
+    "name": "Ansh Tiwari",
+    "class": "IX",
+    "fatherName": "Shiv shanker tiwari",
+    "address": "khale ka purwa Ayodhya",
+    "phone": "9984575683"
+  },
+  {
+    "id": "328",
+    "name": "Shani yadav",
+    "class": "IX",
+    "fatherName": "Ramji Yadav",
+    "address": "khale ka purwa Ayodhya",
+    "phone": "9918709264"
+  },
+  {
+    "id": "329",
+    "name": "Md Soeb",
+    "class": "IX",
+    "fatherName": "Mr Shfeea ahmad",
+    "address": "Durgapuram Pachuri Nawabganj Gonda",
+    "phone": "6307400350"
+  },
+  {
+    "id": "330",
+    "name": "Vipanshu Chauhan",
+    "class": "IX",
+    "fatherName": "Virendra chauhan",
+    "address": "Saryukatri durjanpur, Nwabganj Gonda",
+    "phone": "6307400350"
+  },
+  {
+    "id": "331",
+    "name": "Shivam sahu",
+    "class": "IX",
+    "fatherName": "Ram Babu sahu",
+    "address": "Durajnpur pachuri nawabganj gonda",
+    "phone": "9839885525"
+  },
+  {
+    "id": "332",
+    "name": "Md sehzad",
+    "class": "IX",
+    "fatherName": "Md haleem",
+    "address": "Durjanpur pachauri Nawabganj gonda",
+    "phone": "7238004383"
+  },
+  {
+    "id": "333",
+    "name": "Suryansh Singh",
+    "class": "V",
+    "fatherName": "Bhupendra kr singh",
+    "address": "Aryanpuram parikrm marg ayodhya",
+    "phone": "98383474497"
+  },
+  {
+    "id": "334",
+    "name": "Nandini Yadav",
+    "class": "V",
+    "fatherName": "Rajesh Yadav",
+    "address": "Katra shivdayal ganj gonda",
+    "phone": "9984845031"
+  }
+]

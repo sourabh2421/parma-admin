@@ -86,7 +86,8 @@ function LoginPage() {
 
     try {
       await login(formData.email.trim(), formData.password)
-      navigate(fromPath, { replace: true })
+      const targetPath = fromPath && !fromPath.startsWith('/marksheets') ? fromPath : '/dashboard'
+      navigate(targetPath, { replace: true })
     } catch (error) {
       setAuthError(mapAuthErrorToMessage(error))
     } finally {
@@ -114,7 +115,7 @@ function LoginPage() {
           </Link>
 
           <span className="rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-3 py-1 text-[11px] font-bold">
-            💳 Accounts Desk
+            🏢 Office Desk
           </span>
         </div>
 
@@ -124,11 +125,11 @@ function LoginPage() {
             💳
           </div>
 
-          <h1 className="text-2xl font-black text-white tracking-tight">
+          <h1 className="text-2xl text-white tracking-tight zen-dots-regular">
             Fee Desk Login
           </h1>
           <p className="mt-1 text-xs text-slate-400">
-            Sign in with your admin / accounts credentials to open Fee Management.
+            Sign in with your <strong>Office / Accounts</strong> credentials to open Fee Management.
           </p>
         </div>
 
@@ -191,6 +192,15 @@ function LoginPage() {
             {submitting ? 'Authenticating…' : 'Sign In to Fee Portal'}
           </button>
         </form>
+
+        <div className="mt-6 pt-4 border-t border-slate-800 text-center">
+          <p className="text-[11px] text-slate-500">
+            Looking for Marksheet Portal?{' '}
+            <Link to="/marksheets/login" className="text-indigo-400 font-semibold hover:underline">
+              Switch to Teacher Marksheet Desk
+            </Link>
+          </p>
+        </div>
       </div>
     </section>
   )

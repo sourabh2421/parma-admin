@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
+import { matchClassKey } from './marksheetDefaults.js'
 
-const normalizeKey = (key) => key?.toString().trim().toLowerCase().replace(/[\s_.-]/g, '') || ''
+const normalizeKey = (key) => key?.toString().trim().toLowerCase().replace(/[\s_.'’"-]/g, '') || ''
 
 const getCellValue = (row, keys) => {
   const normalizedKeys = Object.keys(row).reduce((acc, key) => {
@@ -17,11 +18,18 @@ const getCellValue = (row, keys) => {
   return ''
 }
 
-const looksLikeStudentId = (value) => /^[a-z]{0,4}\d+$/i.test(String(value || '').trim())
-const looksLikePersonName = (value) =>
+export const looksLikeStudentId = (value) => /^[a-z]{0,4}\d+$/i.test(String(value || '').trim())
+
+export const looksLikePersonName = (value) =>
   /^[a-z][a-z\s.'-]{1,}$/i.test(String(value || '').trim()) && !looksLikeStudentId(value)
-const looksLikeClassValue = (value) =>
-  /^(ukg|lkg|nur|nsy|nur\.|class\s*\d+|\d+[a-z]?|[ivx]+)$/i.test(String(value || '').trim())
+
+export const looksLikeClassValue = (value) => {
+  if (!value) return false
+  const s = String(value).trim()
+  if (!s) return false
+  if (matchClassKey(s) !== null) return true
+  return /^(ukg|lkg|nur|nsy|nur\.|nursery|class\s*[\d\w]+|\d{1,2}(?:st|nd|rd|th)?|[ivx]+(?:\s*(?:science|commerce|humanities|arts))?)$/i.test(s)
+}
 
 export function normalizeImportedStudent(student, index) {
   let id = String(student.id ?? '').trim()
@@ -35,6 +43,19 @@ export function normalizeImportedStudent(student, index) {
     name = t
   }
 
+  // If parentName is actually a class name (e.g. "XI", "Class 5", "V"):
+  if (looksLikeClassValue(parentName)) {
+    if (looksLikePersonName(klass) && !looksLikeClassValue(klass)) {
+      // Swapped columns: klass is actually father name, parentName is class
+      const temp = parentName
+      parentName = klass
+      klass = temp
+    } else {
+      // parentName is just the class name: clear it so class name doesn't show in father's name
+      parentName = ''
+    }
+  }
+
   if (!parentName && looksLikePersonName(klass) && !looksLikeClassValue(klass)) {
     parentName = klass
     klass = ''
@@ -43,7 +64,7 @@ export function normalizeImportedStudent(student, index) {
   return {
     id: id || `SID-${index + 1}`,
     name: name || `Student ${index + 1}`,
-    parentName: parentName || 'N/A',
+    parentName: parentName || '',
     class: klass || 'N/A',
   }
 }
@@ -57,12 +78,17 @@ function buildImportRow(row, index) {
     'id',
     'rollnumber',
     'rollno',
+    'srno',
   ])
   const parentName = getCellValue(row, [
+    'fathersname',
+    'fathername',
+    'father',
     'parentsname',
     'parentname',
-    'fathername',
     'guardianname',
+    'guardian',
+    'parent',
   ])
   const studentClass = getCellValue(row, ['class', 'classname', 'studentclass', 'standard', 'grade'])
 
@@ -101,13 +127,18 @@ export function parseStudentImportSheet(sheet) {
     'id',
     'rollnumber',
     'rollno',
+    'srno',
   ])
   const nameIndex = findColumnIndex(['studentsname', 'studentname', 'name'])
   const parentIndex = findColumnIndex([
+    'fathersname',
+    'fathername',
+    'father',
     'parentsname',
     'parentname',
-    'fathername',
     'guardianname',
+    'guardian',
+    'parent',
   ])
   const classIndex = findColumnIndex(['class', 'classname', 'studentclass', 'standard', 'grade'])
 
@@ -118,8 +149,16 @@ export function parseStudentImportSheet(sheet) {
       if (!Array.isArray(row)) return null
       const studentId = idIndex >= 0 ? row[idIndex] : row[0]
       const name = nameIndex >= 0 ? row[nameIndex] : row[1]
-      const parentName = parentIndex >= 0 ? row[parentIndex] : row[2]
-      const studentClass = classIndex >= 0 ? row[classIndex] : row[3]
+      let parentName = parentIndex >= 0 ? row[parentIndex] : row[2]
+      let studentClass = classIndex >= 0 ? row[classIndex] : row[3]
+
+      // If headers were missing and row has Class in column 2 and Father Name in column 3:
+      if (parentIndex < 0 && classIndex < 0) {
+        if (looksLikeClassValue(row[2]) && !looksLikeClassValue(row[3])) {
+          studentClass = row[2]
+          parentName = row[3]
+        }
+      }
 
       if (!name || !studentId || !studentClass) {
         console.warn('Skipping row — missing name, student id, or class:', row)
