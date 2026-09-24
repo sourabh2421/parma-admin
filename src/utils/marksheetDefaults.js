@@ -3,26 +3,26 @@
  * Pre-Primary (Playgroup, Nursery, LKG, UKG) + Class I to XII (Science, Commerce, Humanities)
  */
 export const DEFAULT_CLASS_SUBJECTS = {
-  'Playgroup': ['English', 'Number Work', 'Rhymes', 'Drawing & Colouring', 'Art & Craft', 'General Awareness'],
-  'Nursery': ['English', 'Hindi', 'Maths', 'Rhymes & Story', 'Drawing & Colouring', 'General Knowledge'],
-  'LKG': ['English', 'Hindi', 'Maths', 'EVS', 'Drawing', 'Rhymes & Conversation'],
-  'UKG': ['English', 'Hindi', 'Maths', 'EVS', 'Drawing', 'General Knowledge'],
-  'I': ['English', 'Hindi', 'Maths', 'EVS', 'GK', 'Computer'],
-  'II': ['English', 'Hindi', 'Maths', 'EVS', 'GK', 'Computer'],
-  'III': ['English', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit'],
-  'IV': ['English', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit'],
-  'V': ['English', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit'],
-  'VI': ['English', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit'],
-  'VII': ['English', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit'],
-  'VIII': ['English', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit'],
-  'IX': ['English', 'Hindi', 'Maths', 'Science (Phy+Chem+Bio)', 'Social Science', 'Health & Phy. Edu.'],
-  'X': ['English', 'Hindi', 'Maths', 'Science (Phy+Chem+Bio)', 'Social Science', 'Health & Phy. Edu.'],
-  'XI Science': ['English', 'Physics', 'Chemistry', 'Mathematics', 'Biology', 'Physical Education'],
-  'XI Commerce': ['English', 'Accountancy', 'Business Studies', 'Economics', 'Hindi', 'Physical Education'],
-  'XI Humanities': ['English', 'History', 'Political Science', 'Economics', 'Hindi', 'Physical Education'],
-  'XII Science': ['English', 'Physics', 'Chemistry', 'Mathematics', 'Biology', 'Physical Education'],
-  'XII Commerce': ['English', 'Accountancy', 'Business Studies', 'Economics', 'Hindi', 'Physical Education'],
-  'XII Humanities': ['English', 'History', 'Political Science', 'Economics', 'Physical Education'],
+  'Playgroup': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
+  'Nursery': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
+  'LKG': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
+  'UKG': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
+  'I': ['English-I', 'English-II', 'Hindi', 'Maths', 'E.V.S.', 'G.K.', 'Computer', 'Drawing'],
+  'II': ['English-I', 'English-II', 'Hindi', 'Maths', 'E.V.S.', 'G.K.', 'Computer', 'Drawing'],
+  'III': ['English-I', 'English-II', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit', 'G.K.', 'Computer', 'Drawing'],
+  'IV': ['English-I', 'English-II', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit', 'G.K.', 'Computer', 'Drawing'],
+  'V': ['English-I', 'English-II', 'Hindi', 'Maths', 'Science', 'Social Studies', 'Sanskrit', 'G.K.', 'Computer', 'Drawing'],
+  'VI': ['English-I', 'English-II', 'Hindi', 'Maths', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Sanskrit', 'G.K.', 'Computer', 'Drawing'],
+  'VII': ['English-I', 'English-II', 'Hindi', 'Maths', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Sanskrit', 'G.K.', 'Computer', 'Drawing'],
+  'VIII': ['English-I', 'English-II', 'Hindi', 'Maths', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Sanskrit', 'G.K.', 'Computer', 'Drawing'],
+  'IX': ['English-I', 'English-II', 'Hindi', 'Maths', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Physical Education'],
+  'X': ['English-I', 'English-II', 'Hindi', 'Maths', 'Physics', 'Chemistry', 'Biology', 'History & Civics', 'Geography', 'Physical Education'],
+  'XI Science': ['English-I', 'English-II', 'Physics', 'Chemistry', 'Maths', 'Biology', 'Physical Education'],
+  'XI Commerce': ['English-I', 'English-II', 'Hindi', 'Accounts', 'Commerce', 'Economics', 'Physical Education'],
+  'XI Humanities': ['English-I', 'English-II', 'Hindi', 'History & Civics', 'Political Science', 'Economics', 'Physical Education'],
+  'XII Science': ['English-I', 'English-II', 'Physics', 'Chemistry', 'Maths', 'Biology', 'Physical Education'],
+  'XII Commerce': ['English-I', 'English-II', 'Hindi', 'Accounts', 'Commerce', 'Economics', 'Physical Education'],
+  'XII Humanities': ['English-I', 'English-II', 'Hindi', 'History & Civics', 'Political Science', 'Economics', 'Physical Education'],
 }
 
 export const ALL_CLASSES = Object.keys(DEFAULT_CLASS_SUBJECTS)
@@ -70,6 +70,136 @@ export const CO_SCHOLASTIC_SKILLS = [
   'Fluency in English',
   'Co-curricular Activities',
 ]
+
+/**
+ * Get Mark Evaluation Configuration for a specific Subject in a Class.
+ * Adheres strictly to the 6 Excel sheets of the 2026-27 academic syllabus:
+ * - Pre-Primary (NUR to UKG): FA1 (20), FA2 (20), Dictation (20), Oral (20) -> Internal = 40, Half Yearly = 60 => Total = 100. (Drawing & EVS: Dictation/Oral NA)
+ * - 11 & 12 Practicals (Physics, Chemistry, Biology, Physical Education): FA (10) + Assign (10) + Oral/Prc (10) = 30, Half Yearly = 70 => Total = 100.
+ * - 11 & 12 Non-Practicals: FA (10) + Assign (5) + Oral/Prc (5) = 20, Half Yearly = 80 => Total = 100.
+ * - 50-mark subjects in 1 to 8 (Sanskrit, GK, Computer, Drawing): FA (10) + Assign (5) + Oral (5) = 20, Half Yearly = 30 => Total = 50. (Drawing: Assign/Oral NA)
+ * - Standard 100-mark subjects (1 to 10): FA (10) + Assign (5) + Oral (5) = 20, Half Yearly = 80 => Total = 100.
+ */
+export function getSubjectMarkConfig(clsKey, subjectName = '') {
+  const normCls = matchClassKey(clsKey) || clsKey || 'I'
+  const sub = String(subjectName || '').trim().toLowerCase()
+  const isPrePrimary = ['Playgroup', 'Nursery', 'LKG', 'UKG'].includes(normCls)
+  const isClass1To8 = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'].includes(normCls)
+  const is11_12 = normCls.startsWith('XI') || normCls.startsWith('XII')
+
+  // 1. Pre-Primary (NUR to UKG)
+  if (isPrePrimary) {
+    const isDrawingOrEvs = sub.includes('drawing') || sub.includes('e.v.s') || sub.includes('evs')
+    return {
+      isPrePrimary: true,
+      isPractical: false,
+      hasAssignment: !isDrawingOrEvs,
+      hasOral: !isDrawingOrEvs,
+      assignLabel: 'Dictation',
+      oralLabel: 'Oral',
+      faMax: 20,
+      assignMax: isDrawingOrEvs ? 0 : 20,
+      oralMax: isDrawingOrEvs ? 0 : 20,
+      internalMax: 40,
+      theoryMax: 60,
+      termMax: 100,
+      annualMax: 200,
+    }
+  }
+
+  // 2. Class 11 & 12 Practicals (Physics, Chemistry, Biology, Physical Education)
+  if (is11_12) {
+    const isPractical =
+      sub.includes('physics') ||
+      sub.includes('chemistry') ||
+      sub.includes('biology') ||
+      sub.includes('phyical') ||
+      sub.includes('physical education')
+
+    if (isPractical) {
+      return {
+        isPrePrimary: false,
+        isPractical: true,
+        hasAssignment: true,
+        hasOral: true,
+        assignLabel: 'Assignment',
+        oralLabel: 'Oral/Prc/Game',
+        faMax: 20,
+        assignMax: 10,
+        oralMax: 10,
+        internalMax: 30,
+        theoryMax: 70,
+        termMax: 100,
+        annualMax: 200,
+      }
+    }
+
+    // Class 11 & 12 Non-Practicals (Maths, English, Hindi, Accounts, Commerce, Economics, History, Pol Science)
+    return {
+      isPrePrimary: false,
+      isPractical: false,
+      hasAssignment: true,
+      hasOral: true,
+      assignLabel: 'Assignment',
+      oralLabel: 'Oral/Prc/Game',
+      faMax: 20,
+      assignMax: 10,
+      oralMax: 10,
+      internalMax: 20,
+      theoryMax: 80,
+      termMax: 100,
+      annualMax: 200,
+    }
+  }
+
+  // 3. 50-mark subjects in Classes 1 to 8 (Sanskrit, GK, Computer, Drawing)
+  if (isClass1To8) {
+    const is50MarkSub =
+      sub.includes('sanskrit') ||
+      sub.includes('g.k') ||
+      sub.includes('gk') ||
+      sub.includes('general knowledge') ||
+      sub.includes('computer') ||
+      sub.includes('drawing')
+
+    if (is50MarkSub) {
+      const isDrawing = sub.includes('drawing')
+      return {
+        isPrePrimary: false,
+        isPractical: false,
+        hasAssignment: !isDrawing,
+        hasOral: !isDrawing,
+        assignLabel: 'Assignment',
+        oralLabel: 'Oral/Practical',
+        faMax: 20,
+        assignMax: isDrawing ? 0 : 10,
+        oralMax: isDrawing ? 0 : 10,
+        internalMax: 20,
+        theoryMax: 30,
+        termMax: 50,
+        annualMax: 100,
+      }
+    }
+  }
+
+  // 4. Standard 100-mark subjects for Class 1 to 10
+  const isDrawing = sub.includes('drawing')
+  return {
+    isPrePrimary: false,
+    isPractical: false,
+    hasAssignment: !isDrawing,
+    hasOral: !isDrawing,
+    assignLabel: 'Assignment',
+    oralLabel: normCls.startsWith('IX') || normCls.startsWith('X') ? 'Oral/Prc/Game' : 'Oral/Practical',
+    faMax: 20,
+    assignMax: isDrawing ? 0 : 10,
+    oralMax: isDrawing ? 0 : 10,
+    internalMax: 20,
+    theoryMax: 80,
+    termMax: 100,
+    annualMax: 200,
+  }
+}
 
 /**
  * Match arbitrary class string to standard class key.
@@ -222,25 +352,102 @@ export function calculateScholasticGrade(percentage) {
 }
 
 /**
- * Calculate Term Marks (Half-Yearly or Term 2):
- * FA-1 (20) & FA-2 (20) combined and divided by 2 (max 20).
- * Combined FA is added to SA (80) -> Total is out of 100.
- * Example: FA-1: 16, FA-2: 20, SA-1: 60 => 60 + ((16 + 20) / 2) = 78 out of 100.
+ * Calculate Term Marks (Half-Yearly or Term 2 / Annual) according to the Excel syllabus:
+ * - Pre-Primary (NUR to UKG): Internal Total = 40 (FA avg 20 + Dictation/Oral avg 20), Theory = 60 => Total = 100.
+ * - Class 11-12 Practicals: Internal Total = 30 (FA/4 (10) + Assignment (10) + Oral/Prc (10)), Theory = 70 => Total = 100.
+ * - 50-mark subjects (GK, Computer, Sanskrit, Drawing): Internal = 20, Theory = 30 => Total = 50.
+ * - Standard 100-mark subjects: Internal = 20 (FA/4 (10) + Assignment/2 (5) + Oral/2 (5)), Theory = 80 => Total = 100.
  */
-export function calculateTermMarks(faAObt = 0, faBObt = 0, saObt = 0, faAMax = 20, faBMax = 20, saMax = 80) {
+export function calculateTermMarks(
+  faAObt = 0,
+  faBObt = 0,
+  saObt = 0,
+  faAMax = 20,
+  faBMax = 20,
+  saMax = 80,
+  assignObt = null,
+  oralObt = null,
+  assignMax = null,
+  oralMax = null,
+  clsKey = null,
+  subjectName = null
+) {
   const faA = Number(faAObt) || 0
   const faB = Number(faBObt) || 0
   const sa = Number(saObt) || 0
 
+  // If specific class/subject or assignment/oral parameters are present, use the exact Excel system
+  if (clsKey || subjectName || (assignObt !== null && assignObt !== undefined) || (oralObt !== null && oralObt !== undefined)) {
+    const config = getSubjectMarkConfig(clsKey, subjectName)
+    const effectiveSaMax = saMax !== undefined && saMax !== null && saMax !== '' ? Number(saMax) : config.theoryMax
+    const effectiveTermMax = config.termMax
+    const is50Mark = effectiveTermMax === 50
+    const isPrePrimary = config.isPrePrimary
+    const is11_12Practical = config.isPractical
+
+    const assign = config.hasAssignment ? (Number(assignObt) || 0) : 0
+    const oral = config.hasOral ? (Number(oralObt) || 0) : 0
+
+    let internalObt = 0
+
+    if (isPrePrimary) {
+      if (config.hasAssignment && config.hasOral) {
+        // FA1 (20) & FA2 (20) avg = 20, Dictation (20) & Oral (20) avg = 20 => Internal = 40
+        const faAvg = (faA + faB) / 2
+        const dictOralAvg = (assign + oral) / 2
+        internalObt = faAvg + dictOralAvg
+      } else {
+        // EVS / Drawing: FA1 (20) + FA2 (20) => 40
+        internalObt = faA + faB
+      }
+    } else if (is11_12Practical) {
+      // 11-12 Practicals: (FA1+FA2)/4 (max 10) + Assignment (max 10) + Oral/Prc (max 10) = 30
+      const faPortion = (faA + faB) / 4
+      internalObt = faPortion + assign + oral
+    } else if (is50Mark) {
+      // 50-mark subjects: Internal = 20, SA = 30 => Term = 50
+      if (config.hasAssignment && config.hasOral) {
+        const faPortion = (faA + faB) / 4
+        const assignPortion = assign / 2
+        const oralPortion = oral / 2
+        internalObt = faPortion + assignPortion + oralPortion
+      } else {
+        internalObt = (faA + faB) / 2
+      }
+    } else {
+      // Standard 100-mark subjects: Internal = 20, SA = 80 => Term = 100
+      if (config.hasAssignment && config.hasOral) {
+        const faPortion = (faA + faB) / 4
+        const assignPortion = assign / 2
+        const oralPortion = oral / 2
+        internalObt = faPortion + assignPortion + oralPortion
+      } else {
+        internalObt = (faA + faB) / 2
+      }
+    }
+
+    const totalObt = internalObt + sa
+    const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(2))
+
+    return {
+      faWeighted: (faA + faB) / 2,
+      internalObt: Number.isInteger(internalObt) ? internalObt : Number(internalObt.toFixed(2)),
+      internalMax: config.internalMax,
+      totalObt: cleanTotalObt,
+      maxMarks: effectiveTermMax,
+    }
+  }
+
+  // Fallback / standard calculation for legacy inputs
   const faWeighted = (faA + faB) / 2
   const totalObt = sa + faWeighted
   const maxMarks = (Number(saMax) || 80) + ((Number(faAMax) || 20) + (Number(faBMax) || 20)) / 2
-
-  // Format cleanly (e.g. 78 or 77.5)
   const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(2))
 
   return {
     faWeighted,
+    internalObt: faWeighted,
+    internalMax: ((Number(faAMax) || 20) + (Number(faBMax) || 20)) / 2,
     totalObt: cleanTotalObt,
     maxMarks: maxMarks || 100,
   }
@@ -277,21 +484,29 @@ export function calculateDivision(percentage) {
 
 /**
  * Helper to generate default empty scholastic marks for a class.
- * Uses the new FA-1/FA-2/SA-1/FA-3/FA-4/SA-2 schema.
+ * Uses the new FA-1/FA-2/SA-1 (with Assignment & Oral)/FA-3/FA-4/SA-2 (with Assignment & Oral) schema.
  */
 export function createScholasticTemplateForClass(clsKey) {
-  const subjects = DEFAULT_CLASS_SUBJECTS[clsKey] || DEFAULT_CLASS_SUBJECTS['I']
-  return subjects.map((sub) => ({
-    name: sub,
-    // Term 1 — Half-Yearly
-    fa1Max: 20, fa1Obt: 0,   // F.A.-1 (May)
-    fa2Max: 20, fa2Obt: 0,   // F.A.-2 (July)
-    sa1Max: 80, sa1Obt: 0,   // S.A.-1 Half-Yearly (September)
-    // Term 2 — Annual
-    fa3Max: 20, fa3Obt: 0,   // F.A.-3 (November)
-    fa4Max: 20, fa4Obt: 0,   // F.A.-4 (January)
-    sa2Max: 80, sa2Obt: 0,   // S.A.-2 Annual (March)
-  }))
+  const normKey = matchClassKey(clsKey) || clsKey || 'I'
+  const subjects = DEFAULT_CLASS_SUBJECTS[normKey] || DEFAULT_CLASS_SUBJECTS['I']
+  return subjects.map((sub) => {
+    const config = getSubjectMarkConfig(normKey, sub)
+    return {
+      name: sub,
+      // Term 1 — Half-Yearly
+      fa1Max: 20, fa1Obt: 0,   // F.A.-1 (May)
+      fa2Max: 20, fa2Obt: 0,   // F.A.-2 (July)
+      sa1AssignMax: config.assignMax, sa1AssignObt: 0, // Assignment / Dictation
+      sa1OralMax: config.oralMax, sa1OralObt: 0,       // Oral / Practical / Game
+      sa1Max: config.theoryMax, sa1Obt: 0,             // S.A.-1 Half-Yearly Theory (September)
+      // Term 2 — Annual
+      fa3Max: 20, fa3Obt: 0,   // F.A.-3 (November)
+      fa4Max: 20, fa4Obt: 0,   // F.A.-4 (January)
+      sa2AssignMax: config.assignMax, sa2AssignObt: 0, // Assignment / Dictation
+      sa2OralMax: config.oralMax, sa2OralObt: 0,       // Oral / Practical / Game
+      sa2Max: config.theoryMax, sa2Obt: 0,             // S.A.-2 Annual Theory (March)
+    }
+  })
 }
 
 function makeStudent(id, srNo, parentId, name, father, mother, dob, cls) {

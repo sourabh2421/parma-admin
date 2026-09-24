@@ -183,7 +183,7 @@ export default function MarksheetOverview() {
       {/* Class Stream Roster Overview */}
       <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6 shadow-md">
         <h3 className="text-sm font-bold text-[#fff9fb] mb-4 flex items-center gap-2">
-          <span>🏫</span> Class Streams & Enrolled Students Summary
+          Class Streams & Enrolled Students Summary
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {ALL_CLASSES.map((cls) => {

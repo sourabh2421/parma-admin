@@ -171,8 +171,8 @@ function PendingFeesPage() {
                 ) : (
                   pendingRows.map((row) => (
                     <tr key={row.studentId} className="border-b border-slate-100 bg-rose-50/50">
-                      <td className="px-3 py-3 font-medium text-slate-900">{row.studentName}</td>
-                      <td className="px-3 py-3 text-slate-700">{row.class}</td>
+                      <td className="px-3 py-3 font-medium uppercase text-slate-900">{row.studentName}</td>
+                      <td className="px-3 py-3 uppercase text-slate-700">{row.class}</td>
                       <td className="px-3 py-3 text-slate-700">{row.pendingMonth}</td>
                       <td className="px-3 py-3 text-slate-600">{row.pendingAmount}</td>
                     </tr>

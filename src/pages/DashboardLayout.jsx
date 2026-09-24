@@ -1,6 +1,7 @@
 import { useNavigate, Outlet } from 'react-router-dom'
 import useAuth from '../auth/useAuth.jsx'
 import { ToastProvider } from '../context/ToastProvider.jsx'
+import { OwnerRevenueProvider } from '../context/OwnerRevenueContext.jsx'
 import DashboardSidebar from '../components/dashboard/DashboardSidebar.jsx'
 import DashboardTopbar from '../components/dashboard/DashboardTopbar.jsx'
 
@@ -20,15 +21,17 @@ function DashboardLayout() {
 
   return (
     <ToastProvider>
-      <section className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-          <DashboardSidebar />
-          <div className="min-w-0 space-y-4">
-            <DashboardTopbar onLogout={handleLogout} />
-            <Outlet />
+      <OwnerRevenueProvider>
+        <section className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8">
+          <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+            <DashboardSidebar />
+            <div className="min-w-0 space-y-4">
+              <DashboardTopbar onLogout={handleLogout} />
+              <Outlet />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </OwnerRevenueProvider>
     </ToastProvider>
   )
 }

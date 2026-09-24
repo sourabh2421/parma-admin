@@ -78,32 +78,34 @@ describe('marksheetRepository student class linking & exam system', () => {
 
     // 1. Enter FA-1 marks
     const fa1Marks = [
-      { name: 'English', fa1Obt: 18, fa1Max: 20 },
+      { name: 'English-I', fa1Obt: 18, fa1Max: 20 },
       { name: 'Hindi', fa1Obt: 19, fa1Max: 20 },
     ]
     const savedAfterFa1 = await saveExamMarks(student, 'FA-1', fa1Marks)
-    expect(savedAfterFa1.scholastic.find((s) => s.name === 'English').fa1Obt).toBe(18)
+    expect(savedAfterFa1.scholastic.find((s) => s.name === 'English-I').fa1Obt).toBe(18)
 
     // 2. Later enter FA-2 marks
     const fa2Marks = [
-      { name: 'English', fa2Obt: 17, fa2Max: 20 },
+      { name: 'English-I', fa2Obt: 17, fa2Max: 20 },
       { name: 'Hindi', fa2Obt: 20, fa2Max: 20 },
     ]
     const savedAfterFa2 = await saveExamMarks(student, 'FA-2', fa2Marks)
-    const english = savedAfterFa2.scholastic.find((s) => s.name === 'English')
+    const english = savedAfterFa2.scholastic.find((s) => s.name === 'English-I')
     // FA-1 is preserved!
     expect(english.fa1Obt).toBe(18)
     // FA-2 is updated!
     expect(english.fa2Obt).toBe(17)
 
-    // 3. Later enter SA-1 (Half-Yearly)
+    // 3. Later enter SA-1 (Half-Yearly with Assignment and Oral)
     const sa1Marks = [
-      { name: 'English', sa1Obt: 74, sa1Max: 80 },
+      { name: 'English-I', sa1Obt: 74, sa1Max: 80, sa1AssignObt: 9, sa1OralObt: 10 },
     ]
     const savedAfterSa1 = await saveExamMarks(student, 'SA-1', sa1Marks)
-    const englishFinal = savedAfterSa1.scholastic.find((s) => s.name === 'English')
+    const englishFinal = savedAfterSa1.scholastic.find((s) => s.name === 'English-I')
     expect(englishFinal.fa1Obt).toBe(18)
     expect(englishFinal.fa2Obt).toBe(17)
     expect(englishFinal.sa1Obt).toBe(74)
+    expect(englishFinal.sa1AssignObt).toBe(9)
+    expect(englishFinal.sa1OralObt).toBe(10)
   })
 })

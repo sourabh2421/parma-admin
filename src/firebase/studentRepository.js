@@ -7,12 +7,14 @@ import {
   onSnapshot,
   query,
   serverTimestamp,
+  setDoc,
   updateDoc,
   writeBatch,
 } from 'firebase/firestore'
 import { getFirebaseDb } from './config.js'
 import { COLLECTION_LEGACY_STUDENT_FEES, COLLECTION_STUDENTS } from './constants.js'
 import { assertAdminCanWrite } from './writeGuard.js'
+import { resolveFatherName } from './marksheetRepository.js'
 
 const LEGACY_MIGRATION_KEY = 'parma-academy-legacy-students-imported-v1'
 
@@ -51,11 +53,17 @@ export function mapStudentDoc(snapshot) {
   if (!d) return null
   if (d.deleted === true) return null
   const id = String(d.studentId ?? snapshot.id).trim()
+  const name = String(d.name ?? '').trim().toUpperCase()
+  const rawParent = String(d.parentName ?? d.fatherName ?? '').trim()
+  const resolvedParent = resolveFatherName(id, name, rawParent)
+  const parentName = resolvedParent ? resolvedParent.toUpperCase() : ''
+  const studentClass = String(d.class ?? '').trim().toUpperCase()
+
   return {
     id,
-    name: String(d.name ?? '').trim(),
-    parentName: String(d.parentName ?? d.fatherName ?? '').trim(),
-    class: String(d.class ?? '').trim(),
+    name,
+    parentName,
+    class: studentClass,
     createdAt: coerceTimestampToIso(d.createdAt),
     updatedAt: coerceTimestampToIso(d.updatedAt),
   }
@@ -203,3 +211,49 @@ export async function softDeleteStudent(studentId) {
     updatedAt: serverTimestamp(),
   })
 }
+
+/**
+ * Creates a new single student profile in Firestore.
+ * @param {{ id: string, name: string, parentName?: string, studentClass: string }} studentData
+ * @returns {Promise<{ id: string, name: string, parentName: string, class: string }>}
+ */
+export async function createSingleStudent({ id, name, parentName, studentClass }) {
+  assertAdminCanWrite()
+  const db = getFirebaseDb()
+  if (!db) throw new Error('Firestore is not initialized.')
+
+  const rawId = String(id ?? '').trim()
+  const rawName = String(name ?? '').trim().toUpperCase()
+  const rawParent = String(parentName ?? '').trim().toUpperCase()
+  const rawClass = String(studentClass ?? '').trim().toUpperCase()
+
+  if (!rawId) throw new Error('Student ID / Roll No is required.')
+  if (!rawName) throw new Error('Student Name is required.')
+  if (!rawClass) throw new Error('Class is required.')
+
+  const docId = sanitizeStudentDocId(rawId)
+  const studentRef = doc(db, COLLECTION_STUDENTS, docId)
+  const existingSnap = await getDoc(studentRef)
+
+  if (existingSnap.exists() && existingSnap.data()?.deleted !== true) {
+    throw new Error(
+      `A student with ID "${rawId}" already exists (${existingSnap.data()?.name || 'Existing Student'}). Please use a unique Student ID.`,
+    )
+  }
+
+  const payload = {
+    studentId: rawId,
+    name: rawName,
+    parentName: rawParent,
+    fatherName: rawParent,
+    class: rawClass,
+    deleted: false,
+    deletedAt: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }
+
+  await setDoc(studentRef, payload, { merge: true })
+  return { id: rawId, name: rawName, parentName: rawParent, class: rawClass }
+}
+

@@ -49,14 +49,14 @@ export default function MarksheetLoginPage() {
           </Link>
 
           <span className="rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 px-3 py-1 text-[11px] font-bold">
-            👩‍🏫 Teacher Desk
+            Teacher Desk
           </span>
         </div>
 
         {/* Branding Header */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-3xl mb-3 shadow-lg shadow-indigo-500/20">
-            📊
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mb-3 shadow-lg shadow-indigo-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
 
           <h1 className="text-2xl text-white tracking-tight zen-dots-regular">

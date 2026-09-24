@@ -61,14 +61,27 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     const sa1Max = sub.sa1Max !== undefined && sub.sa1Max !== '' ? parseSafeNum(sub.sa1Max, 80) : (sub.t1MainMax !== undefined ? parseSafeNum(sub.t1MainMax, 80) : 80)
     const sa1Obt = isSa1Special ? 0 : (sub.sa1Obt !== undefined && sub.sa1Obt !== '' ? parseSafeNum(sub.sa1Obt, 0) : (sub.t1MainObt !== undefined ? parseSafeNum(sub.t1MainObt, 0) : 0))
 
-    // Term 1 Total: SA-1 + (FA-1 + FA-2) / 2 => Out of 100
-    const t1Calc = calculateTermMarks(fa1Obt, fa2Obt, sa1Obt, fa1Max, fa2Max, sa1Max)
+    // Term 1 Total: SA-1 Theory + Internal Assessment (FA1 + FA2 + Assignment + Oral according to Excel syllabus)
+    const t1Calc = calculateTermMarks(
+      fa1Obt,
+      fa2Obt,
+      sa1Obt,
+      fa1Max,
+      fa2Max,
+      sa1Max,
+      sub.sa1AssignObt,
+      sub.sa1OralObt,
+      sub.sa1AssignMax,
+      sub.sa1OralMax,
+      data.class,
+      sub.name
+    )
     const t1Max = t1Calc.maxMarks
-    const t1Obt = isSa1Special ? roundClean(t1Calc.faWeighted) : t1Calc.totalObt
+    const t1Obt = isSa1Special ? roundClean(t1Calc.internalObt) : t1Calc.totalObt
     const t1Percent = t1Max > 0 ? (t1Obt / t1Max) * 100 : 0
     const t1Grade = calculateScholasticGrade(t1Percent)
 
-    // Term 2 components (FA-3 20, FA-4 20, SA-2 80 -> Combined FA/2 + SA-2 => 100)
+    // Term 2 components (FA-3 20, FA-4 20, SA-2 Theory)
     const fa3Max = sub.fa3Max !== undefined && sub.fa3Max !== '' ? parseSafeNum(sub.fa3Max, 20) : (sub.t2IntMax !== undefined ? parseSafeNum(sub.t2IntMax, 20) : 20)
     const fa3Obt = sub.fa3Obt !== undefined && sub.fa3Obt !== '' ? parseSafeNum(sub.fa3Obt, 0) : (sub.t2IntObt !== undefined ? parseSafeNum(sub.t2IntObt, 0) : 0)
 
@@ -79,10 +92,23 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     const sa2Max = sub.sa2Max !== undefined && sub.sa2Max !== '' ? parseSafeNum(sub.sa2Max, 80) : (sub.t2MainMax !== undefined ? parseSafeNum(sub.t2MainMax, 80) : 80)
     const sa2Obt = isSa2Special ? 0 : (sub.sa2Obt !== undefined && sub.sa2Obt !== '' ? parseSafeNum(sub.sa2Obt, 0) : (sub.t2MainObt !== undefined ? parseSafeNum(sub.t2MainObt, 0) : 0))
 
-    // Term 2 Total: SA-2 + (FA-3 + FA-4) / 2 => Out of 100
-    const t2Calc = calculateTermMarks(fa3Obt, fa4Obt, sa2Obt, fa3Max, fa4Max, sa2Max)
+    // Term 2 Total: SA-2 Theory + Internal Assessment (FA3 + FA4 + Assignment + Oral according to Excel syllabus)
+    const t2Calc = calculateTermMarks(
+      fa3Obt,
+      fa4Obt,
+      sa2Obt,
+      fa3Max,
+      fa4Max,
+      sa2Max,
+      sub.sa2AssignObt,
+      sub.sa2OralObt,
+      sub.sa2AssignMax,
+      sub.sa2OralMax,
+      data.class,
+      sub.name
+    )
     const t2Max = t2Calc.maxMarks
-    const t2Obt = isSa2Special ? roundClean(t2Calc.faWeighted) : t2Calc.totalObt
+    const t2Obt = isSa2Special ? roundClean(t2Calc.internalObt) : t2Calc.totalObt
     const t2Percent = t2Max > 0 ? (t2Obt / t2Max) * 100 : 0
     const t2Grade = calculateScholasticGrade(t2Percent)
 
@@ -265,7 +291,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                 <img src={data.photoUrl} alt={data.name} className="h-full w-full object-cover" />
               ) : (
                 <>
-                  <span className="text-base">👤</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                   <span>PHOTO</span>
                 </>
               )}

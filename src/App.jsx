@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Agentation } from 'agentation'
 import LoginPage from './pages/LoginPage.jsx'
 import PortalSelectionPage from './pages/PortalSelectionPage.jsx'
 import DashboardLayout from './pages/DashboardLayout.jsx'
@@ -60,6 +61,7 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {process.env.NODE_ENV === 'development' && <Agentation />}
     </MarksheetAuthProvider>
   )
 }

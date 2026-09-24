@@ -4,6 +4,8 @@ import {
   CO_SCHOLASTIC_SKILLS,
   EXAM_SCHEDULE,
   EXAM_TYPES,
+  calculateTermMarks,
+  getSubjectMarkConfig,
   matchClassKey,
 } from '../../utils/marksheetDefaults.js'
 import {
@@ -266,7 +268,7 @@ export default function MarksEntryPage() {
 
       {statusMessage && (
         <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/40 p-3.5 text-xs font-bold text-emerald-300">
-          ✅ {statusMessage}
+          {statusMessage}
         </div>
       )}
 
@@ -274,7 +276,7 @@ export default function MarksEntryPage() {
       <div className="rounded-2xl border border-[#333538] bg-[#202122] p-5 shadow-md">
         <div className="flex items-center justify-between mb-3">
           <label className="text-xs font-extrabold uppercase tracking-wider text-[#d3d4d9] flex items-center gap-2">
-            <span>📅</span> Select Active Exam to Enter
+            Select Active Exam to Enter
           </label>
           <span className="text-[11px] text-[#d3d4d9]">
             Active: <strong className="text-[#4b88a2] font-black">{selectedExam === 'ALL' ? 'All Exams Full Matrix' : `${selectedExam} (${EXAM_SCHEDULE[selectedExam]})`}</strong>
@@ -302,7 +304,7 @@ export default function MarksEntryPage() {
                     {exam}
                   </span>
                   <span className="text-[11px]">
-                    {isEntered ? '✅' : '⏳'}
+                    {isEntered ? <span className="text-emerald-400">✓</span> : <span className="text-[#d3d4d9]/50">—</span>}
                   </span>
                 </div>
                 <span className="text-[10px] text-[#d3d4d9] mt-1">{schedule}</span>
@@ -327,7 +329,7 @@ export default function MarksEntryPage() {
               <span className={`text-xs font-black ${selectedExam === 'ALL' ? 'text-[#fff9fb]' : 'text-[#fff9fb]'}`}>
                 Full Matrix
               </span>
-              <span className="text-[10px]">📊</span>
+              <span className="text-[10px]">≡</span>
             </div>
             <span className="text-[10px] text-[#d3d4d9] mt-1">All 6 Exams</span>
             <span className="text-[9px] text-[#4b88a2] mt-1 font-bold">Overview Mode</span>
@@ -456,7 +458,7 @@ export default function MarksEntryPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
             <div>
               <h3 className="text-sm font-bold text-[#fff9fb] flex items-center gap-2">
-                <span>📊</span> Scholastic Subjects Marks for Class {selectedClass}
+                Scholastic Subjects Marks for Class {selectedClass}
               </h3>
               <p className="text-xs text-[#d3d4d9] mt-0.5">
                 {selectedExam === 'ALL'
@@ -474,67 +476,298 @@ export default function MarksEntryPage() {
           {/* Focused Single Exam View */}
           {selectedExam !== 'ALL' ? (
             <div className="space-y-3">
-              <div className="bg-[#252627] border border-[#4b88a2]/30 rounded-xl p-3 flex items-center justify-between text-xs">
+              <div className="bg-[#252627] border border-[#4b88a2]/30 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                 <span className="font-bold text-[#fff9fb]">
                   Target Exam: <strong className="text-[#4b88a2] text-sm ml-1">{selectedExam}</strong> ({EXAM_SCHEDULE[selectedExam]})
                 </span>
                 <span className="text-[#d3d4d9] text-[11px]">
-                  Default Max Marks: {selectedExam.startsWith('FA') ? '20' : '80'}
+                  {selectedExam === 'SA-1' || selectedExam === 'SA-2'
+                    ? 'Enter Theory, Assignment, and Oral marks. Internal and Term Totals calculate automatically.'
+                    : 'Enter Formative Assessment marks (Max 20 per subject).'}
                 </span>
               </div>
 
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
-                    <th className="py-2.5 px-3">Subject Name</th>
-                    <th className="py-2.5 px-3 text-center w-36">Marks Obtained</th>
-                    <th className="py-2.5 px-3 text-center w-28">Max Marks</th>
-                    <th className="py-2.5 px-3 text-center w-36">Exam Summary</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(record.scholastic || []).map((sub, idx) => {
-                    const fields = {
-                      'FA-1': { obt: 'fa1Obt', max: 'fa1Max' },
-                      'FA-2': { obt: 'fa2Obt', max: 'fa2Max' },
-                      'SA-1': { obt: 'sa1Obt', max: 'sa1Max' },
-                      'FA-3': { obt: 'fa3Obt', max: 'fa3Max' },
-                      'FA-4': { obt: 'fa4Obt', max: 'fa4Max' },
-                      'SA-2': { obt: 'sa2Obt', max: 'sa2Max' },
-                    }[selectedExam]
+              {selectedExam === 'SA-1' ? (
+                /* SA-1 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals) */
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
+                      <th className="py-2.5 px-3">Subject Name</th>
+                      <th className="py-2.5 px-2 text-center w-28">SA-1 Theory</th>
+                      <th className="py-2.5 px-2 text-center w-28">Assignment</th>
+                      <th className="py-2.5 px-2 text-center w-28">Oral / Practical</th>
+                      <th className="py-2.5 px-2 text-center w-24">Internal Total</th>
+                      <th className="py-2.5 px-2 text-center w-28 font-extrabold text-[#4b88a2]">Term 1 Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(record.scholastic || []).map((sub, idx) => {
+                      const config = getSubjectMarkConfig(selectedClass, sub.name)
+                      const calc = calculateTermMarks(
+                        sub.fa1Obt,
+                        sub.fa2Obt,
+                        sub.sa1Obt,
+                        sub.fa1Max || 20,
+                        sub.fa2Max || 20,
+                        sub.sa1Max || config.theoryMax,
+                        sub.sa1AssignObt,
+                        sub.sa1OralObt,
+                        sub.sa1AssignMax || config.assignMax,
+                        sub.sa1OralMax || config.oralMax,
+                        selectedClass,
+                        sub.name
+                      )
 
-                    return (
-                      <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
-                        <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
-                          {sub.name}
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <input
-                            type="text"
-                            value={sub[fields.obt] ?? ''}
-                            placeholder="0"
-                            onChange={(e) => handleScholasticChange(idx, fields.obt, e.target.value)}
-                            className="w-24 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-3 py-1.5 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
-                          />
-                        </td>
-                        <td className="py-2.5 px-3 text-center">
-                          <input
-                            type="text"
-                            value={sub[fields.max] ?? (selectedExam.startsWith('FA') ? 20 : 80)}
-                            onChange={(e) => handleScholasticChange(idx, fields.max, e.target.value)}
-                            className="w-20 rounded-lg border border-[#333538] bg-[#252627]/60 px-2 py-1.5 text-center text-[#d3d4d9] font-semibold focus:outline-none"
-                          />
-                        </td>
-                        <td className="py-2.5 px-3 text-center text-[10.5px] text-[#d3d4d9]">
-                          <span className="font-mono">
-                            FA1:{sub.fa1Obt || 0} | FA2:{sub.fa2Obt || 0} | SA1:{sub.sa1Obt || 0}
-                          </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+                      return (
+                        <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
+                          <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
+                            {sub.name}
+                            <span className="block text-[10px] font-normal text-[#d3d4d9]/70">
+                              FA1: {sub.fa1Obt || 0} | FA2: {sub.fa2Obt || 0}
+                            </span>
+                          </td>
+
+                          {/* Theory Marks */}
+                          <td className="py-2.5 px-2 text-center">
+                            <div className="inline-flex flex-col items-center">
+                              <input
+                                type="text"
+                                value={sub.sa1Obt ?? ''}
+                                placeholder="0"
+                                onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
+                                className="w-20 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                              />
+                              <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5 font-semibold">
+                                / {sub.sa1Max || config.theoryMax}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Assignment / Dictation */}
+                          <td className="py-2.5 px-2 text-center">
+                            {config.hasAssignment ? (
+                              <div className="inline-flex flex-col items-center">
+                                <input
+                                  type="text"
+                                  value={sub.sa1AssignObt ?? ''}
+                                  placeholder="0"
+                                  onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
+                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                />
+                                <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                  {config.assignLabel} (/{config.assignMax})
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                            )}
+                          </td>
+
+                          {/* Oral / Practical */}
+                          <td className="py-2.5 px-2 text-center">
+                            {config.hasOral ? (
+                              <div className="inline-flex flex-col items-center">
+                                <input
+                                  type="text"
+                                  value={sub.sa1OralObt ?? ''}
+                                  placeholder="0"
+                                  onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
+                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                />
+                                <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                  {config.oralLabel} (/{config.oralMax})
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                            )}
+                          </td>
+
+                          {/* Calculated Internal Total */}
+                          <td className="py-2.5 px-2 text-center">
+                            <span className="inline-block rounded-md bg-[#2e3032] border border-[#333538] px-2 py-1 font-mono font-bold text-xs text-amber-300">
+                              {calc.internalObt} <span className="text-[10px] text-[#d3d4d9]/60">/{config.internalMax}</span>
+                            </span>
+                          </td>
+
+                          {/* Calculated Term 1 Total */}
+                          <td className="py-2.5 px-2 text-center">
+                            <span className="inline-block rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 px-3 py-1 font-mono font-black text-sm text-[#4b88a2]">
+                              {calc.totalObt} <span className="text-[10px] font-bold text-[#d3d4d9]">/{calc.maxMarks}</span>
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              ) : selectedExam === 'SA-2' ? (
+                /* SA-2 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals) */
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
+                      <th className="py-2.5 px-3">Subject Name</th>
+                      <th className="py-2.5 px-2 text-center w-28">SA-2 Theory</th>
+                      <th className="py-2.5 px-2 text-center w-28">Assignment</th>
+                      <th className="py-2.5 px-2 text-center w-28">Oral / Practical</th>
+                      <th className="py-2.5 px-2 text-center w-24">Internal Total</th>
+                      <th className="py-2.5 px-2 text-center w-28 font-extrabold text-[#bb0a21]">Term 2 Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(record.scholastic || []).map((sub, idx) => {
+                      const config = getSubjectMarkConfig(selectedClass, sub.name)
+                      const calc = calculateTermMarks(
+                        sub.fa3Obt,
+                        sub.fa4Obt,
+                        sub.sa2Obt,
+                        sub.fa3Max || 20,
+                        sub.fa4Max || 20,
+                        sub.sa2Max || config.theoryMax,
+                        sub.sa2AssignObt,
+                        sub.sa2OralObt,
+                        sub.sa2AssignMax || config.assignMax,
+                        sub.sa2OralMax || config.oralMax,
+                        selectedClass,
+                        sub.name
+                      )
+
+                      return (
+                        <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
+                          <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
+                            {sub.name}
+                            <span className="block text-[10px] font-normal text-[#d3d4d9]/70">
+                              FA3: {sub.fa3Obt || 0} | FA4: {sub.fa4Obt || 0}
+                            </span>
+                          </td>
+
+                          {/* Theory Marks */}
+                          <td className="py-2.5 px-2 text-center">
+                            <div className="inline-flex flex-col items-center">
+                              <input
+                                type="text"
+                                value={sub.sa2Obt ?? ''}
+                                placeholder="0"
+                                onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
+                                className="w-20 rounded-lg border border-[#bb0a21]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#bb0a21] focus:ring-1 focus:ring-[#bb0a21] focus:outline-none"
+                              />
+                              <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5 font-semibold">
+                                / {sub.sa2Max || config.theoryMax}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Assignment / Dictation */}
+                          <td className="py-2.5 px-2 text-center">
+                            {config.hasAssignment ? (
+                              <div className="inline-flex flex-col items-center">
+                                <input
+                                  type="text"
+                                  value={sub.sa2AssignObt ?? ''}
+                                  placeholder="0"
+                                  onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
+                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                />
+                                <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                  {config.assignLabel} (/{config.assignMax})
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                            )}
+                          </td>
+
+                          {/* Oral / Practical */}
+                          <td className="py-2.5 px-2 text-center">
+                            {config.hasOral ? (
+                              <div className="inline-flex flex-col items-center">
+                                <input
+                                  type="text"
+                                  value={sub.sa2OralObt ?? ''}
+                                  placeholder="0"
+                                  onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
+                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                />
+                                <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                  {config.oralLabel} (/{config.oralMax})
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                            )}
+                          </td>
+
+                          {/* Calculated Internal Total */}
+                          <td className="py-2.5 px-2 text-center">
+                            <span className="inline-block rounded-md bg-[#2e3032] border border-[#333538] px-2 py-1 font-mono font-bold text-xs text-amber-300">
+                              {calc.internalObt} <span className="text-[10px] text-[#d3d4d9]/60">/{config.internalMax}</span>
+                            </span>
+                          </td>
+
+                          {/* Calculated Term 2 Total */}
+                          <td className="py-2.5 px-2 text-center">
+                            <span className="inline-block rounded-lg bg-[#bb0a21]/20 border border-[#bb0a21]/50 px-3 py-1 font-mono font-black text-sm text-[#bb0a21]">
+                              {calc.totalObt} <span className="text-[10px] font-bold text-[#d3d4d9]">/{calc.maxMarks}</span>
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                /* FA-1, FA-2, FA-3, FA-4 STANDARD TABLE */
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
+                      <th className="py-2.5 px-3">Subject Name</th>
+                      <th className="py-2.5 px-3 text-center w-36">Marks Obtained</th>
+                      <th className="py-2.5 px-3 text-center w-28">Max Marks</th>
+                      <th className="py-2.5 px-3 text-center w-36">Exam Summary</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(record.scholastic || []).map((sub, idx) => {
+                      const fields = {
+                        'FA-1': { obt: 'fa1Obt', max: 'fa1Max' },
+                        'FA-2': { obt: 'fa2Obt', max: 'fa2Max' },
+                        'FA-3': { obt: 'fa3Obt', max: 'fa3Max' },
+                        'FA-4': { obt: 'fa4Obt', max: 'fa4Max' },
+                      }[selectedExam] || { obt: 'fa1Obt', max: 'fa1Max' }
+
+                      return (
+                        <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
+                          <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
+                            {sub.name}
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            <input
+                              type="text"
+                              value={sub[fields.obt] ?? ''}
+                              placeholder="0"
+                              onChange={(e) => handleScholasticChange(idx, fields.obt, e.target.value)}
+                              className="w-24 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-3 py-1.5 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                            />
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            <input
+                              type="text"
+                              value={sub[fields.max] ?? 20}
+                              onChange={(e) => handleScholasticChange(idx, fields.max, e.target.value)}
+                              className="w-20 rounded-lg border border-[#333538] bg-[#252627]/60 px-2 py-1.5 text-center text-[#d3d4d9] font-semibold focus:outline-none"
+                            />
+                          </td>
+                          <td className="py-2.5 px-3 text-center text-[10.5px] text-[#d3d4d9]">
+                            <span className="font-mono">
+                              FA1:{sub.fa1Obt || 0} | FA2:{sub.fa2Obt || 0} | FA3:{sub.fa3Obt || 0} | FA4:{sub.fa4Obt || 0}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           ) : (
             /* Comprehensive All-Exams Table */
@@ -542,89 +775,177 @@ export default function MarksEntryPage() {
               <thead>
                 <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
                   <th className="py-2 px-3" rowSpan={2}>Subject</th>
-                  <th className="py-1 px-2 text-center border-b border-[#4b88a2]/30" colSpan={3}>
+                  <th className="py-1 px-2 text-center border-b border-[#4b88a2]/30" colSpan={5}>
                     TERM 1 (Half-Yearly)
                   </th>
-                  <th className="py-1 px-2 text-center border-b border-[#bb0a21]/30" colSpan={3}>
+                  <th className="py-1 px-2 text-center border-b border-[#bb0a21]/30" colSpan={5}>
                     TERM 2 (Annual)
+                  </th>
+                  <th className="py-1 px-2 text-center border-b border-emerald-500/30" rowSpan={2}>
+                    Grand Total
                   </th>
                 </tr>
                 <tr className="border-b border-[#333538] text-[#d3d4d9] text-[10px]">
-                  <th className="py-1 px-2 text-center">FA-1 (May)</th>
-                  <th className="py-1 px-2 text-center">FA-2 (July)</th>
-                  <th className="py-1 px-2 text-center">SA-1 (Sep)</th>
-                  <th className="py-1 px-2 text-center">FA-3 (Nov)</th>
-                  <th className="py-1 px-2 text-center">FA-4 (Jan)</th>
-                  <th className="py-1 px-2 text-center">SA-2 (Mar)</th>
+                  <th className="py-1 px-1.5 text-center">FA-1</th>
+                  <th className="py-1 px-1.5 text-center">FA-2</th>
+                  <th className="py-1 px-1.5 text-center">Assign</th>
+                  <th className="py-1 px-1.5 text-center">Oral</th>
+                  <th className="py-1 px-1.5 text-center">SA-1 (Th)</th>
+
+                  <th className="py-1 px-1.5 text-center">FA-3</th>
+                  <th className="py-1 px-1.5 text-center">FA-4</th>
+                  <th className="py-1 px-1.5 text-center">Assign</th>
+                  <th className="py-1 px-1.5 text-center">Oral</th>
+                  <th className="py-1 px-1.5 text-center">SA-2 (Th)</th>
                 </tr>
               </thead>
               <tbody>
-                {(record.scholastic || []).map((sub, idx) => (
-                  <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
-                    <td className="py-2 px-3 font-bold text-[#fff9fb] text-sm">{sub.name}</td>
+                {(record.scholastic || []).map((sub, idx) => {
+                  const config = getSubjectMarkConfig(selectedClass, sub.name)
+                  const t1Calc = calculateTermMarks(
+                    sub.fa1Obt, sub.fa2Obt, sub.sa1Obt,
+                    sub.fa1Max || 20, sub.fa2Max || 20, sub.sa1Max || config.theoryMax,
+                    sub.sa1AssignObt, sub.sa1OralObt,
+                    sub.sa1AssignMax || config.assignMax, sub.sa1OralMax || config.oralMax,
+                    selectedClass, sub.name
+                  )
+                  const t2Calc = calculateTermMarks(
+                    sub.fa3Obt, sub.fa4Obt, sub.sa2Obt,
+                    sub.fa3Max || 20, sub.fa4Max || 20, sub.sa2Max || config.theoryMax,
+                    sub.sa2AssignObt, sub.sa2OralObt,
+                    sub.sa2AssignMax || config.assignMax, sub.sa2OralMax || config.oralMax,
+                    selectedClass, sub.name
+                  )
+                  const grandTotal = t1Calc.totalObt + t2Calc.totalObt
+                  const grandMax = t1Calc.maxMarks + t2Calc.maxMarks
 
-                    {/* FA-1 */}
-                    <td className="py-2 px-2 text-center">
-                      <input
-                        type="text"
-                        value={sub.fa1Obt ?? ''}
-                        onChange={(e) => handleScholasticChange(idx, 'fa1Obt', e.target.value)}
-                        className="w-14 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
-                      />
-                    </td>
+                  return (
+                    <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
+                      <td className="py-2 px-3 font-bold text-[#fff9fb] text-xs">{sub.name}</td>
 
-                    {/* FA-2 */}
-                    <td className="py-2 px-2 text-center">
-                      <input
-                        type="text"
-                        value={sub.fa2Obt ?? ''}
-                        onChange={(e) => handleScholasticChange(idx, 'fa2Obt', e.target.value)}
-                        className="w-14 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
-                      />
-                    </td>
+                      {/* FA-1 */}
+                      <td className="py-2 px-1 text-center">
+                        <input
+                          type="text"
+                          value={sub.fa1Obt ?? ''}
+                          onChange={(e) => handleScholasticChange(idx, 'fa1Obt', e.target.value)}
+                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                        />
+                      </td>
 
-                    {/* SA-1 */}
-                    <td className="py-2 px-2 text-center">
-                      <input
-                        type="text"
-                        value={sub.sa1Obt ?? ''}
-                        onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
-                        className="w-16 rounded-lg border border-[#4b88a2]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#4b88a2] text-xs focus:border-[#4b88a2] focus:outline-none"
-                      />
-                    </td>
+                      {/* FA-2 */}
+                      <td className="py-2 px-1 text-center">
+                        <input
+                          type="text"
+                          value={sub.fa2Obt ?? ''}
+                          onChange={(e) => handleScholasticChange(idx, 'fa2Obt', e.target.value)}
+                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                        />
+                      </td>
 
-                    {/* FA-3 */}
-                    <td className="py-2 px-2 text-center">
-                      <input
-                        type="text"
-                        value={sub.fa3Obt ?? ''}
-                        onChange={(e) => handleScholasticChange(idx, 'fa3Obt', e.target.value)}
-                        className="w-14 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
-                      />
-                    </td>
+                      {/* SA-1 Assign */}
+                      <td className="py-2 px-1 text-center">
+                        {config.hasAssignment ? (
+                          <input
+                            type="text"
+                            value={sub.sa1AssignObt ?? ''}
+                            onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
+                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          />
+                        ) : (
+                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                        )}
+                      </td>
 
-                    {/* FA-4 */}
-                    <td className="py-2 px-2 text-center">
-                      <input
-                        type="text"
-                        value={sub.fa4Obt ?? ''}
-                        onChange={(e) => handleScholasticChange(idx, 'fa4Obt', e.target.value)}
-                        className="w-14 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
-                      />
-                    </td>
+                      {/* SA-1 Oral */}
+                      <td className="py-2 px-1 text-center">
+                        {config.hasOral ? (
+                          <input
+                            type="text"
+                            value={sub.sa1OralObt ?? ''}
+                            onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
+                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          />
+                        ) : (
+                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                        )}
+                      </td>
 
-                    {/* SA-2 */}
-                    <td className="py-2 px-2 text-center">
-                      <input
-                        type="text"
-                        value={sub.sa2Obt ?? ''}
-                        placeholder="e.g. 64"
-                        onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
-                        className="w-16 rounded-lg border border-[#bb0a21]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#bb0a21] text-xs focus:border-[#bb0a21] focus:outline-none"
-                      />
-                    </td>
-                  </tr>
-                ))}
+                      {/* SA-1 Theory */}
+                      <td className="py-2 px-1 text-center">
+                        <input
+                          type="text"
+                          value={sub.sa1Obt ?? ''}
+                          onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
+                          className="w-14 rounded-lg border border-[#4b88a2]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#4b88a2] text-xs focus:border-[#4b88a2] focus:outline-none"
+                        />
+                      </td>
+
+                      {/* FA-3 */}
+                      <td className="py-2 px-1 text-center">
+                        <input
+                          type="text"
+                          value={sub.fa3Obt ?? ''}
+                          onChange={(e) => handleScholasticChange(idx, 'fa3Obt', e.target.value)}
+                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                        />
+                      </td>
+
+                      {/* FA-4 */}
+                      <td className="py-2 px-1 text-center">
+                        <input
+                          type="text"
+                          value={sub.fa4Obt ?? ''}
+                          onChange={(e) => handleScholasticChange(idx, 'fa4Obt', e.target.value)}
+                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                        />
+                      </td>
+
+                      {/* SA-2 Assign */}
+                      <td className="py-2 px-1 text-center">
+                        {config.hasAssignment ? (
+                          <input
+                            type="text"
+                            value={sub.sa2AssignObt ?? ''}
+                            onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
+                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                          />
+                        ) : (
+                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                        )}
+                      </td>
+
+                      {/* SA-2 Oral */}
+                      <td className="py-2 px-1 text-center">
+                        {config.hasOral ? (
+                          <input
+                            type="text"
+                            value={sub.sa2OralObt ?? ''}
+                            onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
+                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                          />
+                        ) : (
+                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                        )}
+                      </td>
+
+                      {/* SA-2 Theory */}
+                      <td className="py-2 px-1 text-center">
+                        <input
+                          type="text"
+                          value={sub.sa2Obt ?? ''}
+                          onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
+                          className="w-14 rounded-lg border border-[#bb0a21]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#bb0a21] text-xs focus:border-[#bb0a21] focus:outline-none"
+                        />
+                      </td>
+
+                      {/* Grand Total */}
+                      <td className="py-2 px-2 text-center font-mono font-bold text-xs text-emerald-400">
+                        {grandTotal} <span className="text-[10px] text-[#d3d4d9]/60">/{grandMax}</span>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           )}
@@ -636,7 +957,7 @@ export default function MarksEntryPage() {
             {/* Co-Scholastic */}
             <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6">
               <h3 className="text-sm font-bold text-[#fff9fb] mb-4 flex items-center gap-2">
-                <span>🎨</span> Co-Scholastic Grades (A / B / C)
+                Co-Scholastic Grades (A / B / C)
                 <span className="text-[11px] font-normal text-[#4b88a2]">
                   {selectedExam === 'SA-1' ? '(Half-Yearly)' : selectedExam === 'SA-2' ? '(Annual / Final)' : '(Session Matrix)'}
                 </span>
@@ -687,7 +1008,7 @@ export default function MarksEntryPage() {
             <div className="space-y-6">
               <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6 space-y-4 text-xs">
                 <h3 className="text-sm font-bold text-[#fff9fb] flex items-center gap-2">
-                  <span>🛡️</span> Discipline & Attendance
+                  Discipline & Attendance
                 </h3>
 
                 <div className={`grid ${selectedExam === 'ALL' ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
@@ -806,7 +1127,7 @@ export default function MarksEntryPage() {
               {/* Remarks & Promotion Status */}
               <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6 space-y-4 text-xs">
                 <h3 className="text-sm font-bold text-[#fff9fb] flex items-center gap-2">
-                  <span>💬</span> Remarks & Promotion Status
+                  Remarks & Promotion Status
                 </h3>
                 {(selectedExam === 'SA-1' || selectedExam === 'ALL') && (
                   <div>
@@ -860,14 +1181,14 @@ export default function MarksEntryPage() {
               onClick={(e) => handleSave(e, true)}
               className="rounded-xl border border-[#4b88a2]/60 bg-[#4b88a2]/15 px-5 py-2.5 text-xs font-bold text-[#4b88a2] hover:bg-[#4b88a2] hover:text-[#fff9fb] disabled:opacity-50 transition shadow-sm"
             >
-              💾 Save & Next Student ➡️
+              Save & Next Student →
             </button>
             <button
               type="submit"
               disabled={isSaving}
               className="rounded-xl bg-[#4b88a2] px-8 py-2.5 text-xs font-bold text-[#fff9fb] shadow-lg shadow-[#4b88a2]/30 hover:bg-[#3a7187] disabled:opacity-50 transition"
             >
-              {isSaving ? 'Saving to Cloud...' : selectedExam === 'ALL' ? '💾 Save All Marks' : `💾 Save ${selectedExam} Marks`}
+              {isSaving ? 'Saving to Cloud...' : selectedExam === 'ALL' ? 'Save All Marks' : `Save ${selectedExam} Marks`}
             </button>
           </div>
         </div>

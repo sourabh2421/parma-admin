@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { isFirebaseConfigured } from '../../firebase/config.js'
-import { softDeleteStudent, subscribeStudents } from '../../firebase/studentRepository.js'
+import { subscribeStudents } from '../../firebase/studentRepository.js'
 import { useToast } from '../../context/useToast.js'
 import { sortClassNames, sortStudentsByClassThenId } from '../../utils/studentSort.js'
 import TableSkeleton from '../../components/dashboard/TableSkeleton.jsx'
 import StudentDetailModal from './StudentDetailModal.jsx'
+import AddStudentModal from '../../components/dashboard/AddStudentModal.jsx'
 
 function StudentsPage() {
   const { showToast } = useToast()
@@ -16,6 +17,7 @@ function StudentsPage() {
   const [searchValue, setSearchValue] = useState('')
   const [classFilter, setClassFilter] = useState('')
   const [selectedStudent, setSelectedStudent] = useState(null)
+  const [showAddStudent, setShowAddStudent] = useState(false)
 
   useEffect(() => {
     if (!isFirebaseConfigured()) {
@@ -45,19 +47,6 @@ function StudentsPage() {
     return sortClassNames([...set])
   }, [students])
 
-  const handleArchiveStudent = async (student) => {
-    const ok = window.confirm(
-      `Archive student ${student.name} (${student.id})? They will be hidden from the directory; fee rows stay in the database.`,
-    )
-    if (!ok) return
-    try {
-      await softDeleteStudent(student.id)
-      showToast('Student archived.', 'success')
-    } catch (err) {
-      showToast(err?.message || 'Could not archive student.', 'error')
-    }
-  }
-
   const filteredStudents = useMemo(() => {
     const q = searchValue.trim().toLowerCase()
     return sortStudentsByClassThenId(
@@ -71,9 +60,23 @@ function StudentsPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">Students</h2>
-        <p className="text-sm text-slate-600">Directory from the students collection (no fee fields).</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Student Directory</h2>
+          <p className="text-sm text-slate-600">Complete student roster with roll numbers and parent profiles.</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowAddStudent(true)}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition active:scale-95"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Add New Student</span>
+        </button>
       </div>
 
       {error ? (
@@ -134,7 +137,7 @@ function StudentsPage() {
               <tbody>
                 {filteredStudents.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-3 py-10 text-center text-slate-500">
+                    <td colSpan={5} className="px-3 py-8 text-center text-slate-500">
                       No students match your filters.
                     </td>
                   </tr>
@@ -143,26 +146,17 @@ function StudentsPage() {
                     {filteredStudents.map((student) => (
                       <tr key={student.id} className="border-b border-slate-100 hover:bg-slate-50/80">
                         <td className="px-3 py-3 font-mono text-xs text-slate-800">{student.id}</td>
-                        <td className="px-3 py-3 font-medium text-slate-900">{student.name}</td>
-                        <td className="px-3 py-3 text-slate-700">{student.parentName || '—'}</td>
-                        <td className="px-3 py-3 text-slate-700">{student.class}</td>
+                        <td className="px-3 py-3 font-medium uppercase text-slate-900">{student.name}</td>
+                        <td className="px-3 py-3 uppercase text-slate-700">{student.parentName || '—'}</td>
+                        <td className="px-3 py-3 uppercase text-slate-700">{student.class}</td>
                         <td className="px-3 py-3 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedStudent(student)}
-                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
-                            >
-                              View
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleArchiveStudent(student)}
-                              className="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                            >
-                              Archive
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedStudent(student)}
+                            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition"
+                          >
+                            View
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -177,6 +171,12 @@ function StudentsPage() {
       {selectedStudent ? (
         <StudentDetailModal student={selectedStudent} onClose={() => setSelectedStudent(null)} />
       ) : null}
+
+      <AddStudentModal
+        isOpen={showAddStudent}
+        onClose={() => setShowAddStudent(false)}
+        onCreated={() => {}}
+      />
     </div>
   )
 }

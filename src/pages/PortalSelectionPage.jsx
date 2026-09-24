@@ -75,7 +75,7 @@ export default function PortalSelectionPage() {
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-12 flex-1 flex flex-col justify-center">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3.5 py-1 text-xs font-bold text-slate-300 mb-4">
-            <span>🛡️</span> Independent Departmental Desks
+            Independent Departmental Desks
           </div>
           <h2 className="text-3xl sm:text-4xl tracking-tight text-white zen-dots-regular">
             Select Management Portal
@@ -91,11 +91,11 @@ export default function PortalSelectionPage() {
           <div className="group relative rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-8 shadow-2xl transition-all duration-300 hover:border-emerald-500/60 hover:shadow-emerald-500/10 hover:-translate-y-1 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
-                  💳
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
                 <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-bold text-emerald-400">
-                  🏢 Office & Accounts Desk
+                  Office & Accounts Desk
                 </span>
               </div>
 
@@ -137,11 +137,11 @@ export default function PortalSelectionPage() {
           <div className="group relative rounded-3xl border border-indigo-500/30 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-8 shadow-2xl transition-all duration-300 hover:border-indigo-500/60 hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
-                  📊
+                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-400"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 </div>
                 <span className="rounded-full bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-400">
-                  👩‍🏫 Teachers & Academic Desk
+                  Teachers & Academic Desk
                 </span>
               </div>
 

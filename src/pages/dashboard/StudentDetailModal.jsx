@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { softDeleteFeeRecord, subscribeFeesForStudent } from '../../firebase/feeRepository.js'
+import { subscribeFeesForStudent } from '../../firebase/feeRepository.js'
 import { useToast } from '../../context/useToast.js'
 import AddFeeModal from './AddFeeModal.jsx'
 import ReceiptPrint from './ReceiptPrint.jsx'
@@ -31,16 +31,7 @@ function StudentDetailModal({ student, onClose }) {
     return unsub
   }, [student])
 
-  const handleArchiveFee = async (fee) => {
-    const ok = window.confirm(`Archive ${fee.month} ${fee.year} fee (INR ${fee.amount})?`)
-    if (!ok) return
-    try {
-      await softDeleteFeeRecord(fee.docId)
-      showToast('Fee row archived.', 'success')
-    } catch (err) {
-      showToast(err?.message || 'Could not archive fee.', 'error')
-    }
-  }
+
 
   if (!student) return null
 
@@ -85,15 +76,15 @@ function StudentDetailModal({ student, onClose }) {
             </div>
             <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
               <dt className="text-xs font-semibold uppercase text-slate-500">Name</dt>
-              <dd className="text-sm font-medium text-slate-900">{student.name}</dd>
+              <dd className="text-sm font-medium uppercase text-slate-900">{student.name}</dd>
             </div>
             <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
               <dt className="text-xs font-semibold uppercase text-slate-500">Parent name</dt>
-              <dd className="text-sm font-medium text-slate-900">{student.parentName || '—'}</dd>
+              <dd className="text-sm font-medium uppercase text-slate-900">{student.parentName || '—'}</dd>
             </div>
             <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
               <dt className="text-xs font-semibold uppercase text-slate-500">Class</dt>
-              <dd className="text-sm font-medium text-slate-900">{student.class}</dd>
+              <dd className="text-sm font-medium uppercase text-slate-900">{student.class}</dd>
             </div>
           </dl>
 
@@ -111,13 +102,12 @@ function StudentDetailModal({ student, onClose }) {
                   <th className="px-3 py-2">Amount</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Payment date</th>
-                  <th className="px-3 py-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {fees.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                    <td colSpan={5} className="px-3 py-8 text-center text-slate-500">
                       No fee records yet for this student.
                     </td>
                   </tr>
@@ -152,26 +142,6 @@ function StudentDetailModal({ student, onClose }) {
                         </span>
                       </td>
                       <td className="px-3 py-2 text-slate-700">{formatDisplayDate(fee.paymentDate)}</td>
-                      <td className="px-3 py-2 text-right">
-                        <div className="flex justify-end gap-2">
-                          {fee.status === 'paid' && (
-                            <button
-                              type="button"
-                              onClick={() => setPrintingFee(fee)}
-                              className="rounded border border-emerald-200 px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 focus:outline-2 focus:outline-emerald-500"
-                            >
-                              Print Receipt
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleArchiveFee(fee)}
-                            className="rounded border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                          >
-                            Archive
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   ))
                 )}

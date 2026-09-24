@@ -12,6 +12,8 @@ import {
   CURRENT_ACADEMIC_SESSION,
   DEFAULT_CLASS_SUBJECTS,
   INITIAL_SAMPLE_STUDENTS,
+  createScholasticTemplateForClass,
+  getSubjectMarkConfig,
   matchClassKey,
 } from '../utils/marksheetDefaults.js'
 import studentFatherLookup from '../data/studentFatherLookup.json'
@@ -63,11 +65,13 @@ function buildDefaultCoScholastic() {
 }
 
 /**
- * Migrate old T1/T2 record format to new FA/SA schema.
+ * Migrate old T1/T2 record format to new FA/SA schema with Assignment & Oral.
  */
 export function migrateOldRecord(record) {
   if (!record) return record
+  const normCls = matchClassKey(record.class) || record.class || 'I'
   const scholastic = (record.scholastic || []).map((sub) => {
+    const config = getSubjectMarkConfig(normCls, sub.name)
     const migrated = { ...sub }
     if (migrated.fa1Obt === undefined && sub.t1IntObt !== undefined) {
       migrated.fa1Max = Number(sub.t1IntMax) || 20
@@ -75,7 +79,7 @@ export function migrateOldRecord(record) {
     }
     if (migrated.fa2Obt === undefined) { migrated.fa2Max = 20; migrated.fa2Obt = 0 }
     if (migrated.sa1Obt === undefined && sub.t1MainObt !== undefined) {
-      migrated.sa1Max = Number(sub.t1MainMax) || 80
+      migrated.sa1Max = Number(sub.t1MainMax) || config.theoryMax
       migrated.sa1Obt = Number(sub.t1MainObt) || 0
     }
     if (migrated.fa3Obt === undefined && sub.t2IntObt !== undefined) {
@@ -85,20 +89,29 @@ export function migrateOldRecord(record) {
     if (migrated.fa4Obt === undefined) { migrated.fa4Max = 20; migrated.fa4Obt = 0 }
     if (migrated.sa2Obt === undefined && sub.t2MainObt !== undefined) {
       const raw = sub.t2MainObt
-      migrated.sa2Max = Number(sub.t2MainMax) || 80
+      migrated.sa2Max = Number(sub.t2MainMax) || config.theoryMax
       migrated.sa2Obt = (raw === 'M/L' || raw === 'ML' || raw === 'NA') ? 0 : (Number(raw) || 0)
     }
     if (migrated.fa1Max === undefined) migrated.fa1Max = 20
     if (migrated.fa1Obt === undefined) migrated.fa1Obt = 0
     if (migrated.fa2Max === undefined) migrated.fa2Max = 20
     if (migrated.fa2Obt === undefined) migrated.fa2Obt = 0
-    if (migrated.sa1Max === undefined) migrated.sa1Max = 80
+    if (migrated.sa1AssignMax === undefined) migrated.sa1AssignMax = config.assignMax
+    if (migrated.sa1AssignObt === undefined) migrated.sa1AssignObt = 0
+    if (migrated.sa1OralMax === undefined) migrated.sa1OralMax = config.oralMax
+    if (migrated.sa1OralObt === undefined) migrated.sa1OralObt = 0
+    if (migrated.sa1Max === undefined) migrated.sa1Max = config.theoryMax
     if (migrated.sa1Obt === undefined) migrated.sa1Obt = 0
+
     if (migrated.fa3Max === undefined) migrated.fa3Max = 20
     if (migrated.fa3Obt === undefined) migrated.fa3Obt = 0
     if (migrated.fa4Max === undefined) migrated.fa4Max = 20
     if (migrated.fa4Obt === undefined) migrated.fa4Obt = 0
-    if (migrated.sa2Max === undefined) migrated.sa2Max = 80
+    if (migrated.sa2AssignMax === undefined) migrated.sa2AssignMax = config.assignMax
+    if (migrated.sa2AssignObt === undefined) migrated.sa2AssignObt = 0
+    if (migrated.sa2OralMax === undefined) migrated.sa2OralMax = config.oralMax
+    if (migrated.sa2OralObt === undefined) migrated.sa2OralObt = 0
+    if (migrated.sa2Max === undefined) migrated.sa2Max = config.theoryMax
     if (migrated.sa2Obt === undefined) migrated.sa2Obt = 0
     return migrated
   })
@@ -273,10 +286,24 @@ export async function saveExamMarks(studentRecord, examType, examScholastic) {
   const examFieldMap = {
     'FA-1': { obt: 'fa1Obt', max: 'fa1Max' },
     'FA-2': { obt: 'fa2Obt', max: 'fa2Max' },
-    'SA-1': { obt: 'sa1Obt', max: 'sa1Max' },
+    'SA-1': {
+      obt: 'sa1Obt',
+      max: 'sa1Max',
+      assignObt: 'sa1AssignObt',
+      assignMax: 'sa1AssignMax',
+      oralObt: 'sa1OralObt',
+      oralMax: 'sa1OralMax',
+    },
     'FA-3': { obt: 'fa3Obt', max: 'fa3Max' },
     'FA-4': { obt: 'fa4Obt', max: 'fa4Max' },
-    'SA-2': { obt: 'sa2Obt', max: 'sa2Max' },
+    'SA-2': {
+      obt: 'sa2Obt',
+      max: 'sa2Max',
+      assignObt: 'sa2AssignObt',
+      assignMax: 'sa2AssignMax',
+      oralObt: 'sa2OralObt',
+      oralMax: 'sa2OralMax',
+    },
   }
   const fields = examFieldMap[examType]
   if (!fields) throw new Error(`Unknown exam type: ${examType}`)
@@ -289,11 +316,24 @@ export async function saveExamMarks(studentRecord, examType, examScholastic) {
   const mergedScholastic = (existingRecord.scholastic || []).map((sub) => {
     const incoming = (examScholastic || []).find((s) => s.name === sub.name)
     if (!incoming) return sub
-    return {
+    const updated = {
       ...sub,
       [fields.obt]: incoming[fields.obt] !== undefined ? incoming[fields.obt] : sub[fields.obt],
       [fields.max]: incoming[fields.max] !== undefined ? incoming[fields.max] : sub[fields.max],
     }
+    if (fields.assignObt && incoming[fields.assignObt] !== undefined) {
+      updated[fields.assignObt] = incoming[fields.assignObt]
+    }
+    if (fields.assignMax && incoming[fields.assignMax] !== undefined) {
+      updated[fields.assignMax] = incoming[fields.assignMax]
+    }
+    if (fields.oralObt && incoming[fields.oralObt] !== undefined) {
+      updated[fields.oralObt] = incoming[fields.oralObt]
+    }
+    if (fields.oralMax && incoming[fields.oralMax] !== undefined) {
+      updated[fields.oralMax] = incoming[fields.oralMax]
+    }
+    return updated
   })
 
   const updatedRecord = {
@@ -380,16 +420,7 @@ export function filterStudentsByClass(students = [], selectedClassKey = 'ALL') {
 
 export function createEmptyMarksheetForStudent(student) {
   const stdClassKey = matchClassKey(student?.class) || student?.class || 'I'
-  const classSubjects = getStoredClassSubjects()[stdClassKey] || DEFAULT_CLASS_SUBJECTS['I']
-  const scholastic = classSubjects.map((subName) => ({
-    name: subName,
-    fa1Max: 20, fa1Obt: 0,
-    fa2Max: 20, fa2Obt: 0,
-    sa1Max: 80, sa1Obt: 0,
-    fa3Max: 20, fa3Obt: 0,
-    fa4Max: 20, fa4Obt: 0,
-    sa2Max: 80, sa2Obt: 0,
-  }))
+  const scholastic = createScholasticTemplateForClass(stdClassKey)
   const rawId = String(student?.id || student?.studentId || 'STUD_' + Math.floor(1000 + Math.random() * 9000)).trim()
   const defaultCo = buildDefaultCoScholastic()
   return {

@@ -135,57 +135,110 @@ describe('Marksheet Calculations & Logical Integrity Test Suite', () => {
     it('generates correct subject list and initial 0 scores for Class XI Science', () => {
       const template = createScholasticTemplateForClass('XI Science')
       const subNames = template.map((s) => s.name)
-      expect(subNames).toEqual(['English', 'Physics', 'Chemistry', 'Mathematics', 'Biology', 'Physical Education'])
+      expect(subNames).toEqual(['English-I', 'English-II', 'Physics', 'Chemistry', 'Maths', 'Biology', 'Physical Education'])
 
       for (const sub of template) {
         expect(sub.fa1Max).toBe(20)
         expect(sub.fa1Obt).toBe(0)
-        expect(sub.sa1Max).toBe(80)
+        expect(sub.fa2Max).toBe(20)
+        expect(sub.fa2Obt).toBe(0)
         expect(sub.sa1Obt).toBe(0)
-        expect(sub.sa2Max).toBe(80)
         expect(sub.sa2Obt).toBe(0)
       }
     })
+
+    it('generates correct subject list for Pre-Primary classes', () => {
+      const template = createScholasticTemplateForClass('Nursery')
+      const subNames = template.map((s) => s.name)
+      expect(subNames).toEqual([
+        'English Written',
+        'English Oral',
+        'English Dictation',
+        'Hindi Written',
+        'Hindi Oral',
+        'Hindi Dictation',
+        'Maths Written',
+        'Maths Oral',
+        'E.V.S.',
+        'Drawing',
+      ])
+    })
   })
 
-  describe('7. Term 1 (Half-Yearly out of 100) & Annual (out of 200) Mark Calculations', () => {
-    it('calculates Half-Yearly marks using SA-1 + (FA-1 + FA-2) / 2 matching user example', () => {
-      // User example: FA-1 = 16, FA-2 = 20, SA-1 = 60 => 60 + ((16 + 20) / 2) = 78 out of 100
-      const t1 = calculateTermMarks(16, 20, 60, 20, 20, 80)
-      expect(t1.faWeighted).toBe(18)
-      expect(t1.totalObt).toBe(78)
-      expect(t1.maxMarks).toBe(100)
+  describe('7. Excel Workbook Syllabus Evaluation System (All 6 Sheets)', () => {
+    it('Sheet 1: NUR to UKG — calculates Pre-Primary marks (Dictation & Oral max 20, Internal 40, Theory 60 => Total 100)', () => {
+      // English Written: FA1=20, FA2=20, Dictation=20, Oral=20 => Internal=40, Theory=60 => Total=100
+      const eng = calculateTermMarks(20, 20, 60, 20, 20, 60, 20, 20, 20, 20, 'Nursery', 'English Written')
+      expect(eng.internalObt).toBe(40)
+      expect(eng.totalObt).toBe(100)
+      expect(eng.maxMarks).toBe(100)
+
+      // Drawing: Dictation & Oral NA => FA1(20) + FA2(20) = 40, Theory=60 => Total=100
+      const drawing = calculateTermMarks(20, 20, 60, 20, 20, 60, 0, 0, 0, 0, 'Nursery', 'Drawing')
+      expect(drawing.internalObt).toBe(40)
+      expect(drawing.totalObt).toBe(100)
+      expect(drawing.maxMarks).toBe(100)
     })
 
-    it('calculates perfect 100 in Term 1 when student gets full marks in FA-1 (20), FA-2 (20), SA-1 (80)', () => {
-      const t1 = calculateTermMarks(20, 20, 80, 20, 20, 80)
-      expect(t1.faWeighted).toBe(20)
-      expect(t1.totalObt).toBe(100)
-      expect(t1.maxMarks).toBe(100)
+    it('Sheet 2: 1 & 2 — calculates Class 1-2 marks (100-mark main and 50-mark GK/Computer/Drawing)', () => {
+      // English-I: FA1=20, FA2=20, Assignment=10, Oral=10 => Internal=20, Theory=80 => Total=100
+      const eng1 = calculateTermMarks(20, 20, 80, 20, 20, 80, 10, 10, 10, 10, 'I', 'English-I')
+      expect(eng1.internalObt).toBe(20)
+      expect(eng1.totalObt).toBe(100)
+      expect(eng1.maxMarks).toBe(100)
+
+      // G.K. (50-mark subject): FA1=20, FA2=20, Assignment=10, Oral=10 => Internal=20, Theory=30 => Total=50
+      const gk = calculateTermMarks(20, 20, 30, 20, 20, 30, 10, 10, 10, 10, 'I', 'G.K.')
+      expect(gk.internalObt).toBe(20)
+      expect(gk.totalObt).toBe(50)
+      expect(gk.maxMarks).toBe(50)
+
+      // Drawing (50-mark subject, NA for Assign/Oral): FA1=20, FA2=20 => Internal=20, Theory=30 => Total=50
+      const draw = calculateTermMarks(20, 20, 30, 20, 20, 30, 0, 0, 0, 0, 'I', 'Drawing')
+      expect(draw.internalObt).toBe(20)
+      expect(draw.totalObt).toBe(50)
+      expect(draw.maxMarks).toBe(50)
     })
 
-    it('handles decimal fractions accurately in Term 1 (e.g. FA-1 = 15, FA-2 = 20, SA-1 = 60 => 77.5)', () => {
-      const t1 = calculateTermMarks(15, 20, 60, 20, 20, 80)
-      expect(t1.faWeighted).toBe(17.5)
-      expect(t1.totalObt).toBe(77.5)
-      expect(t1.maxMarks).toBe(100)
+    it('Sheet 3: 3 to 5 — calculates Sanskrit (50) and Science (100)', () => {
+      const sanskrit = calculateTermMarks(16, 20, 25, 20, 20, 30, 8, 10, 10, 10, 'V', 'Sanskrit')
+      // FA portion = (16+20)/4 = 9, Assign portion = 8/2 = 4, Oral portion = 10/2 = 5 => Internal = 18. Theory = 25 => Total = 43/50
+      expect(sanskrit.internalObt).toBe(18)
+      expect(sanskrit.totalObt).toBe(43)
+      expect(sanskrit.maxMarks).toBe(50)
     })
 
-    it('calculates Annual / Final marksheet subject total out of 200 (100 from Term 1 + 100 from Term 2)', () => {
-      // Term 1: 78 out of 100
-      const t1 = calculateTermMarks(16, 20, 60, 20, 20, 80)
-      // Term 2: FA-3: 18, FA-4: 20, SA-2: 70 => 70 + ((18 + 20) / 2) = 89 out of 100
-      const t2 = calculateTermMarks(18, 20, 70, 20, 20, 80)
-      expect(t2.totalObt).toBe(89)
-      expect(t2.maxMarks).toBe(100)
+    it('Sheet 5: 9 & 10 — calculates 100-mark subjects with Assignment & Oral', () => {
+      const maths = calculateTermMarks(18, 18, 72, 20, 20, 80, 10, 8, 10, 10, 'X', 'Maths')
+      // FA portion = 36/4 = 9, Assign portion = 10/2 = 5, Oral portion = 8/2 = 4 => Internal = 18. Theory = 72 => Total = 90/100
+      expect(maths.internalObt).toBe(18)
+      expect(maths.totalObt).toBe(90)
+      expect(maths.maxMarks).toBe(100)
+    })
 
-      // Annual Subject Marks: 78 + 89 = 167 out of 200
+    it('Sheet 6: 11 & 12 — calculates Practicals (Internal 30, Theory 70) and Non-practicals (Internal 20, Theory 80)', () => {
+      // Physics (Practical): FA1=20, FA2=20, Assign=10, Oral/Prc=10 => Internal=30, Theory=70 => Total=100
+      const phy = calculateTermMarks(20, 20, 70, 20, 20, 70, 10, 10, 10, 10, 'XI Science', 'Physics')
+      expect(phy.internalObt).toBe(30)
+      expect(phy.totalObt).toBe(100)
+      expect(phy.maxMarks).toBe(100)
+
+      // Accounts (Non-practical): FA1=20, FA2=20, Assign=10, Oral=10 => Internal=20, Theory=80 => Total=100
+      const acc = calculateTermMarks(20, 20, 80, 20, 20, 80, 10, 10, 10, 10, 'XII Commerce', 'Accounts')
+      expect(acc.internalObt).toBe(20)
+      expect(acc.totalObt).toBe(100)
+      expect(acc.maxMarks).toBe(100)
+    })
+
+    it('Annual full year calculates subject total out of 200 (or 100 for 50-mark subjects)', () => {
+      const t1 = calculateTermMarks(16, 20, 60, 20, 20, 80, 10, 10, 10, 10, 'V', 'English-I')
+      const t2 = calculateTermMarks(18, 20, 70, 20, 20, 80, 10, 10, 10, 10, 'V', 'English-I')
+
       const annual = calculateAnnualSubjectMarks(t1.totalObt, t2.totalObt, t1.maxMarks, t2.maxMarks)
-      expect(annual.totalObt).toBe(167)
+      expect(annual.totalObt).toBe(168.5)
       expect(annual.maxMarks).toBe(200)
 
       const percent = (annual.totalObt / annual.maxMarks) * 100
-      expect(percent).toBe(83.5)
       expect(calculateScholasticGrade(percent)).toBe('A2')
     })
   })
