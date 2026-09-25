@@ -100,6 +100,8 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
       faMax: 20,
       assignMax: isDrawingOrEvs ? 0 : 20,
       oralMax: isDrawingOrEvs ? 0 : 20,
+      // Pre-primary uses averaging, not a single divisor: kept for documentation
+      divisor: isDrawingOrEvs ? 1 : 2,   // EVS/Drawing: FA1+FA2 (no division), others: FA avg + DictOral avg
       internalMax: 40,
       theoryMax: 60,
       termMax: 100,
@@ -108,12 +110,13 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
   }
 
   // 2. Class 11 & 12 Practicals (Physics, Chemistry, Biology, Physical Education)
+  //    divisor = 2: (FA1 + FA2 + Assign + Oral) / 2 => max (20+20+10+10)/2 = 30
   if (is11_12) {
     const isPractical =
       sub.includes('physics') ||
       sub.includes('chemistry') ||
       sub.includes('biology') ||
-      sub.includes('phyical') ||
+      sub.includes('physical') ||
       sub.includes('physical education')
 
     if (isPractical) {
@@ -127,6 +130,7 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
         faMax: 20,
         assignMax: 10,
         oralMax: 10,
+        divisor: 2,
         internalMax: 30,
         theoryMax: 70,
         termMax: 100,
@@ -135,6 +139,7 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
     }
 
     // Class 11 & 12 Non-Practicals (Maths, English, Hindi, Accounts, Commerce, Economics, History, Pol Science)
+    //   divisor = 3: (FA1 + FA2 + Assign + Oral) / 3 => max (20+20+10+10)/3 = 20
     return {
       isPrePrimary: false,
       isPractical: false,
@@ -145,6 +150,7 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
       faMax: 20,
       assignMax: 10,
       oralMax: 10,
+      divisor: 3,
       internalMax: 20,
       theoryMax: 80,
       termMax: 100,
@@ -164,6 +170,8 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
 
     if (is50MarkSub) {
       const isDrawing = sub.includes('drawing')
+      // Drawing: divisor=2 on FA1+FA2 only; Others: divisor=3 on FA1+FA2+Assign+Oral
+      // Both give internalMax=20 when inputs are at max: Drawing=(20+20)/2=20, Others=(20+20+10+10)/3=20
       return {
         isPrePrimary: false,
         isPractical: false,
@@ -174,6 +182,7 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
         faMax: 20,
         assignMax: isDrawing ? 0 : 10,
         oralMax: isDrawing ? 0 : 10,
+        divisor: isDrawing ? 2 : 3,
         internalMax: 20,
         theoryMax: 30,
         termMax: 50,
@@ -182,7 +191,8 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
     }
   }
 
-  // 4. Standard 100-mark subjects for Class 1 to 10
+  // 4. Standard 100-mark subjects for Class 1 to 10 (and any class not matched above)
+  //    divisor = 3: (FA1 + FA2 + Assign + Oral) / 3 => max (20+20+10+10)/3 = 20
   const isDrawing = sub.includes('drawing')
   return {
     isPrePrimary: false,
@@ -194,6 +204,7 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
     faMax: 20,
     assignMax: isDrawing ? 0 : 10,
     oralMax: isDrawing ? 0 : 10,
+    divisor: isDrawing ? 2 : 3,
     internalMax: 20,
     theoryMax: 80,
     termMax: 100,
@@ -352,11 +363,19 @@ export function calculateScholasticGrade(percentage) {
 }
 
 /**
- * Calculate Term Marks (Half-Yearly or Term 2 / Annual) according to the Excel syllabus:
- * - Pre-Primary (NUR to UKG): Internal Total = 40 (FA avg 20 + Dictation/Oral avg 20), Theory = 60 => Total = 100.
- * - Class 11-12 Practicals: Internal Total = 30 (FA/4 (10) + Assignment (10) + Oral/Prc (10)), Theory = 70 => Total = 100.
- * - 50-mark subjects (GK, Computer, Sanskrit, Drawing): Internal = 20, Theory = 30 => Total = 50.
- * - Standard 100-mark subjects: Internal = 20 (FA/4 (10) + Assignment/2 (5) + Oral/2 (5)), Theory = 80 => Total = 100.
+ * Calculate Term Marks (Half-Yearly or Term 2 / Annual) according to the Excel syllabus.
+ *
+ * UNIFIED FORMULA: internalObt = SUM(FA1, FA2, Assignment, Oral) / config.divisor
+ * Where divisor is defined per class group + subject in getSubjectMarkConfig:
+ *   - Standard 100-mark subjects (Classes 1-10, XI/XII non-practicals): divisor=3, internalMax=20
+ *   - XI/XII Practicals (Physics/Chemistry/Biology/PE):                   divisor=2, internalMax=30
+ *   - 50-mark Drawing (Classes 1-8, no Assign/Oral):                      divisor=2, internalMax=20
+ *   - 50-mark others (Sanskrit/GK/Computer, Classes 1-8):                 divisor=3, internalMax=20
+ *   - Pre-Primary EVS/Drawing (no Dictation/Oral):                        FA1+FA2 (no divisor)
+ *   - Pre-Primary others (Dictation+Oral available):                      FA avg + DictOral avg
+ *
+ * Term Total = internalObt + saObt
+ * Grand Total = Term1 Total + Term2 Total
  */
 export function calculateTermMarks(
   faAObt = 0,
@@ -376,14 +395,11 @@ export function calculateTermMarks(
   const faB = Number(faBObt) || 0
   const sa = Number(saObt) || 0
 
-  // If specific class/subject or assignment/oral parameters are present, use the exact Excel system
+  // If class/subject or assignment/oral context is present, use the exact Excel system
   if (clsKey || subjectName || (assignObt !== null && assignObt !== undefined) || (oralObt !== null && oralObt !== undefined)) {
     const config = getSubjectMarkConfig(clsKey, subjectName)
-    const effectiveSaMax = saMax !== undefined && saMax !== null && saMax !== '' ? Number(saMax) : config.theoryMax
     const effectiveTermMax = config.termMax
-    const is50Mark = effectiveTermMax === 50
     const isPrePrimary = config.isPrePrimary
-    const is11_12Practical = config.isPractical
 
     const assign = config.hasAssignment ? (Number(assignObt) || 0) : 0
     const oral = config.hasOral ? (Number(oralObt) || 0) : 0
@@ -392,57 +408,43 @@ export function calculateTermMarks(
 
     if (isPrePrimary) {
       if (config.hasAssignment && config.hasOral) {
-        // FA1 (20) & FA2 (20) avg = 20, Dictation (20) & Oral (20) avg = 20 => Internal = 40
+        // Pre-primary subjects with Dictation & Oral:
+        //   FA average = (FA1 + FA2) / 2, Dict/Oral average = (Dictation + Oral) / 2
+        //   Internal = FA avg + DictOral avg => max 20 + 20 = 40
         const faAvg = (faA + faB) / 2
         const dictOralAvg = (assign + oral) / 2
         internalObt = faAvg + dictOralAvg
       } else {
-        // EVS / Drawing: FA1 (20) + FA2 (20) => 40
+        // Pre-primary EVS / Drawing: only FA1 + FA2, no division => max 20 + 20 = 40
         internalObt = faA + faB
       }
-    } else if (is11_12Practical) {
-      // 11-12 Practicals: (FA1+FA2)/4 (max 10) + Assignment (max 10) + Oral/Prc (max 10) = 30
-      const faPortion = (faA + faB) / 4
-      internalObt = faPortion + assign + oral
-    } else if (is50Mark) {
-      // 50-mark subjects: Internal = 20, SA = 30 => Term = 50
-      if (config.hasAssignment && config.hasOral) {
-        const faPortion = (faA + faB) / 4
-        const assignPortion = assign / 2
-        const oralPortion = oral / 2
-        internalObt = faPortion + assignPortion + oralPortion
-      } else {
-        internalObt = (faA + faB) / 2
-      }
     } else {
-      // Standard 100-mark subjects: Internal = 20, SA = 80 => Term = 100
-      if (config.hasAssignment && config.hasOral) {
-        const faPortion = (faA + faB) / 4
-        const assignPortion = assign / 2
-        const oralPortion = oral / 2
-        internalObt = faPortion + assignPortion + oralPortion
-      } else {
-        internalObt = (faA + faB) / 2
-      }
+      // All non-pre-primary subjects use the UNIFIED divisor formula:
+      //   internalObt = (FA1 + FA2 + Assignment + Oral) / divisor
+      // Divisor comes from config (2 for practicals/drawing, 3 for everything else).
+      // When hasAssignment/hasOral is false (e.g. Drawing), those terms contribute 0.
+      const divisor = config.divisor || 3
+      internalObt = (faA + faB + assign + oral) / divisor
     }
 
     const totalObt = internalObt + sa
-    const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(2))
+    const cleanInternalObt = Number.isInteger(internalObt) ? internalObt : Number(internalObt.toFixed(4))
+    const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(4))
 
     return {
       faWeighted: (faA + faB) / 2,
-      internalObt: Number.isInteger(internalObt) ? internalObt : Number(internalObt.toFixed(2)),
+      internalObt: cleanInternalObt,
       internalMax: config.internalMax,
       totalObt: cleanTotalObt,
       maxMarks: effectiveTermMax,
     }
   }
 
-  // Fallback / standard calculation for legacy inputs
+  // Fallback / legacy calculation when no class/subject context is provided
   const faWeighted = (faA + faB) / 2
   const totalObt = sa + faWeighted
   const maxMarks = (Number(saMax) || 80) + ((Number(faAMax) || 20) + (Number(faBMax) || 20)) / 2
-  const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(2))
+  const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(4))
 
   return {
     faWeighted,

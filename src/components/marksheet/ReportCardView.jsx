@@ -32,6 +32,14 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     if (num === null || num === undefined) return 0
     const n = Number(num)
     if (isNaN(n)) return 0
+    return Number.isInteger(n) ? n : Number(n.toFixed(4))
+  }
+
+  // Round to 2 decimal places for display only
+  const roundDisplay = (num) => {
+    if (num === null || num === undefined) return 0
+    const n = Number(num)
+    if (isNaN(n)) return 0
     return Number.isInteger(n) ? n : Number(n.toFixed(2))
   }
 
@@ -39,11 +47,13 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
   let totalFa1Max = 0, totalFa1Obt = 0
   let totalFa2Max = 0, totalFa2Obt = 0
   let totalSa1Max = 0, totalSa1Obt = 0
+  let totalT1InternalMax = 0, totalT1InternalObt = 0
   let totalT1Max = 0, totalT1Obt = 0
 
   let totalFa3Max = 0, totalFa3Obt = 0
   let totalFa4Max = 0, totalFa4Obt = 0
   let totalSa2Max = 0, totalSa2Obt = 0
+  let totalT2InternalMax = 0, totalT2InternalObt = 0
   let totalT2Max = 0, totalT2Obt = 0
 
   let grandTotalMax = 0
@@ -126,6 +136,8 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     totalFa2Obt += fa2Obt
     totalSa1Max += sa1Max
     totalSa1Obt += sa1Obt
+    totalT1InternalMax += t1Calc.internalMax
+    totalT1InternalObt += t1Calc.internalObt
     totalT1Max += t1Max
     totalT1Obt += t1Obt
 
@@ -135,6 +147,8 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     totalFa4Obt += fa4Obt
     totalSa2Max += sa2Max
     totalSa2Obt += sa2Obt
+    totalT2InternalMax += t2Calc.internalMax
+    totalT2InternalObt += t2Calc.internalObt
     totalT2Max += t2Max
     totalT2Obt += t2Obt
 
@@ -146,13 +160,17 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
       fa1Max, fa1Obt,
       fa2Max, fa2Obt,
       sa1Max, sa1Obt, isSa1Special, sa1Raw: sub.sa1Obt,
-      t1Max, t1Obt, t1Grade,
+      t1InternalObt: roundDisplay(t1Calc.internalObt),
+      t1InternalMax: t1Calc.internalMax,
+      t1Max, t1Obt: roundDisplay(t1Obt), t1Grade,
       fa3Max, fa3Obt,
       fa4Max, fa4Obt,
       sa2Max, sa2Obt, isSa2Special, sa2Raw: sub.sa2Obt || sub.t2MainObt,
-      t2Max, t2Obt, t2Grade,
+      t2InternalObt: roundDisplay(t2Calc.internalObt),
+      t2InternalMax: t2Calc.internalMax,
+      t2Max, t2Obt: roundDisplay(t2Obt), t2Grade,
       rowMax,
-      rowScored,
+      rowScored: roundDisplay(rowScored),
       overallRowGrade,
     }
   })
@@ -160,14 +178,18 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
   totalFa1Obt = roundClean(totalFa1Obt)
   totalFa2Obt = roundClean(totalFa2Obt)
   totalSa1Obt = roundClean(totalSa1Obt)
-  totalT1Obt = roundClean(totalT1Obt)
+  totalT1InternalObt = roundDisplay(totalT1InternalObt)
+  totalT1InternalMax = roundClean(totalT1InternalMax)
+  totalT1Obt = roundDisplay(totalT1Obt)
 
   totalFa3Obt = roundClean(totalFa3Obt)
   totalFa4Obt = roundClean(totalFa4Obt)
   totalSa2Obt = roundClean(totalSa2Obt)
-  totalT2Obt = roundClean(totalT2Obt)
+  totalT2InternalObt = roundDisplay(totalT2InternalObt)
+  totalT2InternalMax = roundClean(totalT2InternalMax)
+  totalT2Obt = roundDisplay(totalT2Obt)
 
-  grandTotalScored = roundClean(grandTotalScored)
+  grandTotalScored = roundDisplay(grandTotalScored)
 
   const overallPercentage = grandTotalMax > 0 ? (grandTotalScored / grandTotalMax) * 100 : 0
   const overallGrade = calculateScholasticGrade(overallPercentage)
@@ -229,8 +251,8 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
         {/* Header Section */}
         <div className="text-center">
           <div className="flex items-center justify-between pb-1.5 border-b border-slate-300">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-slate-900 bg-indigo-900 text-white font-bold text-base shadow-sm">
-              PA
+            <div className="flex h-16 w-20 items-center justify-center shrink-0">
+              <img src="/logo.png" alt="Parma Academy Logo" className="h-16 w-auto object-contain max-h-16" />
             </div>
             <div className="flex-1 px-3">
               <h1 className="text-xl tracking-wide text-red-700 uppercase zen-dots-regular">
@@ -239,14 +261,14 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
               <p className="text-[10px] font-semibold text-slate-800">
                 Affiliated to I.C.S.E. / I.S.C Board, New Delhi
               </p>
-              <p className="text-[9.5px] text-slate-700">
-                Naka Deokali Bypass, Janaura, Ayodhya -224001 (U.P)
+              <p className="text-[9.5px] font-medium text-slate-700">
+                Parikrama Marg, Parmapuram, Ayodhya, Uttar Pradesh - 224123, India
               </p>
               <p className="text-[9px] text-slate-600">
-                www.parmaacademy.in | Ph. 9235440873, 9415716555 | Email : info@parmaacademy.in
+                www.parmaacademy.com | Ph. 8853810084, 7007178570 | Email : parma.academy.2004@gmail.com
               </p>
             </div>
-            <div className="w-14"></div>
+            <div className="w-20 shrink-0"></div>
           </div>
 
           <div className="mt-1 inline-block border-b-2 border-slate-900 px-5 py-0.5 text-sm font-extrabold uppercase tracking-widest text-slate-900">
@@ -258,9 +280,9 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
         </div>
 
         {/* Student Details Grid */}
-        <div className="mt-2 border border-slate-400 bg-slate-50/50 p-1.5">
-          <div className="flex justify-between items-start gap-3">
-            <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-1 text-[10.5px]">
+        <div className="mt-2 border border-slate-400 bg-slate-50/50 p-2">
+          <div className="flex justify-between items-center gap-4">
+            <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-1.5 text-[10.5px]">
               <div>
                 <span className="font-semibold text-slate-700">Student's Name : </span>
                 <span className="font-extrabold uppercase text-slate-900">{data.name}</span>
@@ -285,14 +307,15 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
               </div>
             </div>
 
-            {/* Student Photo Box */}
-            <div className="h-16 w-14 border border-slate-500 bg-slate-200 flex flex-col items-center justify-center text-[8.5px] text-slate-600 text-center font-sans overflow-hidden">
+            {/* Student Photo Box - sized for physical passport photo (approx 3.5cm x 4.5cm) */}
+            <div className="h-28 w-24 border-2 border-dashed border-slate-500 bg-slate-100 flex flex-col items-center justify-center text-[8.5px] text-slate-500 text-center font-sans p-1 shrink-0 overflow-hidden shadow-2xs">
               {data.photoUrl ? (
                 <img src={data.photoUrl} alt={data.name} className="h-full w-full object-cover" />
               ) : (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                  <span>PHOTO</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 mb-1"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  <span className="font-bold text-[8px] uppercase tracking-wider text-slate-600 leading-tight">Affix Student</span>
+                  <span className="font-bold text-[8px] uppercase tracking-wider text-slate-600 leading-tight">Photo Here</span>
                 </>
               )}
             </div>
@@ -307,11 +330,11 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
         {/* Scholastic Table */}
         <div className="mt-1 overflow-x-auto">
           {isHalfYearly ? (
-            /* HALF YEARLY TABLE (FA-1, FA-2, SA-1, Total, Grade) */
+            /* HALF YEARLY TABLE (FA-1, FA-2, SA-1, Half-Yearly Total, Grade) */
             <table className="w-full border-collapse border border-slate-500 text-center text-[9.5px]">
               <thead>
                 <tr className="bg-slate-100 font-bold border-b border-slate-500 text-slate-900">
-                  <th rowSpan={2} className="border border-slate-500 p-1 w-32 text-left uppercase">
+                  <th rowSpan={2} className="border border-slate-500 p-1 w-36 text-left uppercase">
                     Subject
                   </th>
                   <th colSpan={2} className="border border-slate-500 p-0.5 uppercase">
@@ -326,7 +349,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                   <th colSpan={2} className="border border-slate-500 p-0.5 uppercase">
                     Half-Yearly Total
                   </th>
-                  <th rowSpan={2} className="border border-slate-500 p-1 uppercase font-bold w-14">
+                  <th rowSpan={2} className="border border-slate-500 p-1 uppercase font-bold w-16">
                     Grade
                   </th>
                 </tr>
@@ -376,11 +399,11 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
               </tbody>
             </table>
           ) : (
-            /* ANNUAL FULL YEAR TABLE (All 6 Exams: FA1, FA2, SA1, FA3, FA4, SA2 + Grand Total) */
-            <table className="w-full border-collapse border border-slate-500 text-center text-[9px]">
+            /* ANNUAL FULL YEAR TABLE */
+            <table className="w-full border-collapse border border-slate-500 text-center text-[8.5px]">
               <thead>
                 <tr className="bg-slate-100 font-bold border-b border-slate-500 text-slate-900">
-                  <th rowSpan={2} className="border border-slate-500 p-0.5 w-24 text-left uppercase">
+                  <th rowSpan={2} className="border border-slate-500 p-0.5 w-28 text-left uppercase">
                     Subject
                   </th>
                   <th colSpan={4} className="border border-slate-500 p-0.5 uppercase bg-indigo-50/50">
@@ -393,16 +416,16 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                     Whole Year
                   </th>
                 </tr>
-                <tr className="bg-slate-100 text-[8px]">
+                <tr className="bg-slate-100 text-[7.5px]">
                   <th className="border border-slate-500 px-0.5 py-0.5">FA-1</th>
                   <th className="border border-slate-500 px-0.5 py-0.5">FA-2</th>
                   <th className="border border-slate-500 px-0.5 py-0.5">SA-1</th>
-                  <th className="border border-slate-500 px-0.5 py-0.5 font-bold bg-indigo-100">T1 Total</th>
+                  <th className="border border-slate-500 px-0.5 py-0.5 font-bold bg-indigo-100">T1 Tot</th>
 
                   <th className="border border-slate-500 px-0.5 py-0.5">FA-3</th>
                   <th className="border border-slate-500 px-0.5 py-0.5">FA-4</th>
                   <th className="border border-slate-500 px-0.5 py-0.5">SA-2</th>
-                  <th className="border border-slate-500 px-0.5 py-0.5 font-bold bg-purple-100">T2 Total</th>
+                  <th className="border border-slate-500 px-0.5 py-0.5 font-bold bg-purple-100">T2 Tot</th>
 
                   <th className="border border-slate-500 px-0.5 py-0.5 font-bold">Max</th>
                   <th className="border border-slate-500 px-0.5 py-0.5 font-bold">Scored</th>
@@ -411,7 +434,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
               </thead>
               <tbody>
                 {processedScholastic.map((sub, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50 border-b border-slate-400 font-sans text-[8.5px]">
+                  <tr key={idx} className="hover:bg-slate-50 border-b border-slate-400 font-sans text-[8px]">
                     <td className="border border-slate-500 p-0.5 text-left font-bold uppercase text-slate-900">
                       {sub.name}
                     </td>
@@ -435,7 +458,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                   </tr>
                 ))}
                 {/* Total Row */}
-                <tr className="bg-slate-100 font-bold border-t-2 border-slate-700 text-[8.5px]">
+                <tr className="bg-slate-100 font-bold border-t-2 border-slate-700 text-[8px]">
                   <td className="border border-slate-500 p-0.5 text-left uppercase">Grand Total</td>
                   <td className="border border-slate-500 p-0.5">{totalFa1Obt}</td>
                   <td className="border border-slate-500 p-0.5">{totalFa2Obt}</td>

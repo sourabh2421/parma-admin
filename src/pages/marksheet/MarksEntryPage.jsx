@@ -12,13 +12,19 @@ import {
   createEmptyMarksheetForStudent,
   filterStudentsByClass,
   getMergedStudentsList,
+  getExamSavedKey,
+  getStoredStudentMarks,
+  getStudentMarksheetById,
+  getSubjectSavedKey,
   resolveFatherName,
   saveExamMarks,
   saveStudentMarksheet,
+  saveSubjectMarks,
   subscribeMarksheetRecords,
 } from '../../firebase/marksheetRepository.js'
 import { subscribeStudents } from '../../firebase/studentRepository.js'
-import { FileEdit, PlusCircle, Save, User } from 'lucide-react'
+import { getStoredOwnerSession, OWNER_PASSWORD, setStoredOwnerSession } from '../../auth/ownerAuth.js'
+import { Check, FileEdit, KeyRound, Lock, PlusCircle, Save, ShieldAlert, Unlock, User, X } from 'lucide-react'
 
 export default function MarksEntryPage() {
   const [studentsFromRepo, setStudentsFromRepo] = useState([])
@@ -30,6 +36,13 @@ export default function MarksEntryPage() {
   const [record, setRecord] = useState(null)
   const [statusMessage, setStatusMessage] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [savingSubject, setSavingSubject] = useState(null)
+
+  // Teacher Saved Lock & Admin Backdoor States
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => getStoredOwnerSession())
+  const [showUnlockModal, setShowUnlockModal] = useState(false)
+  const [unlockPassword, setUnlockPassword] = useState('')
+  const [unlockError, setUnlockError] = useState('')
 
   // 1. Subscribe to real-time students from Firebase backend
   useEffect(() => {
@@ -132,6 +145,62 @@ export default function MarksEntryPage() {
     }
   }
 
+  // Helper to determine if a specific subject mark field is locked for teachers
+  const isFieldLocked = (subName, fieldKey, examType = selectedExam) => {
+    if (isAdminUnlocked) return false // Backdoor override: everything is editable
+    
+    // Check if the student has a saved record in Firestore or local storage for this subject & field
+    const studentRawId = record?.id || record?.studentId
+    if (!studentRawId) return false
+
+    const savedRecord = firestoreMarks.find(
+      (m) =>
+        String(m.id).trim().toLowerCase() === String(studentRawId).trim().toLowerCase() ||
+        String(m.studentId || '').trim().toLowerCase() === String(studentRawId).trim().toLowerCase()
+    ) || getStudentMarksheetById(studentRawId)
+
+    if (!savedRecord) return false
+
+    // 1. Check if single subject was saved
+    if (examType && subName) {
+      const subKey = getSubjectSavedKey(examType, subName)
+      if (savedRecord[subKey]) return true
+      const legacySubKey = `examSaved_${examType.replace(/-/g, '')}_${String(subName || '').replace(/[\s.-]/g, '_')}`
+      if (savedRecord[legacySubKey]) return true
+    }
+
+    // 2. Check if whole exam was saved
+    if (examType && examType !== 'ALL') {
+      const examKey = getExamSavedKey(examType)
+      if (savedRecord[examKey]) return true
+      const legacyKey = `examSaved_${examType.replace(/-/g, '')}`
+      if (savedRecord[legacyKey]) return true
+    }
+
+    return false
+  }
+
+  // Handle Admin Backdoor Unlock
+  const handleAdminUnlockSubmit = (e) => {
+    e.preventDefault()
+    if (unlockPassword === OWNER_PASSWORD || unlockPassword.trim() === 'vatsal10032002') {
+      setIsAdminUnlocked(true)
+      setStoredOwnerSession(true)
+      setShowUnlockModal(false)
+      setUnlockPassword('')
+      setUnlockError('')
+      setStatusMessage('🔓 Admin Backdoor Active: All marks are now fully unlocked for editing.')
+    } else {
+      setUnlockError('Incorrect Admin Passcode. Access denied.')
+    }
+  }
+
+  const handleLockTeacherMode = () => {
+    setIsAdminUnlocked(false)
+    setStoredOwnerSession(false)
+    setStatusMessage('🔒 Teacher Mode Active: Previously saved marks are now locked from editing.')
+  }
+
   // Create new student entry draft
   const handleCreateNewStudentForm = () => {
     const newStud = createEmptyMarksheetForStudent({
@@ -163,6 +232,61 @@ export default function MarksEntryPage() {
         ...record,
         coScholasticAnnual: { ...(record.coScholasticAnnual || {}), [skill]: grade },
       })
+    }
+  }
+
+  const handleSaveSubject = async (idx, subjectName) => {
+    if (!record) return
+    const subData = record.scholastic?.[idx]
+    if (!subData) return
+    setSavingSubject(subjectName)
+    try {
+      await saveSubjectMarks(record, selectedExam, subjectName, subData)
+      setStatusMessage(`Successfully saved ${subjectName} (${selectedExam}) marks for ${record.name}!`)
+    } catch (err) {
+      console.error('Error saving subject marks:', err)
+      setStatusMessage(`Error saving ${subjectName}: ${err.message}`)
+    } finally {
+      setSavingSubject(null)
+    }
+  }
+
+  const handleSaveSubjectAndNext = async (idx, subjectName) => {
+    if (!record) return
+    const subData = record.scholastic?.[idx]
+    if (!subData) return
+    setSavingSubject(subjectName)
+    try {
+      await saveSubjectMarks(record, selectedExam, subjectName, subData)
+      setStatusMessage(`Successfully saved ${subjectName} (${selectedExam}) marks for ${record.name}!`)
+
+      // Move to next student in the same class
+      if (classStudents.length > 1) {
+        const currentIndex = classStudents.findIndex(
+          (s) => (s.id || s.studentId) === (record.id || record.studentId)
+        )
+        if (currentIndex >= 0 && currentIndex < classStudents.length - 1) {
+          const nextStudent = classStudents[currentIndex + 1]
+          handleSelectStudent(nextStudent.id || nextStudent.studentId)
+          setStatusMessage((prev) => `${prev} Moved to next student: ${nextStudent.name}.`)
+        } else {
+          setStatusMessage((prev) => `${prev} (Reached last student in Class ${selectedClass})`)
+        }
+      }
+    } catch (err) {
+      console.error('Error saving subject marks:', err)
+      setStatusMessage(`Error saving ${subjectName}: ${err.message}`)
+    } finally {
+      setSavingSubject(null)
+    }
+  }
+
+  // Handle Enter key on subject input: saves only this subject
+  const handleSubjectInputKeyDown = (e, idx, subjectName) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      e.stopPropagation()
+      handleSaveSubject(idx, subjectName)
     }
   }
 
@@ -238,10 +362,33 @@ export default function MarksEntryPage() {
               <span className={`h-2 w-2 rounded-full ${isCloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
               <span>{isCloudConnected ? 'Firebase Cloud Connected' : 'Local Cache Active'}</span>
             </div>
+
+            {/* Teacher Mode / Admin Backdoor Lock Toggle */}
+            {isAdminUnlocked ? (
+              <button
+                type="button"
+                onClick={handleLockTeacherMode}
+                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/50 bg-emerald-500/15 px-3 py-0.5 text-[11px] font-extrabold text-emerald-300 hover:bg-emerald-500/25 transition"
+                title="Click to lock saved marks back to Teacher Mode"
+              >
+                <Unlock className="h-3 w-3 text-emerald-300" />
+                <span>Admin Override: Unlocked (Click to Lock)</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowUnlockModal(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 px-3 py-0.5 text-[11px] font-extrabold text-amber-300 hover:bg-amber-500/25 transition"
+                title="Saved marks are locked from editing. Click to enter Admin Passcode to unlock."
+              >
+                <Lock className="h-3 w-3 text-amber-300" />
+                <span>Teacher Mode: Saved Marks Locked 🔒</span>
+              </button>
+            )}
           </div>
           <h2 className="text-xl sm:text-2xl text-[#fff9fb] zen-dots-regular">Periodic Exam Mark Entry</h2>
           <p className="text-xs text-[#d3d4d9] mt-1">
-            Enter marks exam-by-exam (FA-1 May, FA-2 July, SA-1 Sep, FA-3 Nov, FA-4 Jan, SA-2 Mar). All marks save directly to backend.
+            Enter marks exam-by-exam or subject-by-subject. Saved marks are locked for teachers to prevent accidental modifications.
           </p>
         </div>
 
@@ -261,10 +408,82 @@ export default function MarksEntryPage() {
             className="flex items-center gap-1.5 rounded-xl bg-[#4b88a2] px-5 py-2 text-xs font-bold text-[#fff9fb] shadow-md shadow-[#4b88a2]/30 hover:bg-[#3a7187] disabled:opacity-50 transition"
           >
             <Save className="h-4 w-4" />
-            <span>{isSaving ? 'Saving to Cloud...' : selectedExam === 'ALL' ? 'Save All Marks' : `Save ${selectedExam} Marks`}</span>
+            <span>{isSaving ? 'Saving to Cloud...' : selectedExam === 'ALL' ? 'Save All Marks' : `Save All ${selectedExam} Marks`}</span>
           </button>
         </div>
       </div>
+
+      {/* Admin Backdoor Unlock Modal */}
+      {showUnlockModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-[#333538] bg-[#202122] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  <KeyRound className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#fff9fb]">Admin Override Unlock</h3>
+                  <p className="text-[11px] text-[#d3d4d9]">Unlock saved marks for editing & testing</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnlockModal(false)
+                  setUnlockPassword('')
+                  setUnlockError('')
+                }}
+                className="text-[#d3d4d9] hover:text-[#fff9fb]"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdminUnlockSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#d3d4d9] mb-1">
+                  Enter Admin Passcode / Password
+                </label>
+                <input
+                  type="password"
+                  autoFocus
+                  value={unlockPassword}
+                  onChange={(e) => {
+                    setUnlockPassword(e.target.value)
+                    setUnlockError('')
+                  }}
+                  placeholder="Enter passcode"
+                  className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2.5 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                />
+                {unlockError && (
+                  <p className="text-[11px] text-red-400 font-bold mt-1.5">{unlockError}</p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUnlockModal(false)
+                    setUnlockPassword('')
+                    setUnlockError('')
+                  }}
+                  className="rounded-xl border border-[#333538] bg-[#252627] px-4 py-2 text-xs font-bold text-[#d3d4d9] hover:bg-[#333538] hover:text-[#fff9fb] transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-xl bg-[#4b88a2] px-5 py-2 text-xs font-bold text-[#fff9fb] hover:bg-[#3a7187] transition shadow-md shadow-[#4b88a2]/30"
+                >
+                  Unlock Admin Edit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {statusMessage && (
         <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/40 p-3.5 text-xs font-bold text-emerald-300">
@@ -387,67 +606,113 @@ export default function MarksEntryPage() {
             </label>
             <input
               type="text"
+              readOnly={!isAdminUnlocked}
               value={record.session || '2026-27'}
               onChange={(e) => setRecord({ ...record, session: e.target.value })}
-              className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+              className={!isAdminUnlocked
+                ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3.5 py-2 text-xs font-bold text-slate-300 cursor-not-allowed select-none"
+                : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+              }
             />
           </div>
         </div>
       </div>
 
       {/* Main Edit Form */}
-      <form onSubmit={(e) => handleSave(e, false)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleSave(e, false)
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+          }
+        }}
+        className="space-y-6"
+      >
         {/* Student Profile Info */}
         <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6">
-          <h3 className="text-sm font-bold text-[#fff9fb] mb-4 flex items-center gap-2">
-            <User className="h-4 w-4 text-[#4b88a2]" />
-            <span>Student Profile Information</span>
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-[#fff9fb] flex items-center gap-2">
+              <User className="h-4 w-4 text-[#4b88a2]" />
+              <span>Student Profile Information</span>
+            </h3>
+            {!isAdminUnlocked ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10.5px] font-bold text-amber-300">
+                <Lock className="h-3 w-3 text-amber-400" /> Demographic Details Locked
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[10.5px] font-bold text-emerald-300">
+                <Unlock className="h-3 w-3 text-emerald-400" /> Admin Edit Enabled
+              </span>
+            )}
+          </div>
           <div className="grid gap-4 sm:grid-cols-5 text-xs">
             <div>
               <label className="block font-semibold text-[#d3d4d9] mb-1">Student's Name</label>
               <input
                 type="text"
+                readOnly={!isAdminUnlocked}
                 value={record.name || ''}
                 onChange={(e) => setRecord({ ...record, name: e.target.value })}
-                className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                className={!isAdminUnlocked
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                }
               />
             </div>
             <div>
               <label className="block font-semibold text-[#d3d4d9] mb-1">Date of Birth</label>
               <input
                 type="text"
+                readOnly={!isAdminUnlocked}
                 value={record.dob || ''}
                 placeholder="DD/MM/YYYY"
                 onChange={(e) => setRecord({ ...record, dob: e.target.value })}
-                className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                className={!isAdminUnlocked
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                }
               />
             </div>
             <div>
               <label className="block font-semibold text-[#d3d4d9] mb-1">Father's Name</label>
               <input
                 type="text"
+                readOnly={!isAdminUnlocked}
                 value={record.fatherName || ''}
                 onChange={(e) => setRecord({ ...record, fatherName: e.target.value })}
-                className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                className={!isAdminUnlocked
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                }
               />
             </div>
             <div>
               <label className="block font-semibold text-[#d3d4d9] mb-1">Class</label>
               <input
                 type="text"
+                readOnly={!isAdminUnlocked}
                 value={record.class || ''}
                 onChange={(e) => setRecord({ ...record, class: e.target.value })}
-                className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                className={!isAdminUnlocked
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                }
               />
             </div>
             <div>
               <label className="block font-semibold text-[#d3d4d9] mb-1">Student ID</label>
               <input
                 type="text"
+                readOnly={!isAdminUnlocked}
                 value={record.studentId || record.id || ''}
                 onChange={(e) => setRecord({ ...record, studentId: e.target.value })}
-                className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                className={!isAdminUnlocked
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                }
               />
             </div>
           </div>
@@ -463,7 +728,7 @@ export default function MarksEntryPage() {
               <p className="text-xs text-[#d3d4d9] mt-0.5">
                 {selectedExam === 'ALL'
                   ? 'Showing all 6 periodic evaluations for the academic year.'
-                  : `Currently editing: ${selectedExam} (${EXAM_SCHEDULE[selectedExam]}).`}
+                  : `Currently editing: ${selectedExam} (${EXAM_SCHEDULE[selectedExam]}). Previously saved marks are locked in Teacher Mode.`}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -482,13 +747,13 @@ export default function MarksEntryPage() {
                 </span>
                 <span className="text-[#d3d4d9] text-[11px]">
                   {selectedExam === 'SA-1' || selectedExam === 'SA-2'
-                    ? 'Enter Theory, Assignment, and Oral marks. Internal and Term Totals calculate automatically.'
-                    : 'Enter Formative Assessment marks (Max 20 per subject).'}
+                    ? 'Enter Theory, Assignment, and Oral marks. Saved entries lock automatically.'
+                    : 'Enter Formative Assessment marks (Max 20 per subject). Saved entries lock automatically.'}
                 </span>
               </div>
 
               {selectedExam === 'SA-1' ? (
-                /* SA-1 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals) */
+                /* SA-1 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals + Single Subject Save) */
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
@@ -498,6 +763,7 @@ export default function MarksEntryPage() {
                       <th className="py-2.5 px-2 text-center w-28">Oral / Practical</th>
                       <th className="py-2.5 px-2 text-center w-24">Internal Total</th>
                       <th className="py-2.5 px-2 text-center w-28 font-extrabold text-[#4b88a2]">Term 1 Total</th>
+                      <th className="py-2.5 px-2 text-center w-24">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -518,12 +784,22 @@ export default function MarksEntryPage() {
                         sub.name
                       )
 
+                      const isTheoryLocked = isFieldLocked(sub.name, 'sa1Obt')
+                      const isAssignLocked = isFieldLocked(sub.name, 'sa1AssignObt')
+                      const isOralLocked = isFieldLocked(sub.name, 'sa1OralObt')
+                      const isSubjectFullyLocked = isTheoryLocked && (!config.hasAssignment || isAssignLocked) && (!config.hasOral || isOralLocked)
+
                       return (
                         <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
                           <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
-                            {sub.name}
+                            <div className="flex items-center gap-1.5">
+                              <span>{sub.name}</span>
+                              {isSubjectFullyLocked && (
+                                <span title="Saved and locked for teachers" className="text-amber-400 text-xs">🔒</span>
+                              )}
+                            </div>
                             <span className="block text-[10px] font-normal text-[#d3d4d9]/70">
-                              FA1: {sub.fa1Obt || 0} | FA2: {sub.fa2Obt || 0}
+                              FA1: {sub.fa1Obt !== undefined && sub.fa1Obt !== '' ? sub.fa1Obt : '—'} | FA2: {sub.fa2Obt !== undefined && sub.fa2Obt !== '' ? sub.fa2Obt : '—'}
                             </span>
                           </td>
 
@@ -532,10 +808,15 @@ export default function MarksEntryPage() {
                             <div className="inline-flex flex-col items-center">
                               <input
                                 type="text"
+                                readOnly={isTheoryLocked}
                                 value={sub.sa1Obt ?? ''}
                                 placeholder="0"
                                 onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
-                                className="w-20 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                                onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                className={isTheoryLocked
+                                  ? "w-20 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-2 py-1 text-center font-bold text-slate-300 text-sm cursor-not-allowed opacity-90"
+                                  : "w-20 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                                }
                               />
                               <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5 font-semibold">
                                 / {sub.sa1Max || config.theoryMax}
@@ -549,10 +830,15 @@ export default function MarksEntryPage() {
                               <div className="inline-flex flex-col items-center">
                                 <input
                                   type="text"
+                                  readOnly={isAssignLocked}
                                   value={sub.sa1AssignObt ?? ''}
                                   placeholder="0"
                                   onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
-                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                  onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                  className={isAssignLocked
+                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
+                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                  }
                                 />
                                 <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
                                   {config.assignLabel} (/{config.assignMax})
@@ -569,10 +855,15 @@ export default function MarksEntryPage() {
                               <div className="inline-flex flex-col items-center">
                                 <input
                                   type="text"
+                                  readOnly={isOralLocked}
                                   value={sub.sa1OralObt ?? ''}
                                   placeholder="0"
                                   onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
-                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                  onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                  className={isOralLocked
+                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
+                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                  }
                                 />
                                 <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
                                   {config.oralLabel} (/{config.oralMax})
@@ -596,13 +887,44 @@ export default function MarksEntryPage() {
                               {calc.totalObt} <span className="text-[10px] font-bold text-[#d3d4d9]">/{calc.maxMarks}</span>
                             </span>
                           </td>
+
+                          {/* Save Single Subject Action */}
+                          <td className="py-2.5 px-2 text-center">
+                            {isSubjectFullyLocked && !isAdminUnlocked ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded-lg">
+                                <Lock className="h-3 w-3 text-amber-400" /> Locked
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveSubject(idx, sub.name)}
+                                  disabled={savingSubject === sub.name}
+                                  className="rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 hover:bg-[#4b88a2] text-[#fff9fb] px-2 py-1 text-[11px] font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  title={`Save marks for ${sub.name} only`}
+                                >
+                                  <Save className="h-3 w-3" />
+                                  <span>{savingSubject === sub.name ? 'Saving...' : 'Save'}</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveSubjectAndNext(idx, sub.name)}
+                                  disabled={savingSubject === sub.name}
+                                  className="rounded-lg bg-[#252627] border border-[#333538] hover:border-[#4b88a2] hover:text-[#fff9fb] text-[#d3d4d9] px-2 py-1 text-[11px] font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  title={`Save ${sub.name} and move to next student in Class ${selectedClass}`}
+                                >
+                                  <span>Next →</span>
+                                </button>
+                              </div>
+                            )}
+                          </td>
                         </tr>
                       )
                     })}
                   </tbody>
                 </table>
               ) : selectedExam === 'SA-2' ? (
-                /* SA-2 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals) */
+                /* SA-2 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals + Single Subject Save) */
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
@@ -612,6 +934,7 @@ export default function MarksEntryPage() {
                       <th className="py-2.5 px-2 text-center w-28">Oral / Practical</th>
                       <th className="py-2.5 px-2 text-center w-24">Internal Total</th>
                       <th className="py-2.5 px-2 text-center w-28 font-extrabold text-[#bb0a21]">Term 2 Total</th>
+                      <th className="py-2.5 px-2 text-center w-36">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -632,12 +955,22 @@ export default function MarksEntryPage() {
                         sub.name
                       )
 
+                      const isTheoryLocked = isFieldLocked(sub.name, 'sa2Obt')
+                      const isAssignLocked = isFieldLocked(sub.name, 'sa2AssignObt')
+                      const isOralLocked = isFieldLocked(sub.name, 'sa2OralObt')
+                      const isSubjectFullyLocked = isTheoryLocked && (!config.hasAssignment || isAssignLocked) && (!config.hasOral || isOralLocked)
+
                       return (
                         <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
                           <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
-                            {sub.name}
+                            <div className="flex items-center gap-1.5">
+                              <span>{sub.name}</span>
+                              {isSubjectFullyLocked && (
+                                <span title="Saved and locked for teachers" className="text-amber-400 text-xs">🔒</span>
+                              )}
+                            </div>
                             <span className="block text-[10px] font-normal text-[#d3d4d9]/70">
-                              FA3: {sub.fa3Obt || 0} | FA4: {sub.fa4Obt || 0}
+                              FA3: {sub.fa3Obt !== undefined && sub.fa3Obt !== '' ? sub.fa3Obt : '—'} | FA4: {sub.fa4Obt !== undefined && sub.fa4Obt !== '' ? sub.fa4Obt : '—'}
                             </span>
                           </td>
 
@@ -646,10 +979,15 @@ export default function MarksEntryPage() {
                             <div className="inline-flex flex-col items-center">
                               <input
                                 type="text"
+                                readOnly={isTheoryLocked}
                                 value={sub.sa2Obt ?? ''}
                                 placeholder="0"
                                 onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
-                                className="w-20 rounded-lg border border-[#bb0a21]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#bb0a21] focus:ring-1 focus:ring-[#bb0a21] focus:outline-none"
+                                onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                className={isTheoryLocked
+                                  ? "w-20 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-2 py-1 text-center font-bold text-slate-300 text-sm cursor-not-allowed opacity-90"
+                                  : "w-20 rounded-lg border border-[#bb0a21]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#bb0a21] focus:ring-1 focus:ring-[#bb0a21] focus:outline-none"
+                                }
                               />
                               <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5 font-semibold">
                                 / {sub.sa2Max || config.theoryMax}
@@ -663,10 +1001,15 @@ export default function MarksEntryPage() {
                               <div className="inline-flex flex-col items-center">
                                 <input
                                   type="text"
+                                  readOnly={isAssignLocked}
                                   value={sub.sa2AssignObt ?? ''}
                                   placeholder="0"
                                   onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
-                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                  onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                  className={isAssignLocked
+                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
+                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                  }
                                 />
                                 <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
                                   {config.assignLabel} (/{config.assignMax})
@@ -683,10 +1026,15 @@ export default function MarksEntryPage() {
                               <div className="inline-flex flex-col items-center">
                                 <input
                                   type="text"
+                                  readOnly={isOralLocked}
                                   value={sub.sa2OralObt ?? ''}
                                   placeholder="0"
                                   onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
-                                  className="w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                  onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                  className={isOralLocked
+                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
+                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                  }
                                 />
                                 <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
                                   {config.oralLabel} (/{config.oralMax})
@@ -710,13 +1058,44 @@ export default function MarksEntryPage() {
                               {calc.totalObt} <span className="text-[10px] font-bold text-[#d3d4d9]">/{calc.maxMarks}</span>
                             </span>
                           </td>
+
+                          {/* Save Single Subject Action */}
+                          <td className="py-2.5 px-2 text-center">
+                            {isSubjectFullyLocked && !isAdminUnlocked ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded-lg">
+                                <Lock className="h-3 w-3 text-amber-400" /> Locked
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveSubject(idx, sub.name)}
+                                  disabled={savingSubject === sub.name}
+                                  className="rounded-lg bg-[#bb0a21]/20 border border-[#bb0a21]/50 hover:bg-[#bb0a21] text-[#fff9fb] px-2 py-1 text-[11px] font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  title={`Save marks for ${sub.name} only`}
+                                >
+                                  <Save className="h-3 w-3" />
+                                  <span>{savingSubject === sub.name ? 'Saving...' : 'Save'}</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveSubjectAndNext(idx, sub.name)}
+                                  disabled={savingSubject === sub.name}
+                                  className="rounded-lg bg-[#252627] border border-[#333538] hover:border-[#bb0a21] hover:text-[#fff9fb] text-[#d3d4d9] px-2 py-1 text-[11px] font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  title={`Save ${sub.name} and move to next student in Class ${selectedClass}`}
+                                >
+                                  <span>Next →</span>
+                                </button>
+                              </div>
+                            )}
+                          </td>
                         </tr>
                       )
                     })}
                   </tbody>
                 </table>
               ) : (
-                /* FA-1, FA-2, FA-3, FA-4 STANDARD TABLE */
+                /* FA-1, FA-2, FA-3, FA-4 STANDARD TABLE WITH SINGLE SUBJECT SAVE */
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
@@ -724,6 +1103,7 @@ export default function MarksEntryPage() {
                       <th className="py-2.5 px-3 text-center w-36">Marks Obtained</th>
                       <th className="py-2.5 px-3 text-center w-28">Max Marks</th>
                       <th className="py-2.5 px-3 text-center w-36">Exam Summary</th>
+                      <th className="py-2.5 px-3 text-center w-36">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -735,32 +1115,75 @@ export default function MarksEntryPage() {
                         'FA-4': { obt: 'fa4Obt', max: 'fa4Max' },
                       }[selectedExam] || { obt: 'fa1Obt', max: 'fa1Max' }
 
+                      const isObtLocked = isFieldLocked(sub.name, fields.obt)
+
                       return (
                         <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
                           <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
-                            {sub.name}
+                            <div className="flex items-center gap-1.5">
+                              <span>{sub.name}</span>
+                              {isObtLocked && (
+                                <span title="Saved and locked for teachers" className="text-amber-400 text-xs">🔒</span>
+                              )}
+                            </div>
                           </td>
                           <td className="py-2.5 px-3 text-center">
                             <input
                               type="text"
+                              readOnly={isObtLocked}
                               value={sub[fields.obt] ?? ''}
                               placeholder="0"
                               onChange={(e) => handleScholasticChange(idx, fields.obt, e.target.value)}
-                              className="w-24 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-3 py-1.5 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                              onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                              className={isObtLocked
+                                ? "w-24 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-3 py-1.5 text-center font-bold text-slate-300 text-sm cursor-not-allowed opacity-90"
+                                : "w-24 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-3 py-1.5 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                              }
                             />
                           </td>
                           <td className="py-2.5 px-3 text-center">
                             <input
                               type="text"
+                              readOnly={isObtLocked}
                               value={sub[fields.max] ?? 20}
                               onChange={(e) => handleScholasticChange(idx, fields.max, e.target.value)}
+                              onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                               className="w-20 rounded-lg border border-[#333538] bg-[#252627]/60 px-2 py-1.5 text-center text-[#d3d4d9] font-semibold focus:outline-none"
                             />
                           </td>
                           <td className="py-2.5 px-3 text-center text-[10.5px] text-[#d3d4d9]">
                             <span className="font-mono">
-                              FA1:{sub.fa1Obt || 0} | FA2:{sub.fa2Obt || 0} | FA3:{sub.fa3Obt || 0} | FA4:{sub.fa4Obt || 0}
+                              FA1:{sub.fa1Obt !== undefined && sub.fa1Obt !== '' ? sub.fa1Obt : '—'} | FA2:{sub.fa2Obt !== undefined && sub.fa2Obt !== '' ? sub.fa2Obt : '—'} | FA3:{sub.fa3Obt !== undefined && sub.fa3Obt !== '' ? sub.fa3Obt : '—'} | FA4:{sub.fa4Obt !== undefined && sub.fa4Obt !== '' ? sub.fa4Obt : '—'}
                             </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            {isObtLocked && !isAdminUnlocked ? (
+                              <span className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded-lg">
+                                <Lock className="h-3 w-3 text-amber-400" /> Locked
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveSubject(idx, sub.name)}
+                                  disabled={savingSubject === sub.name}
+                                  className="rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 hover:bg-[#4b88a2] text-[#fff9fb] px-2.5 py-1.5 text-xs font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  title={`Save marks for ${sub.name} only`}
+                                >
+                                  <Save className="h-3 w-3" />
+                                  <span>{savingSubject === sub.name ? 'Saving...' : 'Save'}</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveSubjectAndNext(idx, sub.name)}
+                                  disabled={savingSubject === sub.name}
+                                  className="rounded-lg bg-[#252627] border border-[#333538] hover:border-[#4b88a2] hover:text-[#fff9fb] text-[#d3d4d9] px-2.5 py-1.5 text-xs font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  title={`Save ${sub.name} and move to next student in Class ${selectedClass}`}
+                                >
+                                  <span>Next →</span>
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       )
@@ -770,7 +1193,7 @@ export default function MarksEntryPage() {
               )}
             </div>
           ) : (
-            /* Comprehensive All-Exams Table */
+            /* Comprehensive All-Exams Table with Lock Indicators */
             <table className="w-full text-left text-xs border-collapse min-w-[850px]">
               <thead>
                 <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
@@ -816,8 +1239,18 @@ export default function MarksEntryPage() {
                     sub.sa2AssignMax || config.assignMax, sub.sa2OralMax || config.oralMax,
                     selectedClass, sub.name
                   )
-                  const grandTotal = t1Calc.totalObt + t2Calc.totalObt
-                  const grandMax = t1Calc.maxMarks + t2Calc.maxMarks
+
+                  const isFa1Locked = isFieldLocked(sub.name, 'fa1Obt')
+                  const isFa2Locked = isFieldLocked(sub.name, 'fa2Obt')
+                  const isSa1AssignLocked = isFieldLocked(sub.name, 'sa1AssignObt')
+                  const isSa1OralLocked = isFieldLocked(sub.name, 'sa1OralObt')
+                  const isSa1ThLocked = isFieldLocked(sub.name, 'sa1Obt')
+
+                  const isFa3Locked = isFieldLocked(sub.name, 'fa3Obt')
+                  const isFa4Locked = isFieldLocked(sub.name, 'fa4Obt')
+                  const isSa2AssignLocked = isFieldLocked(sub.name, 'sa2AssignObt')
+                  const isSa2OralLocked = isFieldLocked(sub.name, 'sa2OralObt')
+                  const isSa2ThLocked = isFieldLocked(sub.name, 'sa2Obt')
 
                   return (
                     <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
@@ -827,9 +1260,13 @@ export default function MarksEntryPage() {
                       <td className="py-2 px-1 text-center">
                         <input
                           type="text"
+                          readOnly={isFa1Locked}
                           value={sub.fa1Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa1Obt', e.target.value)}
-                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          className={isFa1Locked
+                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          }
                         />
                       </td>
 
@@ -837,9 +1274,13 @@ export default function MarksEntryPage() {
                       <td className="py-2 px-1 text-center">
                         <input
                           type="text"
+                          readOnly={isFa2Locked}
                           value={sub.fa2Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa2Obt', e.target.value)}
-                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          className={isFa2Locked
+                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          }
                         />
                       </td>
 
@@ -848,9 +1289,13 @@ export default function MarksEntryPage() {
                         {config.hasAssignment ? (
                           <input
                             type="text"
+                            readOnly={isSa1AssignLocked}
                             value={sub.sa1AssignObt ?? ''}
                             onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
-                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            className={isSa1AssignLocked
+                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            }
                           />
                         ) : (
                           <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
@@ -862,9 +1307,13 @@ export default function MarksEntryPage() {
                         {config.hasOral ? (
                           <input
                             type="text"
+                            readOnly={isSa1OralLocked}
                             value={sub.sa1OralObt ?? ''}
                             onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
-                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            className={isSa1OralLocked
+                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            }
                           />
                         ) : (
                           <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
@@ -875,9 +1324,13 @@ export default function MarksEntryPage() {
                       <td className="py-2 px-1 text-center">
                         <input
                           type="text"
+                          readOnly={isSa1ThLocked}
                           value={sub.sa1Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
-                          className="w-14 rounded-lg border border-[#4b88a2]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#4b88a2] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          className={isSa1ThLocked
+                            ? "w-14 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                            : "w-14 rounded-lg border border-[#4b88a2]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#4b88a2] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          }
                         />
                       </td>
 
@@ -885,9 +1338,13 @@ export default function MarksEntryPage() {
                       <td className="py-2 px-1 text-center">
                         <input
                           type="text"
+                          readOnly={isFa3Locked}
                           value={sub.fa3Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa3Obt', e.target.value)}
-                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          className={isFa3Locked
+                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          }
                         />
                       </td>
 
@@ -895,9 +1352,13 @@ export default function MarksEntryPage() {
                       <td className="py-2 px-1 text-center">
                         <input
                           type="text"
+                          readOnly={isFa4Locked}
                           value={sub.fa4Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa4Obt', e.target.value)}
-                          className="w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          className={isFa4Locked
+                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                          }
                         />
                       </td>
 
@@ -906,9 +1367,13 @@ export default function MarksEntryPage() {
                         {config.hasAssignment ? (
                           <input
                             type="text"
+                            readOnly={isSa2AssignLocked}
                             value={sub.sa2AssignObt ?? ''}
                             onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
-                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                            className={isSa2AssignLocked
+                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                            }
                           />
                         ) : (
                           <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
@@ -920,9 +1385,13 @@ export default function MarksEntryPage() {
                         {config.hasOral ? (
                           <input
                             type="text"
+                            readOnly={isSa2OralLocked}
                             value={sub.sa2OralObt ?? ''}
                             onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
-                            className="w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                            className={isSa2OralLocked
+                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                            }
                           />
                         ) : (
                           <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
@@ -933,15 +1402,19 @@ export default function MarksEntryPage() {
                       <td className="py-2 px-1 text-center">
                         <input
                           type="text"
+                          readOnly={isSa2ThLocked}
                           value={sub.sa2Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
-                          className="w-14 rounded-lg border border-[#bb0a21]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#bb0a21] text-xs focus:border-[#bb0a21] focus:outline-none"
+                          className={isSa2ThLocked
+                            ? "w-14 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                            : "w-14 rounded-lg border border-[#bb0a21]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#bb0a21] text-xs focus:border-[#bb0a21] focus:outline-none"
+                          }
                         />
                       </td>
 
                       {/* Grand Total */}
-                      <td className="py-2 px-2 text-center font-mono font-bold text-xs text-emerald-400">
-                        {grandTotal} <span className="text-[10px] text-[#d3d4d9]/60">/{grandMax}</span>
+                      <td className="py-2 px-2 text-center font-bold text-emerald-400">
+                        {t1Calc.totalObt + t2Calc.totalObt}
                       </td>
                     </tr>
                   )

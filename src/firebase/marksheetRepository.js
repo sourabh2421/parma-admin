@@ -276,6 +276,17 @@ export async function saveStudentMarksheet(record) {
   return updatedRecord
 }
 
+export function getSubjectSavedKey(examType, subjectName) {
+  const cleanExam = String(examType || '').replace(/[\s.-]/g, '')
+  const cleanSub = String(subjectName || '').replace(/[\s.-]/g, '_')
+  return `saved_${cleanExam}_${cleanSub}`
+}
+
+export function getExamSavedKey(examType) {
+  const cleanExam = String(examType || '').replace(/[\s.-]/g, '')
+  return `saved_exam_${cleanExam}`
+}
+
 /**
  * Save only a specific exam's marks for a student.
  * examType: 'FA-1' | 'FA-2' | 'SA-1' | 'FA-3' | 'FA-4' | 'SA-2'
@@ -336,12 +347,101 @@ export async function saveExamMarks(studentRecord, examType, examScholastic) {
     return updated
   })
 
+  const examKey = getExamSavedKey(examType)
   const updatedRecord = {
     ...existingRecord,
     ...studentRecord,
     scholastic: mergedScholastic,
     fatherName: resolveFatherName(studentRecord.id, studentRecord.name, studentRecord.fatherName, existingRecord.fatherName),
+    [examKey]: true,
+    [`${examKey}_at`]: new Date().toISOString(),
     [`examSaved_${examType.replace(/-/g, '')}`]: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+
+  return saveStudentMarksheet(updatedRecord)
+}
+
+/**
+ * Save only a specific subject's exam marks for a student independently.
+ * examType: 'FA-1' | 'FA-2' | 'SA-1' | 'FA-3' | 'FA-4' | 'SA-2'
+ */
+export async function saveSubjectMarks(studentRecord, examType, subjectName, subjectData) {
+  if (!studentRecord?.id) throw new Error('Student record must have an ID')
+  if (!subjectName) throw new Error('Subject name is required')
+
+  const examFieldMap = {
+    'FA-1': { obt: 'fa1Obt', max: 'fa1Max' },
+    'FA-2': { obt: 'fa2Obt', max: 'fa2Max' },
+    'SA-1': {
+      obt: 'sa1Obt',
+      max: 'sa1Max',
+      assignObt: 'sa1AssignObt',
+      assignMax: 'sa1AssignMax',
+      oralObt: 'sa1OralObt',
+      oralMax: 'sa1OralMax',
+    },
+    'FA-3': { obt: 'fa3Obt', max: 'fa3Max' },
+    'FA-4': { obt: 'fa4Obt', max: 'fa4Max' },
+    'SA-2': {
+      obt: 'sa2Obt',
+      max: 'sa2Max',
+      assignObt: 'sa2AssignObt',
+      assignMax: 'sa2AssignMax',
+      oralObt: 'sa2OralObt',
+      oralMax: 'sa2OralMax',
+    },
+  }
+  const fields = examFieldMap[examType]
+  if (!fields) throw new Error(`Unknown exam type: ${examType}`)
+
+  const existing = getStoredStudentMarks()
+  const existingRecord = existing.find(
+    (r) => String(r.id).trim().toLowerCase() === String(studentRecord.id).trim().toLowerCase()
+  ) || createEmptyMarksheetForStudent(studentRecord)
+
+  const mergedScholastic = (existingRecord.scholastic || []).map((sub) => {
+    if (sub.name !== subjectName) return sub
+    const updated = { ...sub }
+    if (subjectData[fields.obt] !== undefined) {
+      updated[fields.obt] = subjectData[fields.obt]
+    }
+    if (subjectData[fields.max] !== undefined) {
+      updated[fields.max] = subjectData[fields.max]
+    }
+    if (fields.assignObt && subjectData[fields.assignObt] !== undefined) {
+      updated[fields.assignObt] = subjectData[fields.assignObt]
+    }
+    if (fields.assignMax && subjectData[fields.assignMax] !== undefined) {
+      updated[fields.assignMax] = subjectData[fields.assignMax]
+    }
+    if (fields.oralObt && subjectData[fields.oralObt] !== undefined) {
+      updated[fields.oralObt] = subjectData[fields.oralObt]
+    }
+    if (fields.oralMax && subjectData[fields.oralMax] !== undefined) {
+      updated[fields.oralMax] = subjectData[fields.oralMax]
+    }
+    return updated
+  })
+
+  // If subject was not present, add it
+  const foundSub = mergedScholastic.some((s) => s.name === subjectName)
+  if (!foundSub) {
+    mergedScholastic.push({
+      name: subjectName,
+      ...subjectData,
+    })
+  }
+
+  const subKey = getSubjectSavedKey(examType, subjectName)
+  const updatedRecord = {
+    ...existingRecord,
+    ...studentRecord,
+    scholastic: mergedScholastic,
+    fatherName: resolveFatherName(studentRecord.id, studentRecord.name, studentRecord.fatherName, existingRecord.fatherName),
+    [subKey]: true,
+    [`${subKey}_at`]: new Date().toISOString(),
+    [`examSaved_${examType.replace(/-/g, '')}_${subjectName.replace(/[\s.-]/g, '_')}`]: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
 
