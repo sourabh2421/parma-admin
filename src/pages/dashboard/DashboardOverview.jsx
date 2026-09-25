@@ -17,6 +17,7 @@ import { useToast } from '../../context/useToast.js'
 import OverviewSummaryCards from '../../components/dashboard/OverviewSummaryCards.jsx'
 import UploadPanel from '../../components/dashboard/UploadPanel.jsx'
 import TableSkeleton from '../../components/dashboard/TableSkeleton.jsx'
+import ReceiptPrint from './ReceiptPrint.jsx'
 
 const MONTH_NAMES = [
   'January',
@@ -44,6 +45,25 @@ function DashboardOverview() {
   const [uploadBusy, setUploadBusy] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const [reconcileBusy, setReconcileBusy] = useState(false)
+  const [printingFeeRecord, setPrintingFeeRecord] = useState(null)
+
+  const handlePrint = (fee) => {
+    const matchedStudent = students.find(
+      (s) =>
+        String(s.id).trim() === String(fee.studentId).trim() ||
+        String(s.studentId).trim() === String(fee.studentId).trim() ||
+        String(s.name || '').trim().toLowerCase() === String(fee.studentName || '').trim().toLowerCase(),
+    )
+    setPrintingFeeRecord({
+      student: matchedStudent || {
+        id: fee.studentId,
+        name: fee.studentName,
+        class: fee.class,
+        parentName: '',
+      },
+      fee,
+    })
+  }
 
   const reconcilePlan = useMemo(() => buildReconciliationPlan(students, fees), [students, fees])
 
@@ -302,12 +322,13 @@ function DashboardOverview() {
                   <th className="px-4 py-4 font-light">Year</th>
                   <th className="px-4 py-4 font-light">Amount</th>
                   <th className="px-4 py-4 font-light">Status</th>
+                  <th className="px-4 py-4 font-light text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {fees.slice(0, 8).length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                    <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                       No fee records yet. Add fees from Students or Fee Records.
                     </td>
                   </tr>
@@ -330,6 +351,17 @@ function DashboardOverview() {
                           {fee.status === 'paid' ? 'Paid' : 'Pending'}
                         </span>
                       </td>
+                      <td className="px-4 py-4 text-right">
+                        {fee.status === 'paid' && (
+                          <button
+                            type="button"
+                            onClick={() => handlePrint(fee)}
+                            className="rounded-lg border border-emerald-200 bg-emerald-50/50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition"
+                          >
+                            Print Receipt
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -338,6 +370,15 @@ function DashboardOverview() {
           )}
         </div>
       </section>
+
+      {/* Direct Receipt Print Popup */}
+      {printingFeeRecord && (
+        <ReceiptPrint
+          student={printingFeeRecord.student}
+          fee={printingFeeRecord.fee}
+          onClose={() => setPrintingFeeRecord(null)}
+        />
+      )}
     </div>
   )
 }
