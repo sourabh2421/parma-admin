@@ -19,8 +19,12 @@ export default function PortalSelectionPage() {
       <header className="relative z-10 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md px-6 py-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-emerald-500/20">
-              PA
+            <div className="w-11 h-11 rounded-xl bg-white p-1 border border-white/20 flex items-center justify-center shadow-lg shadow-emerald-500/10 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="Parma Academy Crest"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <h1 className="tracking-wider text-base text-white zen-dots-regular">PARMA ACADEMY</h1>

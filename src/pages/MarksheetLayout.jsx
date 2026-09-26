@@ -38,8 +38,12 @@ export default function MarksheetLayout() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#bb0a21] via-[#8c0819] to-[#4b88a2] font-extrabold text-[#fff9fb] shadow-md shadow-[#bb0a21]/20 group-hover:scale-105 transition-transform">
-                PA
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1 border border-white/20 shadow-md shadow-black/30 group-hover:scale-105 transition-transform overflow-hidden">
+                <img
+                  src="/logo.png"
+                  alt="Parma Academy Logo"
+                  className="h-full w-full object-contain"
+                />
               </div>
               <div>
                 <div className="text-sm font-black tracking-wider text-[#fff9fb] flex items-center gap-2 zen-dots-regular">
