@@ -160,27 +160,30 @@ describe('Marksheet Calculations & Logical Integrity Test Suite', () => {
   describe('7. Excel Workbook Syllabus Evaluation System (All 6 Sheets)', () => {
 
     // ---- Sheet 1: NUR to UKG ----
-    it('NUR-UKG: standard subject (Dictation+Oral) — FA avg + DictOral avg => Internal 40', () => {
-      // FA avg = (20+20)/2=20, DictOral avg=(20+20)/2=20 => Internal=40, SA=60 => Total=100
-      const eng = calculateTermMarks(20, 20, 60, 20, 20, 60, 20, 20, 20, 20, 'Nursery', 'English Written')
-      expect(eng.internalObt).toBe(40)
+    it('NUR-UKG: standard subject (Dictation+Oral, divisor=3) — (FA1+FA2+Dictation+Oral)/3 + SA => Internal 20, SA 80', () => {
+      // (20+20+10+10)/3 = 20 => Internal=20, SA=80 => Total=100
+      const eng = calculateTermMarks(20, 20, 80, 20, 20, 80, 10, 10, 10, 10, 'Nursery', 'English Written')
+      expect(eng.internalObt).toBe(20)
+      expect(eng.internalMax).toBe(20)
       expect(eng.totalObt).toBe(100)
       expect(eng.maxMarks).toBe(100)
     })
 
-    it('NUR-UKG: E.V.S. (no Dictation/Oral) — FA1+FA2 directly => Internal 40', () => {
-      // EVS: FA1=20, FA2=20 => Internal=40, SA=60 => Total=100
-      const evs = calculateTermMarks(20, 20, 60, 20, 20, 60, 0, 0, 0, 0, 'UKG', 'E.V.S.')
-      expect(evs.internalObt).toBe(40)
+    it('NUR-UKG: E.V.S. (no Dictation/Oral, divisor=2) — (FA1+FA2)/2 => Internal 20, SA 80', () => {
+      // EVS: FA1=20, FA2=20 => (20+20)/2 = 20, SA=80 => Total=100
+      const evs = calculateTermMarks(20, 20, 80, 20, 20, 80, 0, 0, 0, 0, 'UKG', 'E.V.S.')
+      expect(evs.internalObt).toBe(20)
+      expect(evs.internalMax).toBe(20)
       expect(evs.totalObt).toBe(100)
       expect(evs.maxMarks).toBe(100)
     })
 
-    it('NUR-UKG: Drawing (no Dictation/Oral) — FA1+FA2 directly => Internal 33 (partial)', () => {
-      // FA1=15, FA2=18 => Internal=33, SA=45 => Total=78
-      const draw = calculateTermMarks(15, 18, 45, 20, 20, 60, 0, 0, 0, 0, 'LKG', 'Drawing')
-      expect(draw.internalObt).toBe(33)
-      expect(draw.totalObt).toBe(78)
+    it('NUR-UKG: Drawing (no Dictation/Oral, divisor=2) — (FA1+FA2)/2 => Internal 16.5 (partial)', () => {
+      // FA1=15, FA2=18 => (15+18)/2 = 16.5, SA=65 => Total=81.5
+      const draw = calculateTermMarks(15, 18, 65, 20, 20, 80, 0, 0, 0, 0, 'LKG', 'Drawing')
+      expect(draw.internalObt).toBe(16.5)
+      expect(draw.internalMax).toBe(20)
+      expect(draw.totalObt).toBe(81.5)
       expect(draw.maxMarks).toBe(100)
     })
 

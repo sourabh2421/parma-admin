@@ -74,7 +74,7 @@ export const CO_SCHOLASTIC_SKILLS = [
 /**
  * Get Mark Evaluation Configuration for a specific Subject in a Class.
  * Adheres strictly to the 6 Excel sheets of the 2026-27 academic syllabus:
- * - Pre-Primary (NUR to UKG): FA1 (20), FA2 (20), Dictation (20), Oral (20) -> Internal = 40, Half Yearly = 60 => Total = 100. (Drawing & EVS: Dictation/Oral NA)
+ * - Pre-Primary (NUR to UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100. (Drawing & EVS: FA1 + FA2 / 2 = 20)
  * - 11 & 12 Practicals (Physics, Chemistry, Biology, Physical Education): FA (10) + Assign (10) + Oral/Prc (10) = 30, Half Yearly = 70 => Total = 100.
  * - 11 & 12 Non-Practicals: FA (10) + Assign (5) + Oral/Prc (5) = 20, Half Yearly = 80 => Total = 100.
  * - 50-mark subjects in 1 to 8 (Sanskrit, GK, Computer, Drawing): FA (10) + Assign (5) + Oral (5) = 20, Half Yearly = 30 => Total = 50. (Drawing: Assign/Oral NA)
@@ -87,7 +87,7 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
   const isClass1To8 = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'].includes(normCls)
   const is11_12 = normCls.startsWith('XI') || normCls.startsWith('XII')
 
-  // 1. Pre-Primary (NUR to UKG)
+  // 1. Pre-Primary (NUR to UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100
   if (isPrePrimary) {
     const isDrawingOrEvs = sub.includes('drawing') || sub.includes('e.v.s') || sub.includes('evs')
     return {
@@ -98,12 +98,11 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
       assignLabel: 'Dictation',
       oralLabel: 'Oral',
       faMax: 20,
-      assignMax: isDrawingOrEvs ? 0 : 20,
-      oralMax: isDrawingOrEvs ? 0 : 20,
-      // Pre-primary uses averaging, not a single divisor: kept for documentation
-      divisor: isDrawingOrEvs ? 1 : 2,   // EVS/Drawing: FA1+FA2 (no division), others: FA avg + DictOral avg
-      internalMax: 40,
-      theoryMax: 60,
+      assignMax: isDrawingOrEvs ? 0 : 10,
+      oralMax: isDrawingOrEvs ? 0 : 10,
+      divisor: isDrawingOrEvs ? 2 : 3,
+      internalMax: 20,
+      theoryMax: 80,
       termMax: 100,
       annualMax: 200,
     }
@@ -399,33 +398,16 @@ export function calculateTermMarks(
   if (clsKey || subjectName || (assignObt !== null && assignObt !== undefined) || (oralObt !== null && oralObt !== undefined)) {
     const config = getSubjectMarkConfig(clsKey, subjectName)
     const effectiveTermMax = config.termMax
-    const isPrePrimary = config.isPrePrimary
 
     const assign = config.hasAssignment ? (Number(assignObt) || 0) : 0
     const oral = config.hasOral ? (Number(oralObt) || 0) : 0
 
-    let internalObt = 0
-
-    if (isPrePrimary) {
-      if (config.hasAssignment && config.hasOral) {
-        // Pre-primary subjects with Dictation & Oral:
-        //   FA average = (FA1 + FA2) / 2, Dict/Oral average = (Dictation + Oral) / 2
-        //   Internal = FA avg + DictOral avg => max 20 + 20 = 40
-        const faAvg = (faA + faB) / 2
-        const dictOralAvg = (assign + oral) / 2
-        internalObt = faAvg + dictOralAvg
-      } else {
-        // Pre-primary EVS / Drawing: only FA1 + FA2, no division => max 20 + 20 = 40
-        internalObt = faA + faB
-      }
-    } else {
-      // All non-pre-primary subjects use the UNIFIED divisor formula:
-      //   internalObt = (FA1 + FA2 + Assignment + Oral) / divisor
-      // Divisor comes from config (2 for practicals/drawing, 3 for everything else).
-      // When hasAssignment/hasOral is false (e.g. Drawing), those terms contribute 0.
-      const divisor = config.divisor || 3
-      internalObt = (faA + faB + assign + oral) / divisor
-    }
+    // UNIFIED divisor formula:
+    //   internalObt = (FA1 + FA2 + Assignment + Oral) / divisor
+    // Divisor comes from config (2 for practicals/drawing/evs, 3 for standard subjects).
+    // When hasAssignment/hasOral is false (e.g. Drawing/EVS), those terms contribute 0.
+    const divisor = config.divisor || 3
+    const internalObt = (faA + faB + assign + oral) / divisor
 
     const totalObt = internalObt + sa
     const cleanInternalObt = Number.isInteger(internalObt) ? internalObt : Number(internalObt.toFixed(4))
