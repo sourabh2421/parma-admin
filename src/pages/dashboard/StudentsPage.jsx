@@ -62,8 +62,8 @@ function StudentsPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Student Directory</h2>
-          <p className="text-sm text-slate-600">Complete student roster with roll numbers and parent profiles.</p>
+          <h2 className="text-xl font-bold text-[#fff9fb]">Student Directory</h2>
+          <p className="text-sm text-[#d3d4d9]">Complete student roster with roll numbers and parent profiles.</p>
         </div>
 
         <button

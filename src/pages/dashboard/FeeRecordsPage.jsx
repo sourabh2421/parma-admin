@@ -143,8 +143,8 @@ function FeeRecordsPage() {
       {/* Header & Export Actions */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Fee Records</h2>
-          <p className="text-sm text-slate-600">
+          <h2 className="text-xl font-bold text-[#fff9fb]">Fee Records</h2>
+          <p className="text-sm text-[#d3d4d9]">
             View, track, export, and print fee collection reports across time periods.
           </p>
         </div>

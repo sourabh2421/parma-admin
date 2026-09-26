@@ -97,8 +97,8 @@ function PendingFeesPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">Pending fees</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="text-lg font-semibold text-[#fff9fb]">Pending fees</h2>
+        <p className="text-sm text-[#d3d4d9]">
           Students with no paid fee record for the selected calendar month (pending until a payment is
           recorded).
         </p>

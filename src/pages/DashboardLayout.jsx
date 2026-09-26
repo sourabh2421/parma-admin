@@ -23,7 +23,7 @@ function DashboardLayout() {
   return (
     <ToastProvider>
       <OwnerRevenueProvider>
-        <div className="min-h-screen bg-slate-100 flex flex-col">
+        <div className="min-h-screen bg-[#191a1a] text-[#fff9fb] flex flex-col print:bg-white print:text-black print:min-h-0">
           {/* Topbar matching Marksheet Portal */}
           <header className="no-print sticky top-0 z-30 border-b border-[#333538] bg-[#252627]/95 px-4 sm:px-6 py-2.5 backdrop-blur-md shadow-md text-[#fff9fb]">
             <div className="flex items-center justify-between">
@@ -71,16 +71,16 @@ function DashboardLayout() {
             </div>
           </header>
 
-          {/* Main Dashboard Content */}
-          <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8">
-            <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-              <DashboardSidebar />
-              <div className="min-w-0 space-y-4">
+          {/* Main App Layout */}
+          <div className="flex flex-1 print:block print:p-0 print:m-0">
+            <DashboardSidebar />
+            <main className="flex-1 p-4 sm:p-6 overflow-y-auto max-w-7xl mx-auto w-full print:p-0 print:m-0 print:max-w-none print:w-full print:overflow-visible">
+              <div className="space-y-4">
                 <DashboardTopbar onLogout={handleLogout} />
                 <Outlet />
               </div>
-            </div>
-          </main>
+            </main>
+          </div>
         </div>
       </OwnerRevenueProvider>
     </ToastProvider>

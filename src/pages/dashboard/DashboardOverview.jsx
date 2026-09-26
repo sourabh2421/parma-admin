@@ -203,8 +203,8 @@ function DashboardOverview() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-light text-slate-900">Dashboard overview</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="text-lg font-semibold text-[#fff9fb]">Dashboard overview</h2>
+        <p className="text-sm text-[#d3d4d9]">
           Summary across all students and fee records stored in Firestore.
         </p>
       </div>
