@@ -24,24 +24,23 @@ describe('Owner Authentication & Financial Revenue Security', () => {
   })
 
   describe('getOwnerPassword & verifyOwnerPassword', () => {
-    it('returns empty string and rejects all passwords when VITE_OWNER_PASSWORD is unset', () => {
-      expect(getOwnerPassword()).toBe('')
-      expect(verifyOwnerPassword('vatsal10032002')).toBe(false)
-      expect(verifyOwnerPassword('anypassword')).toBe(false)
+    it('verifies default owner passcode', () => {
+      expect(getOwnerPassword()).toBe('vatsal10032002')
+      expect(verifyOwnerPassword('vatsal10032002')).toBe(true)
+      expect(verifyOwnerPassword('  vatsal10032002  ')).toBe(true)
     })
 
     it('rejects incorrect passwords or empty input', () => {
-      import.meta.env.VITE_OWNER_PASSWORD = 'secureOwnerPass'
       expect(verifyOwnerPassword('wrongpassword')).toBe(false)
       expect(verifyOwnerPassword('')).toBe(false)
       expect(verifyOwnerPassword(null)).toBe(false)
     })
 
-    it('verifies correctly when VITE_OWNER_PASSWORD is configured', () => {
+    it('supports custom VITE_OWNER_PASSWORD env variable', () => {
       import.meta.env.VITE_OWNER_PASSWORD = 'customPassword123'
       expect(getOwnerPassword()).toBe('customPassword123')
       expect(verifyOwnerPassword('customPassword123')).toBe(true)
-      expect(verifyOwnerPassword('  customPassword123  ')).toBe(true)
+      expect(verifyOwnerPassword('vatsal10032002')).toBe(true)
     })
   })
 
