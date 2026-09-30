@@ -88,9 +88,18 @@ export default function ReceiptPrint({ student, fee, onClose }) {
   }
   
   useEffect(() => {
+    const escapeHtml = (str) => {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+    }
+
     const safeValue = (value, fallback = '—') => {
       return (value !== undefined && value !== null && String(value).trim() !== '')
-        ? String(value).trim()
+        ? escapeHtml(String(value).trim())
         : fallback
     }
     
@@ -145,11 +154,11 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           <div class="meta-row">
             <div class="meta-cell" style="width: 55%;">
               <span class="meta-label">Sr. No.</span>
-              <span class="meta-value underline">${receiptNumber}</span>
+              <span class="meta-value underline">${safeValue(receiptNumber)}</span>
             </div>
             <div class="meta-cell" style="width: 45%; text-align: right;">
               <span class="meta-label">Date:</span>
-              <span class="meta-value underline">${formattedDate}</span>
+              <span class="meta-value underline">${safeValue(formattedDate)}</span>
             </div>
           </div>
 
@@ -244,13 +253,13 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           <div class="meta-row">
             <div class="meta-cell" style="width: 100%;">
               <span class="meta-label">Amount in words:</span>
-              <span class="meta-value underline italic">${wordsText}</span>
+              <span class="meta-value underline italic">${safeValue(wordsText)}</span>
             </div>
           </div>
           <div class="meta-row" style="margin-top: 1mm;">
             <div class="meta-cell" style="width: 100%;">
               <span class="meta-label">Cheque No. / Ref:</span>
-              <span class="meta-value underline">${chequeText}</span>
+              <span class="meta-value underline">${safeValue(chequeText)}</span>
             </div>
           </div>
         </div>

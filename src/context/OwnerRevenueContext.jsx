@@ -4,7 +4,7 @@ import {
   getStoredOwnerSession,
   isOwnerUser,
   setStoredOwnerSession,
-  verifyOwnerCredentials,
+  verifyOwnerPassword,
 } from '../auth/ownerAuth.js'
 import OwnerAccessModal from '../components/dashboard/OwnerAccessModal.jsx'
 
@@ -25,15 +25,14 @@ export function OwnerRevenueProvider({ children }) {
     }
   }, [user])
 
-  const unlock = useCallback((email, password) => {
-    const valid = verifyOwnerCredentials(email, password)
-    if (valid) {
+  const unlock = useCallback((password) => {
+    if (isOwnerUser(user) || verifyOwnerPassword(password)) {
       setIsUnlocked(true)
       setStoredOwnerSession(true)
       return true
     }
     return false
-  }, [])
+  }, [user])
 
   const lock = useCallback(() => {
     setIsUnlocked(false)
@@ -67,6 +66,7 @@ export function OwnerRevenueProvider({ children }) {
         isOpen={isModalOpen}
         onClose={closeModal}
         onUnlock={unlock}
+        currentUser={user}
       />
     </OwnerRevenueContext.Provider>
   )

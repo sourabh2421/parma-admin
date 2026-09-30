@@ -101,7 +101,14 @@ const ALIASES = {
 
 async function runDeploy() {
   console.log('=== Step 0: Authenticating with Firebase ===')
-  const userCred = await signInWithEmailAndPassword(auth, 'parma.academy.2004@gmail.com', 'parma123')
+  const adminEmail = process.env.ADMIN_EMAIL || 'office@parma.com'
+  const adminPassword = process.env.ADMIN_PASSWORD
+  if (!adminPassword) {
+    console.error('ERROR: ADMIN_PASSWORD environment variable is required.')
+    console.error('Example: ADMIN_PASSWORD="yourpassword" node scripts/deployClass9To12Fees.js')
+    process.exit(1)
+  }
+  const userCred = await signInWithEmailAndPassword(auth, adminEmail, adminPassword)
   console.log(`Authenticated as ${userCred.user.email}`)
 
   console.log('\n=== Step 1: Checking Existing Data to Guarantee ZERO OVERLAP ===')

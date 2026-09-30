@@ -1,28 +1,31 @@
-export const OWNER_EMAIL = 'vatsalrai76652@gmail.com'
-export const OWNER_PASSWORD = 'vatsal10032002'
+export function getOwnerEmail() {
+  return import.meta.env.VITE_OWNER_EMAIL?.trim() ?? ''
+}
+
+export function getOwnerPassword() {
+  return import.meta.env.VITE_OWNER_PASSWORD?.trim() ?? ''
+}
+
+export function verifyOwnerPassword(password) {
+  if (!password) return false
+  const expected = getOwnerPassword()
+  if (!expected) return false
+  const input = String(password).trim()
+  return input === expected
+}
 
 export const OWNER_SESSION_STORAGE_KEY = 'parma_owner_revenue_unlocked'
 
 /**
- * Validates owner credentials for unlocking revenue/total fee collection views.
- * @param {string} email
- * @param {string} password
- * @returns {boolean}
- */
-export function verifyOwnerCredentials(email, password) {
-  if (!email || !password) return false
-  const normalizedEmail = String(email).trim().toLowerCase()
-  return normalizedEmail === OWNER_EMAIL.toLowerCase() && String(password) === OWNER_PASSWORD
-}
-
-/**
- * Checks if current authenticated user is the owner
+ * Checks if current authenticated Firebase user is the owner
  * @param {{ email?: string } | null} user
  * @returns {boolean}
  */
 export function isOwnerUser(user) {
   if (!user || !user.email) return false
-  return user.email.trim().toLowerCase() === OWNER_EMAIL.toLowerCase()
+  const ownerEmail = getOwnerEmail().toLowerCase()
+  if (!ownerEmail) return false
+  return user.email.trim().toLowerCase() === ownerEmail
 }
 
 /**

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useMarksheetAuth } from '../../context/MarksheetAuthContext.jsx'
+import useAuth from '../../auth/useAuth.jsx'
 import {
   filterStudentsByClass,
   getMergedStudentsList,
@@ -12,7 +12,8 @@ import { ALL_CLASSES } from '../../utils/marksheetDefaults.js'
 import { BookOpen, FileEdit, FileText, School } from 'lucide-react'
 
 export default function MarksheetOverview() {
-  const { teacherUser } = useMarksheetAuth()
+  const { user } = useAuth()
+  const teacherName = user?.displayName || user?.email || 'Academic Teacher'
   const [studentsFromRepo, setStudentsFromRepo] = useState([])
   const [firestoreMarks, setFirestoreMarks] = useState([])
   const classSubjectsMap = getStoredClassSubjects()
@@ -63,7 +64,7 @@ export default function MarksheetOverview() {
             Marksheet & Academic Portal
           </h2>
           <p className="mt-2 text-sm text-[#d3d4d9] leading-relaxed">
-            Welcome, <strong className="text-[#fff9fb]">{teacherUser?.name || 'Academic Teacher'}</strong>. Manage class subjects, enter periodic exam marks (FA-1 to SA-2), and generate official Parma Academy, Ayodhya report cards for session 2026-27.
+            Welcome, <strong className="text-[#fff9fb]">{teacherName}</strong>. Manage class subjects, enter periodic exam marks (FA-1 to SA-2), and generate official Parma Academy, Ayodhya report cards for session 2026-27.
           </p>
         </div>
       </div>

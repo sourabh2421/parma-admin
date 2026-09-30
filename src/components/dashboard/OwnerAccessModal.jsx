@@ -1,32 +1,49 @@
 import { useState } from 'react'
+import { isOwnerUser } from '../../auth/ownerAuth.js'
 
-function OwnerAccessModal({ isOpen, onClose, onUnlock }) {
-  const [email, setEmail] = useState('')
+/**
+ * Owner Access Modal — allows unlocking via owner password
+ * or direct unlock if signed in with the Owner account.
+ *
+ * Props:
+ *   isOpen      – whether modal is visible
+ *   onClose     – close callback
+ *   onUnlock    – called with password to verify
+ *   currentUser – the Firebase Auth user object from useAuth()
+ */
+function OwnerAccessModal({ isOpen, onClose, onUnlock, currentUser }) {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
   if (!isOpen) return null
+
+  const isOwner = isOwnerUser(currentUser)
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
 
-    const success = onUnlock(email, password)
+    const success = onUnlock(password)
     if (success) {
-      setEmail('')
       setPassword('')
+      setError('')
       onClose()
     } else {
-      setError('Invalid owner email or password. Access to financial totals denied.')
+      setError('Invalid owner password. Access to financial totals denied.')
     }
-    setLoading(false)
+  }
+
+  const handleDirectUnlock = () => {
+    if (isOwner) {
+      onUnlock()
+      setPassword('')
+      setError('')
+      onClose()
+    }
   }
 
   const handleClose = () => {
-    setEmail('')
     setPassword('')
     setError('')
     onClose()
@@ -52,7 +69,7 @@ function OwnerAccessModal({ isOpen, onClose, onUnlock }) {
               <h2 id="owner-modal-title" className="text-lg font-bold text-white">
                 Owner Financial Access
               </h2>
-              <p className="text-xs text-slate-400">Restricted revenue & total collections</p>
+              <p className="text-xs text-slate-400">Restricted revenue &amp; total collections</p>
             </div>
           </div>
           <button
@@ -66,35 +83,29 @@ function OwnerAccessModal({ isOpen, onClose, onUnlock }) {
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-slate-300">
-          Total collection amounts are hidden from daily fee data-entry staff. Please authenticate with the Owner credentials to reveal financial totals for this session.
+          Total collection amounts are hidden from daily fee data-entry staff. Enter the Owner password to reveal financial totals for this session.
         </p>
 
-        {error ? (
+        {error && (
           <div className="mt-4 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-xs font-medium text-rose-300">
             {error}
           </div>
-        ) : null}
+        )}
+
+        {isOwner && (
+          <div className="mt-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs text-emerald-300 flex items-center justify-between">
+            <span>Signed in as Owner ({currentUser?.email})</span>
+            <button
+              type="button"
+              onClick={handleDirectUnlock}
+              className="text-xs font-bold underline hover:text-white"
+            >
+              Direct Unlock →
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-          <div>
-            <label
-              htmlFor="owner-email"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
-            >
-              Owner Email
-            </label>
-            <input
-              id="owner-email"
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="owner@example.com"
-              className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-            />
-          </div>
-
           <div>
             <div className="flex items-center justify-between">
               <label
@@ -115,9 +126,13 @@ function OwnerAccessModal({ isOpen, onClose, onUnlock }) {
               id="owner-password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
+              autoFocus
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setError('')
+              }}
               placeholder="••••••••••••"
               className="mt-1.5 w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
@@ -126,8 +141,7 @@ function OwnerAccessModal({ isOpen, onClose, onUnlock }) {
           <div className="mt-6 flex flex-col gap-2 pt-2">
             <button
               type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-50"
+              className="w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-500 active:scale-[0.98]"
             >
               Unlock Total Collections
             </button>

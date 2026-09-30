@@ -1,31 +1,46 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useMarksheetAuth } from '../../context/MarksheetAuthContext.jsx'
+import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import useAuth from '../../auth/useAuth.jsx'
+import { mapAuthErrorToMessage } from '../../auth/mapAuthError.js'
 
 export default function MarksheetLoginPage() {
   const navigate = useNavigate()
-  const { login } = useMarksheetAuth()
-  const [teacherName, setTeacherName] = useState('')
+  const location = useLocation()
+  const { login, isAuthenticated, hasMarksheetAccess } = useAuth()
+  const defaultTeacherEmail = import.meta.env.VITE_MARKSHEET_ADMIN_EMAIL || 'teacher@parma.com'
+  const [email, setEmail] = useState(defaultTeacherEmail)
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [error, setError] = useState(location.state?.authNotice || '')
   const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  // If already signed in with marksheet access, redirect
+  if (isAuthenticated && hasMarksheetAccess) {
+    return <Navigate to="/marksheets" replace />
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!password) {
-      setError('Please enter the Teacher Access Password.')
+    const trimmedEmail = (email.trim() || defaultTeacherEmail).toLowerCase()
+    const trimmedPassword = password.trim()
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError('Please enter both email and password.')
       return
     }
 
     setSubmitting(true)
-    const result = login(password, teacherName)
-    setSubmitting(false)
-
-    if (result.success) {
+    try {
+      await login(trimmedEmail, trimmedPassword)
       navigate('/marksheets', { replace: true })
-    } else {
-      setError(result.error)
+    } catch (err) {
+      if (err.code === 'auth/not-authorized-for-dashboard') {
+        setError('This account does not have permission to access the Marksheet Portal.')
+      } else {
+        setError(mapAuthErrorToMessage(err))
+      }
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -67,21 +82,25 @@ export default function MarksheetLoginPage() {
             Teacher Marksheet Login
           </h1>
           <p className="mt-1.5 text-xs text-slate-400">
-            Authorized for Parma Academy <strong>Teachers & Academic Staff</strong> to enter marks and generate report cards.
+            Sign in with your <strong>Parma Academy staff account</strong> to enter marks and generate report cards.
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="teacher-name" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-300">
-              Teacher Name / Subject <span className="text-slate-500 font-normal lowercase">(optional)</span>
+            <label htmlFor="marksheet-email" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Staff Email Address
             </label>
             <input
-              id="teacher-name"
-              type="text"
-              value={teacherName}
-              onChange={(e) => setTeacherName(e.target.value)}
-              placeholder="e.g. Class Teacher, Mrs. Sharma"
+              id="marksheet-email"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setError('')
+              }}
+              placeholder="teacher@parma.com"
               className="w-full rounded-xl border border-slate-700 bg-slate-800/90 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-indigo-500 focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
@@ -93,6 +112,7 @@ export default function MarksheetLoginPage() {
             <input
               id="marksheet-password"
               type="password"
+              autoComplete="current-password"
               autoFocus
               value={password}
               onChange={(e) => {

@@ -67,8 +67,15 @@ function resolveFather(id, name, currentParent) {
 
 async function syncFatherNames() {
   console.log('Authenticating with Firebase...')
-  await signInWithEmailAndPassword(auth, 'parma.academy.2004@gmail.com', 'parma123')
-  console.log('Authenticated.')
+  const adminEmail = process.env.ADMIN_EMAIL || 'office@parma.com'
+  const adminPassword = process.env.ADMIN_PASSWORD
+  if (!adminPassword) {
+    console.error('ERROR: ADMIN_PASSWORD environment variable is required.')
+    console.error('Example: ADMIN_PASSWORD="yourpassword" node scripts/syncStudentFatherNames.js')
+    process.exit(1)
+  }
+  await signInWithEmailAndPassword(auth, adminEmail, adminPassword)
+  console.log(`Authenticated as ${adminEmail}`)
 
   const snap = await getDocs(collection(db, 'students'))
   console.log(`Found ${snap.size} students in Firestore.`)

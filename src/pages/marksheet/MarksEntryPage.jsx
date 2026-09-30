@@ -23,10 +23,12 @@ import {
   subscribeMarksheetRecords,
 } from '../../firebase/marksheetRepository.js'
 import { subscribeStudents } from '../../firebase/studentRepository.js'
-import { getStoredOwnerSession, OWNER_PASSWORD, setStoredOwnerSession } from '../../auth/ownerAuth.js'
+import { getStoredOwnerSession, isOwnerUser, setStoredOwnerSession, verifyOwnerPassword } from '../../auth/ownerAuth.js'
+import useAuth from '../../auth/useAuth.jsx'
 import { Check, FileEdit, KeyRound, Lock, PlusCircle, Save, ShieldAlert, Unlock, User, X } from 'lucide-react'
 
 export default function MarksEntryPage() {
+  const { user: currentUser } = useAuth()
   const [studentsFromRepo, setStudentsFromRepo] = useState([])
   const [firestoreMarks, setFirestoreMarks] = useState([])
   const [isCloudConnected, setIsCloudConnected] = useState(false)
@@ -180,16 +182,16 @@ export default function MarksEntryPage() {
     return false
   }
 
-  // Handle Admin Backdoor Unlock
+  // Handle Admin Override Unlock — checks password or signed-in Owner
   const handleAdminUnlockSubmit = (e) => {
     e.preventDefault()
-    if (unlockPassword === OWNER_PASSWORD || unlockPassword.trim() === 'vatsal10032002') {
+    if (isOwnerUser(currentUser) || verifyOwnerPassword(unlockPassword)) {
       setIsAdminUnlocked(true)
       setStoredOwnerSession(true)
       setShowUnlockModal(false)
       setUnlockPassword('')
       setUnlockError('')
-      setStatusMessage('🔓 Admin Backdoor Active: All marks are now fully unlocked for editing.')
+      setStatusMessage('🔓 Admin Override Active: All marks are now fully unlocked for editing.')
     } else {
       setUnlockError('Incorrect Admin Passcode. Access denied.')
     }

@@ -19,51 +19,53 @@ export function getMarksheetAdminEmail() {
   return import.meta.env.VITE_MARKSHEET_ADMIN_EMAIL?.trim() ?? ''
 }
 
+export function getOwnerAdminEmail() {
+  return import.meta.env.VITE_OWNER_EMAIL?.trim() ?? ''
+}
+
 export function isAdminGateActive() {
-  return Boolean(getExpectedAdminEmail() || getFeeAdminEmail() || getMarksheetAdminEmail())
+  return Boolean(getExpectedAdminEmail() || getFeeAdminEmail() || getMarksheetAdminEmail() || getOwnerAdminEmail())
 }
 
 /**
- * Returns user role: 'super_admin' | 'fee_admin' | 'marksheet_admin' | 'general_admin'
+ * Returns user role: 'super_admin' | 'fee_admin' | 'marksheet_admin' | 'guest'
  */
 export function getUserRole(user) {
   if (!user || !user.email) return 'guest'
 
   const email = user.email.trim().toLowerCase()
-  const masterAdmin = getExpectedAdminEmail().toLowerCase()
+  const ownerAdmin = getOwnerAdminEmail().toLowerCase()
   const feeAdmin = getFeeAdminEmail().toLowerCase()
   const marksheetAdmin = getMarksheetAdminEmail().toLowerCase()
 
-  // 1. If explicit super admin or matches default master email
-  if (masterAdmin && email === masterAdmin && (!marksheetAdmin || masterAdmin !== marksheetAdmin)) {
-    // If master matches and no specific sub-roles, master has super access
+  // 1. Owner or primary master admin gets super_admin access
+  if (ownerAdmin && email === ownerAdmin) {
+    return 'super_admin'
+  }
+  if (email === 'parma.academy.2004@gmail.com') {
     return 'super_admin'
   }
 
-  // 2. Explicit marksheet admin match
+  // 2. Explicit marksheet desk match
   if (marksheetAdmin && email === marksheetAdmin) {
     return 'marksheet_admin'
   }
 
-  // 3. Explicit fee admin match
+  // 3. Explicit fee desk match
   if (feeAdmin && email === feeAdmin) {
     return 'fee_admin'
   }
 
-  // 4. Conventional email matching (e.g. accounts@... or exam@...)
+  // 4. Conventional matching for role aliases
+  if (email.includes('teacher') || email.includes('exam') || email.includes('mark') || email.includes('academic')) {
+    return 'marksheet_admin'
+  }
   if (email.includes('fee') || email.includes('account') || email.includes('office') || email.includes('clerk')) {
     return 'fee_admin'
   }
-  if (email.includes('exam') || email.includes('mark') || email.includes('teacher') || email.includes('academic')) {
-    return 'marksheet_admin'
-  }
 
-  // Default: if no strict email gate is set, treat logged in user as super_admin
-  if (!isAdminGateActive()) {
-    return 'super_admin'
-  }
-
-  return 'super_admin'
+  // Default: unrecognized email → deny access
+  return 'guest'
 }
 
 /**

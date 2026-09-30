@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useMarksheetAuth } from '../context/MarksheetAuthContext.jsx'
+import useAuth from '../auth/useAuth.jsx'
 import {
   BarChart3,
   BookOpen,
@@ -14,13 +14,17 @@ import {
 } from 'lucide-react'
 
 export default function MarksheetLayout() {
-  const { logout } = useMarksheetAuth()
+  const { logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [open, setOpen] = useState(true)
 
-  const handleSignOut = () => {
-    logout()
+  const handleSignOut = async () => {
+    try {
+      await logout()
+    } catch {
+      // ignore
+    }
     navigate('/', { replace: true })
   }
 

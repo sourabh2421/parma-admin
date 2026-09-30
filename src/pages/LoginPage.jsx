@@ -8,8 +8,9 @@ function LoginPage() {
   const location = useLocation()
   const { loading, configError, login, user, hasFeeAccess } = useAuth()
 
+  const defaultEmail = import.meta.env.VITE_FEE_ADMIN_EMAIL || 'office@parma.com'
   const [formData, setFormData] = useState({
-    email: '',
+    email: defaultEmail,
     password: '',
   })
   const [errors, setErrors] = useState({})

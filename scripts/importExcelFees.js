@@ -98,7 +98,14 @@ function parseCellVal(rawVal) {
 
 async function runImport() {
   console.log('=== Step 0: Authenticating as Admin User ===')
-  const userCred = await signInWithEmailAndPassword(auth, 'parma.academy.2004@gmail.com', 'parma123')
+  const adminEmail = process.env.ADMIN_EMAIL || 'office@parma.com'
+  const adminPassword = process.env.ADMIN_PASSWORD
+  if (!adminPassword) {
+    console.error('ERROR: ADMIN_PASSWORD environment variable is required.')
+    console.error('Example: ADMIN_PASSWORD="yourpassword" node scripts/importExcelFees.js')
+    process.exit(1)
+  }
+  const userCred = await signInWithEmailAndPassword(auth, adminEmail, adminPassword)
   console.log(`Successfully authenticated as ${userCred.user.email}`)
 
   console.log('\n=== Step 1: Cleaning up existing dummy fee records in Firestore ===')

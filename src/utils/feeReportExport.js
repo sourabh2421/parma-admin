@@ -22,6 +22,28 @@ function formatCurrency(num) {
 }
 
 /**
+ * Sanitizes cell values to prevent CSV / Spreadsheet Formula Injection.
+ */
+export function sanitizeExcelCell(val) {
+  if (typeof val === 'string' && /^[=+\-@\t\r]/.test(val)) {
+    return `'${val}`
+  }
+  return val
+}
+
+/**
+ * Escapes HTML entities to prevent Cross-Site Scripting (XSS).
+ */
+export function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+/**
  * Exports fee records to Excel (.xlsx) file with financial summary.
  */
 export function exportFeesToExcel(fees = [], periodLabel = 'All Time') {
@@ -29,10 +51,10 @@ export function exportFeesToExcel(fees = [], periodLabel = 'All Time') {
 
   const formattedRows = fees.map((f, idx) => ({
     'Sr No': idx + 1,
-    'Student ID': f.studentId || '',
-    'Student Name': f.studentName || '',
-    'Class': f.class || '',
-    'Month': f.month || '',
+    'Student ID': sanitizeExcelCell(f.studentId || ''),
+    'Student Name': sanitizeExcelCell(f.studentName || ''),
+    'Class': sanitizeExcelCell(f.class || ''),
+    'Month': sanitizeExcelCell(f.month || ''),
     'Year': f.year || '',
     'Total Fee (INR)': f.totalAmount ?? f.amount ?? 0,
     'Amount Paid (INR)': f.amount ?? 0,
@@ -45,7 +67,7 @@ export function exportFeesToExcel(fees = [], periodLabel = 'All Time') {
     'Late Fee': f.lateFee ?? 0,
     'Status': f.status === 'paid' ? (f.remainingAmount > 0 ? 'Partial' : 'Paid') : 'Pending',
     'Payment Date': formatDate(f.paymentDate),
-    'Cheque / Ref No': f.chequeNo || '',
+    'Cheque / Ref No': sanitizeExcelCell(f.chequeNo || ''),
   }))
 
   const ws = XLSX.utils.json_to_sheet(formattedRows)
@@ -68,17 +90,17 @@ export function exportFeesToCsv(fees = [], periodLabel = 'All Time') {
 
   const formattedRows = fees.map((f, idx) => ({
     'Sr No': idx + 1,
-    'Student ID': f.studentId || '',
-    'Student Name': f.studentName || '',
-    'Class': f.class || '',
-    'Month': f.month || '',
+    'Student ID': sanitizeExcelCell(f.studentId || ''),
+    'Student Name': sanitizeExcelCell(f.studentName || ''),
+    'Class': sanitizeExcelCell(f.class || ''),
+    'Month': sanitizeExcelCell(f.month || ''),
     'Year': f.year || '',
     'Total Fee (INR)': f.totalAmount ?? f.amount ?? 0,
     'Amount Paid (INR)': f.amount ?? 0,
     'Remaining Due (INR)': f.remainingAmount ?? 0,
     'Status': f.status === 'paid' ? (f.remainingAmount > 0 ? 'Partial' : 'Paid') : 'Pending',
     'Payment Date': formatDate(f.paymentDate),
-    'Cheque / Ref No': f.chequeNo || '',
+    'Cheque / Ref No': sanitizeExcelCell(f.chequeNo || ''),
   }))
 
   const ws = XLSX.utils.json_to_sheet(formattedRows)
@@ -91,11 +113,16 @@ export function exportFeesToCsv(fees = [], periodLabel = 'All Time') {
 }
 
 /**
- * Opens a print dialog with a formatted Parma Academy Fee Collection Report.
+ * Generates an official printable Fee Collection & Audit Statement
  */
-export function printFeeCollectionReport(fees = [], periodLabel = 'All Time', metrics = {}) {
-  const now = new Date()
-  const printTimestamp = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${now.toLocaleTimeString()}`
+export function printFeeCollectionReport(fees = [], metrics = {}, periodLabel = 'Current Period') {
+  const printTimestamp = new Date().toLocaleString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
   const totalCollected = metrics.totalCollected ?? fees.reduce((acc, f) => acc + (f.status === 'paid' ? Number(f.amount || 0) : 0), 0)
   const totalDue = metrics.totalDue ?? fees.reduce((acc, f) => acc + (Number(f.remainingAmount || 0)), 0)
@@ -113,10 +140,10 @@ export function printFeeCollectionReport(fees = [], periodLabel = 'All Time', me
         return `
           <tr style="border-bottom: 1px solid #e2e8f0; font-size: 8.5pt;">
             <td style="padding: 6px 8px; text-align: center;">${idx + 1}</td>
-            <td style="padding: 6px 8px; font-weight: bold;">${f.studentId || '—'}</td>
-            <td style="padding: 6px 8px;">${f.studentName || '—'}</td>
-            <td style="padding: 6px 8px; text-align: center;">${f.class || '—'}</td>
-            <td style="padding: 6px 8px; text-align: center;">${f.month} ${f.year}</td>
+            <td style="padding: 6px 8px; font-weight: bold;">${escapeHtml(f.studentId || '—')}</td>
+            <td style="padding: 6px 8px;">${escapeHtml(f.studentName || '—')}</td>
+            <td style="padding: 6px 8px; text-align: center;">${escapeHtml(f.class || '—')}</td>
+            <td style="padding: 6px 8px; text-align: center;">${escapeHtml(f.month)} ${escapeHtml(f.year)}</td>
             <td style="padding: 6px 8px; text-align: right;">₹ ${formatCurrency(f.totalAmount ?? f.amount)}</td>
             <td style="padding: 6px 8px; text-align: right; font-weight: bold; color: #15803d;">₹ ${formatCurrency(f.amount)}</td>
             <td style="padding: 6px 8px; text-align: right; color: ${f.remainingAmount > 0 ? '#b91c1c' : '#555'};">₹ ${formatCurrency(f.remainingAmount)}</td>
@@ -130,7 +157,7 @@ export function printFeeCollectionReport(fees = [], periodLabel = 'All Time', me
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>Parma Academy - Fee Collection Report (${periodLabel})</title>
+      <title>Parma Academy - Fee Collection Report (${escapeHtml(periodLabel)})</title>
       <style>
         @page {
           size: A4 landscape;
@@ -161,9 +188,9 @@ export function printFeeCollectionReport(fees = [], periodLabel = 'All Time', me
       </div>
 
       <div class="meta-bar">
-        <div><strong>Period:</strong> <span class="badge">${periodLabel}</span></div>
+        <div><strong>Period:</strong> <span class="badge">${escapeHtml(periodLabel)}</span></div>
         <div><strong>Total Records:</strong> ${fees.length}</div>
-        <div><strong>Generated On:</strong> ${printTimestamp}</div>
+        <div><strong>Generated On:</strong> ${escapeHtml(printTimestamp)}</div>
       </div>
 
       <div class="summary-grid">

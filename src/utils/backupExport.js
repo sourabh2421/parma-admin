@@ -9,6 +9,16 @@ function downloadBlob(filename, blob) {
   URL.revokeObjectURL(url)
 }
 
+/**
+ * Neutralizes potential CSV / Spreadsheet formula injection characters (=, +, -, @).
+ */
+export function sanitizeExcelValue(val) {
+  if (typeof val === 'string' && /^[=+\-@\t\r]/.test(val)) {
+    return `'${val}`
+  }
+  return val
+}
+
 export function exportStudentsAndFeesJson(students, fees) {
   const payload = {
     exportedAt: new Date().toISOString(),
@@ -23,10 +33,10 @@ export function exportStudentsAndFeesExcel(students, fees) {
   const wb = XLSX.utils.book_new()
   const wsStudents = XLSX.utils.json_to_sheet(
     students.map((s) => ({
-      studentId: s.id,
-      name: s.name,
-      parentName: s.parentName,
-      class: s.class,
+      studentId: sanitizeExcelValue(s.id),
+      name: sanitizeExcelValue(s.name),
+      parentName: sanitizeExcelValue(s.parentName),
+      class: sanitizeExcelValue(s.class),
       createdAt: s.createdAt ?? '',
       updatedAt: s.updatedAt ?? '',
     })),
@@ -34,10 +44,10 @@ export function exportStudentsAndFeesExcel(students, fees) {
   const wsFees = XLSX.utils.json_to_sheet(
     fees.map((f) => ({
       docId: f.docId,
-      studentId: f.studentId,
-      studentName: f.studentName,
-      class: f.class,
-      month: f.month,
+      studentId: sanitizeExcelValue(f.studentId),
+      studentName: sanitizeExcelValue(f.studentName),
+      class: sanitizeExcelValue(f.class),
+      month: sanitizeExcelValue(f.month),
       year: f.year,
       amount: f.amount,
       status: f.status,

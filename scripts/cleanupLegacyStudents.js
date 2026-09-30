@@ -19,8 +19,15 @@ const LEGACY_IDS_TO_REMOVE = ['S33', 's33', 'Stud. Id', 'S03', 'S07', 'S211']
 
 async function cleanup() {
   console.log('Authenticating with Firebase...')
-  await signInWithEmailAndPassword(auth, 'parma.academy.2004@gmail.com', 'parma123')
-  console.log('Authenticated.')
+  const adminEmail = process.env.ADMIN_EMAIL || 'office@parma.com'
+  const adminPassword = process.env.ADMIN_PASSWORD
+  if (!adminPassword) {
+    console.error('ERROR: ADMIN_PASSWORD environment variable is required.')
+    console.error('Example: ADMIN_PASSWORD="yourpassword" node scripts/cleanupLegacyStudents.js')
+    process.exit(1)
+  }
+  await signInWithEmailAndPassword(auth, adminEmail, adminPassword)
+  console.log(`Authenticated as ${adminEmail}`)
 
   const snap = await getDocs(collection(db, 'students'))
   const batch = writeBatch(db)

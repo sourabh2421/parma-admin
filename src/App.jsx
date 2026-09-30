@@ -15,11 +15,10 @@ import SubjectsMasterPage from './pages/marksheet/SubjectsMasterPage.jsx'
 import MarksheetLoginPage from './pages/marksheet/MarksheetLoginPage.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import MarksheetProtectedRoute from './components/MarksheetProtectedRoute.jsx'
-import { MarksheetAuthProvider } from './context/MarksheetAuthContext.jsx'
 
 function App() {
   return (
-    <MarksheetAuthProvider>
+    <>
       <Routes>
         {/* Portal Selection Landing Hub */}
         <Route path="/" element={<PortalSelectionPage />} />
@@ -40,10 +39,10 @@ function App() {
           <Route path="pending" element={<PendingFeesPage />} />
         </Route>
 
-        {/* Marksheet Management Login (Password Protected: admin123) */}
+        {/* Marksheet Management Login (Firebase Auth) */}
         <Route path="/marksheets/login" element={<MarksheetLoginPage />} />
 
-        {/* Marksheet Management Portal (Protected) */}
+        {/* Marksheet Management Portal (Protected via Firebase Auth + authPolicy) */}
         <Route
           path="/marksheets"
           element={
@@ -62,7 +61,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {process.env.NODE_ENV === 'development' && <Agentation />}
-    </MarksheetAuthProvider>
+    </>
   )
 }
 

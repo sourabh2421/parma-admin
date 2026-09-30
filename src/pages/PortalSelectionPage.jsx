@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom'
 import useAuth from '../auth/useAuth.jsx'
-import { useMarksheetAuth } from '../context/MarksheetAuthContext.jsx'
 
 export default function PortalSelectionPage() {
-  const { user, logout: feeLogout } = useAuth()
-  const { teacherUser, isAuthenticated: isTeacherAuth, logout: teacherLogout } = useMarksheetAuth()
+  const { user, role, hasFeeAccess, hasMarksheetAccess, logout: authLogout } = useAuth()
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
@@ -37,36 +35,22 @@ export default function PortalSelectionPage() {
             {user && (
               <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/50 px-3 py-1.5 text-xs">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-emerald-300 font-semibold">Office:</span>
-                <span className="text-slate-200 max-w-[150px] truncate" title={user.email}>{user.email}</span>
+                <span className="text-emerald-300 font-semibold">
+                  {role === 'super_admin' ? 'Admin' : hasFeeAccess ? 'Office' : 'Teacher'}:
+                </span>
+                <span className="text-slate-200 max-w-[180px] truncate" title={user.email}>{user.email}</span>
                 <button
                   type="button"
-                  onClick={feeLogout}
+                  onClick={authLogout}
                   className="ml-1 text-[11px] font-bold text-rose-400 hover:text-rose-300 transition"
-                  title="Sign out from Office Fee Desk"
+                  title="Sign out"
                 >
                   (Sign Out)
                 </button>
               </div>
             )}
 
-            {isTeacherAuth && (
-              <div className="flex items-center gap-2 rounded-xl border border-indigo-500/40 bg-indigo-950/50 px-3 py-1.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
-                <span className="text-indigo-300 font-semibold">Teacher:</span>
-                <span className="text-slate-200 max-w-[150px] truncate">{teacherUser?.name || 'Academic Staff'}</span>
-                <button
-                  type="button"
-                  onClick={teacherLogout}
-                  className="ml-1 text-[11px] font-bold text-rose-400 hover:text-rose-300 transition"
-                  title="Sign out from Teacher Marksheet Desk"
-                >
-                  (Sign Out)
-                </button>
-              </div>
-            )}
-
-            {!user && !isTeacherAuth && (
+            {!user && (
               <div className="text-xs font-medium text-slate-400">
                 Independent Role Access Gateway
               </div>
@@ -128,10 +112,10 @@ export default function PortalSelectionPage() {
 
             <div className="mt-8 pt-6 border-t border-slate-800">
               <Link
-                to={user ? '/dashboard' : '/login'}
+                to={hasFeeAccess ? '/dashboard' : '/login'}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 transition active:scale-[0.98]"
               >
-                <span>{user ? 'Enter Fee Portal (Active: Office)' : 'Sign In as Office Staff'}</span>
+                <span>{hasFeeAccess ? 'Enter Fee Portal' : 'Sign In as Office Staff'}</span>
                 <span>→</span>
               </Link>
             </div>
@@ -174,10 +158,10 @@ export default function PortalSelectionPage() {
 
             <div className="mt-8 pt-6 border-t border-slate-800">
               <Link
-                to={isTeacherAuth ? '/marksheets' : '/marksheets/login'}
+                to={hasMarksheetAccess ? '/marksheets' : '/marksheets/login'}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition active:scale-[0.98]"
               >
-                <span>{isTeacherAuth ? 'Enter Marksheet Portal (Active: Teacher)' : 'Sign In as Teacher'}</span>
+                <span>{hasMarksheetAccess ? 'Enter Marksheet Portal' : 'Sign In as Teacher'}</span>
                 <span>→</span>
               </Link>
             </div>
