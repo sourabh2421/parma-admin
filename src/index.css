@@ -31,6 +31,25 @@ body {
   color: #d3d4d9;
 }
 
+/* Ensure all form inputs, selects, textareas, and options have readable dark text by default on light backgrounds */
+input:not([class*="text-white"]),
+select:not([class*="text-white"]),
+textarea:not([class*="text-white"]),
+option:not([class*="text-white"]) {
+  color: #0f172a;
+}
+
+input:not([class*="text-white"])::placeholder,
+textarea:not([class*="text-white"])::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
 #root {
   min-height: 100vh;
 }

@@ -568,10 +568,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   id="fee-month"
                   value={month}
                   onChange={(e) => setMonth(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 >
                   {MONTH_OPTIONS.map((m) => (
-                    <option key={m} value={m}>
+                    <option key={m} value={m} className="bg-white text-slate-900">
                       {m}
                     </option>
                   ))}
@@ -586,10 +586,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   id="fee-year"
                   value={year}
                   onChange={(e) => setYear(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 >
                   {yearOptions().map((y) => (
-                    <option key={y} value={y}>
+                    <option key={y} value={y} className="bg-white text-slate-900">
                       {y}
                     </option>
                   ))}
@@ -617,10 +617,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
                       setSession(e.target.value)
                       setSelectedMonths(new Set())
                     }}
-                    className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 outline-none focus:border-emerald-500"
+                    className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:border-emerald-500"
                   >
                     {sessionOptions().map((s) => (
-                      <option key={s} value={s}>
+                      <option key={s} value={s} className="bg-white text-slate-900">
                         {s}
                       </option>
                     ))}
@@ -749,7 +749,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={tuitionFee}
                   onChange={(e) => handleScheduleChange('tuition', e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
 
@@ -764,7 +764,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={conveyanceFee}
                   onChange={(e) => handleScheduleChange('conveyance', e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
 
@@ -777,11 +777,11 @@ function AddFeeModal({ student, onClose, onCreated }) {
                     <select
                       value={nonRecurringOverrides.examFee}
                       onChange={(e) => setNonRecurringOverrides((p) => ({ ...p, examFee: e.target.value }))}
-                      className="text-[10px] text-slate-600 border rounded px-1 py-0.5 bg-white"
+                      className="text-[10px] font-semibold text-slate-900 border border-slate-300 rounded px-1.5 py-0.5 bg-white outline-none"
                     >
-                      <option value="">1st Month</option>
+                      <option value="" className="bg-white text-slate-900">1st Month</option>
                       {Array.from(selectedMonths).map((m) => (
-                        <option key={m} value={m}>{m.slice(0, 3)}</option>
+                        <option key={m} value={m} className="bg-white text-slate-900">{m.slice(0, 3)}</option>
                       ))}
                     </select>
                   )}
@@ -793,7 +793,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={examFee}
                   onChange={(e) => handleScheduleChange('exam', e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
 
@@ -806,11 +806,11 @@ function AddFeeModal({ student, onClose, onCreated }) {
                     <select
                       value={nonRecurringOverrides.annualFee}
                       onChange={(e) => setNonRecurringOverrides((p) => ({ ...p, annualFee: e.target.value }))}
-                      className="text-[10px] text-slate-600 border rounded px-1 py-0.5 bg-white"
+                      className="text-[10px] font-semibold text-slate-900 border border-slate-300 rounded px-1.5 py-0.5 bg-white outline-none"
                     >
-                      <option value="">1st Month</option>
+                      <option value="" className="bg-white text-slate-900">1st Month</option>
                       {Array.from(selectedMonths).map((m) => (
-                        <option key={m} value={m}>{m.slice(0, 3)}</option>
+                        <option key={m} value={m} className="bg-white text-slate-900">{m.slice(0, 3)}</option>
                       ))}
                     </select>
                   )}
@@ -822,7 +822,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={annualFee}
                   onChange={(e) => handleScheduleChange('annual', e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
 
@@ -835,11 +835,11 @@ function AddFeeModal({ student, onClose, onCreated }) {
                     <select
                       value={nonRecurringOverrides.admissionFee}
                       onChange={(e) => setNonRecurringOverrides((p) => ({ ...p, admissionFee: e.target.value }))}
-                      className="text-[10px] text-slate-600 border rounded px-1 py-0.5 bg-white"
+                      className="text-[10px] font-semibold text-slate-900 border border-slate-300 rounded px-1.5 py-0.5 bg-white outline-none"
                     >
-                      <option value="">1st Month</option>
+                      <option value="" className="bg-white text-slate-900">1st Month</option>
                       {Array.from(selectedMonths).map((m) => (
-                        <option key={m} value={m}>{m.slice(0, 3)}</option>
+                        <option key={m} value={m} className="bg-white text-slate-900">{m.slice(0, 3)}</option>
                       ))}
                     </select>
                   )}
@@ -851,7 +851,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={admissionFee}
                   onChange={(e) => handleScheduleChange('admission', e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
 
@@ -864,11 +864,11 @@ function AddFeeModal({ student, onClose, onCreated }) {
                     <select
                       value={nonRecurringOverrides.lateFee}
                       onChange={(e) => setNonRecurringOverrides((p) => ({ ...p, lateFee: e.target.value }))}
-                      className="text-[10px] text-slate-600 border rounded px-1 py-0.5 bg-white"
+                      className="text-[10px] font-semibold text-slate-900 border border-slate-300 rounded px-1.5 py-0.5 bg-white outline-none"
                     >
-                      <option value="">1st Month</option>
+                      <option value="" className="bg-white text-slate-900">1st Month</option>
                       {Array.from(selectedMonths).map((m) => (
-                        <option key={m} value={m}>{m.slice(0, 3)}</option>
+                        <option key={m} value={m} className="bg-white text-slate-900">{m.slice(0, 3)}</option>
                       ))}
                     </select>
                   )}
@@ -880,7 +880,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={lateFee}
                   onChange={(e) => handleScheduleChange('late', e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
             </div>
@@ -901,7 +901,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="e.g. 2000"
                   value={totalAmount}
                   onChange={(e) => handleTotalAmountChange(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
               </div>
               <div>
@@ -916,7 +916,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="e.g. 1500"
                   value={amount}
                   onChange={(e) => handlePaidAmountChange(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-emerald-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-emerald-950 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                   required
                 />
               </div>
@@ -932,10 +932,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   placeholder="0"
                   value={remainingAmount}
                   onChange={(e) => handleRemainingAmountChange(e.target.value)}
-                  className={`w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 ${
+                  className={`w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 placeholder:text-slate-400 ${
                     Number(remainingAmount) > 0
-                      ? 'border-amber-400 bg-amber-50/70 font-semibold text-amber-900 focus:border-amber-500 focus:ring-amber-200'
-                      : 'border-slate-300 bg-slate-50 text-slate-700 focus:border-emerald-500 focus:ring-emerald-200'
+                      ? 'border-amber-400 bg-amber-50/70 font-semibold text-amber-950 focus:border-amber-500 focus:ring-amber-200'
+                      : 'border-slate-300 bg-slate-50 font-semibold text-slate-900 focus:border-emerald-500 focus:ring-emerald-200'
                   }`}
                 />
               </div>
@@ -986,10 +986,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
                       setTotalReceivedInput(e.target.value)
                       setManualAllocations({})
                     }}
-                    className="mt-1 w-full rounded-xl border border-emerald-400 bg-white px-3 py-1.5 text-lg font-bold text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-400"
+                    className="mt-1 w-full rounded-xl border border-emerald-500 bg-white px-3 py-2 text-xl font-black text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm"
                     required
                   />
-                  <p className="text-[11px] text-slate-600 mt-1">
+                  <p className="text-[11px] text-slate-600 mt-1 font-medium">
                     {totalNetDue > 0
                       ? `₹${totalNetDue.toLocaleString()} due across ${selectedMonths.size} month${selectedMonths.size > 1 ? 's' : ''}`
                       : 'Select months and enter fee rates above'}
@@ -1056,8 +1056,8 @@ function AddFeeModal({ student, onClose, onCreated }) {
                                 onChange={(e) => handleManualCellChange(monthKey, e.target.value)}
                                 className={`w-full rounded-lg border px-2 py-1 text-right text-xs font-bold outline-none ${
                                   a.allocatedPaid > 0
-                                    ? 'border-emerald-400 bg-emerald-50/50 text-emerald-900'
-                                    : 'border-slate-200 bg-white text-slate-500'
+                                    ? 'border-emerald-500 bg-emerald-50/70 text-slate-900'
+                                    : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400'
                                 }`}
                               />
                             </td>
@@ -1131,13 +1131,13 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 id="fee-mode"
                 value={paymentMode}
                 onChange={(e) => setPaymentMode(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
               >
-                <option value="cash">Cash</option>
-                <option value="upi">UPI / Online</option>
-                <option value="cheque">Cheque / Demand Draft</option>
-                <option value="bank">Bank Transfer / NEFT</option>
-                <option value="other">Other</option>
+                <option value="cash" className="bg-white text-slate-900">Cash</option>
+                <option value="upi" className="bg-white text-slate-900">UPI / Online</option>
+                <option value="cheque" className="bg-white text-slate-900">Cheque / Demand Draft</option>
+                <option value="bank" className="bg-white text-slate-900">Bank Transfer / NEFT</option>
+                <option value="other" className="bg-white text-slate-900">Other</option>
               </select>
             </div>
 
@@ -1151,7 +1151,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 placeholder="e.g. CHQ-994821 or UPI-Ref"
                 value={chequeNo}
                 onChange={(e) => setChequeNo(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
               />
             </div>
           </div>
@@ -1190,7 +1190,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                     selected={paymentDate}
                     onChange={setPaymentDate}
                     dateFormat="dd/MM/yyyy"
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                   />
                 </div>
               ) : null}
@@ -1205,7 +1205,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                 selected={paymentDate}
                 onChange={setPaymentDate}
                 dateFormat="dd/MM/yyyy"
-                className="w-full sm:w-1/2 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full sm:w-1/2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
               />
             </div>
           )}
