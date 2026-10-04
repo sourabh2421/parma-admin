@@ -16,7 +16,8 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import admin from 'firebase-admin'
+import { initializeApp, cert, getApps } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -115,8 +116,8 @@ Examples:
 
 // Initialize Firebase Admin
 function initFirebase(serviceAccountPath) {
-  if (admin.apps.length > 0) {
-    return admin.firestore()
+  if (getApps().length > 0) {
+    return getFirestore()
   }
 
   let cred = null
@@ -125,7 +126,7 @@ function initFirebase(serviceAccountPath) {
   if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
     console.log(`Using service account from argument: ${serviceAccountPath}`)
     const raw = fs.readFileSync(serviceAccountPath, 'utf8')
-    cred = admin.credential.cert(JSON.parse(raw))
+    cred = cert(JSON.parse(raw))
   }
 
   // 2. Check process.env.SERVICE_ACCOUNT_KEY
@@ -134,9 +135,9 @@ function initFirebase(serviceAccountPath) {
     try {
       if (fs.existsSync(process.env.SERVICE_ACCOUNT_KEY)) {
         const raw = fs.readFileSync(process.env.SERVICE_ACCOUNT_KEY, 'utf8')
-        cred = admin.credential.cert(JSON.parse(raw))
+        cred = cert(JSON.parse(raw))
       } else {
-        cred = admin.credential.cert(JSON.parse(process.env.SERVICE_ACCOUNT_KEY))
+        cred = cert(JSON.parse(process.env.SERVICE_ACCOUNT_KEY))
       }
     } catch (e) {
       console.error('Failed to parse SERVICE_ACCOUNT_KEY:', e.message)
@@ -148,7 +149,7 @@ function initFirebase(serviceAccountPath) {
     if (fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
       console.log(`Using GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CREDENTIALS}`)
       const raw = fs.readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS, 'utf8')
-      cred = admin.credential.cert(JSON.parse(raw))
+      cred = cert(JSON.parse(raw))
     }
   }
 
@@ -163,7 +164,7 @@ function initFirebase(serviceAccountPath) {
       if (fs.existsSync(c)) {
         console.log(`Found service account file at: ${c}`)
         const raw = fs.readFileSync(c, 'utf8')
-        cred = admin.credential.cert(JSON.parse(raw))
+        cred = cert(JSON.parse(raw))
         break
       }
     }
@@ -186,12 +187,12 @@ To run this script, please provide a Firebase service account key using ONE of:
     process.exit(1)
   }
 
-  admin.initializeApp({
+  initializeApp({
     credential: cred,
     projectId: 'parma-academy-2002',
   })
 
-  return admin.firestore()
+  return getFirestore()
 }
 
 // Convert Firestore Timestamp / string / number to Date object
