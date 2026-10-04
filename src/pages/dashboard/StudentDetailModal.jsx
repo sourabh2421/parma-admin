@@ -102,12 +102,13 @@ function StudentDetailModal({ student, onClose }) {
                   <th className="px-3 py-2">Amount</th>
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Payment date</th>
+                  <th className="px-3 py-2 text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {fees.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-3 py-8 text-center text-slate-500">
+                    <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
                       No fee records yet for this student.
                     </td>
                   </tr>
@@ -127,21 +128,32 @@ function StudentDetailModal({ student, onClose }) {
                       <td className="px-3 py-2">
                         <span
                           className={
-                            fee.status === 'paid'
-                              ? fee.remainingAmount > 0
-                                ? 'font-medium text-amber-700'
-                                : 'font-medium text-emerald-700'
+                            fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
+                              ? 'font-medium text-emerald-700'
+                              : fee.status === 'partial' || fee.remainingAmount > 0
+                              ? 'font-medium text-amber-700'
                               : 'font-medium text-rose-700'
                           }
                         >
-                          {fee.status === 'paid'
-                            ? fee.remainingAmount > 0
-                              ? 'Partial'
-                              : 'Paid'
+                          {fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
+                            ? 'Paid'
+                            : fee.status === 'partial' || fee.remainingAmount > 0
+                            ? 'Partial'
                             : 'Pending'}
                         </span>
                       </td>
                       <td className="px-3 py-2 text-slate-700">{formatDisplayDate(fee.paymentDate)}</td>
+                      <td className="px-3 py-2 text-right">
+                        {(fee.status === 'paid' || fee.status === 'partial' || fee.amount > 0) && (
+                          <button
+                            type="button"
+                            onClick={() => setPrintingFee(fee)}
+                            className="rounded-lg border border-emerald-200 bg-emerald-50/50 px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                          >
+                            Print
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))
                 )}

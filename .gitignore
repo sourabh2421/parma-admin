@@ -25,3 +25,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Service Account Keys & Repair outputs
+serviceAccountKey.json
+*service-account*.json
+migration-report.json
+affected-students.csv
+approved-groups.json
+backup-before-migration-*.json

@@ -48,6 +48,19 @@ service cloud.firestore {
       allow read, write: if isFeeAdmin();
     }
 
+    // Payments Collection (Auditable handover of money per transaction)
+    match /payments/{paymentId} {
+      allow read: if isFeeAdmin();
+      allow create: if isFeeAdmin();
+      allow update: if isFeeAdmin() && request.resource.data.status == 'void';
+      allow delete: if false;
+    }
+
+    // Counters (Sequential receipt numbering)
+    match /counters/{counterId} {
+      allow read, write: if isFeeAdmin();
+    }
+
     // Legacy Single-Table Records
     match /studentFeeRecords/{recordId} {
       allow read, write: if isFeeAdmin();

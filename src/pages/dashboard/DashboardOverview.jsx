@@ -133,13 +133,15 @@ function DashboardOverview() {
   const metrics = useMemo(() => {
     const totalStudents = students.length
     const totalFeesCollected = fees
-      .filter((f) => f.status === 'paid')
+      .filter((f) => f.status === 'paid' || f.status === 'partial')
       .reduce((acc, f) => acc + (Number(f.amount) || 0), 0)
-    const pendingPaymentsCount = fees.filter((f) => f.status === 'pending').length
+    const pendingPaymentsCount = fees.filter(
+      (f) => f.status === 'pending' || (f.status === 'partial' && Number(f.remainingAmount) > 0),
+    ).length
     const currentMonthCollection = fees
       .filter(
         (f) =>
-          f.status === 'paid' &&
+          (f.status === 'paid' || f.status === 'partial') &&
           f.month === currentMonthName &&
           Number(f.year) === currentYear,
       )
@@ -343,16 +345,22 @@ function DashboardOverview() {
                       <td className="px-4 py-4">
                         <span
                           className={
-                            fee.status === 'paid'
+                            fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
                               ? 'font-medium text-emerald-700'
+                              : fee.status === 'partial' || fee.remainingAmount > 0
+                              ? 'font-medium text-amber-700'
                               : 'font-medium text-rose-700'
                           }
                         >
-                          {fee.status === 'paid' ? 'Paid' : 'Pending'}
+                          {fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
+                            ? 'Paid'
+                            : fee.status === 'partial' || fee.remainingAmount > 0
+                            ? `Partial (${fee.remainingAmount ? `Due: ₹${fee.remainingAmount}` : 'Part'})`
+                            : 'Pending'}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-right">
-                        {fee.status === 'paid' && (
+                        {(fee.status === 'paid' || fee.status === 'partial' || fee.amount > 0) && (
                           <button
                             type="button"
                             onClick={() => handlePrint(fee)}

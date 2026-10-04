@@ -65,7 +65,7 @@ export function exportFeesToExcel(fees = [], periodLabel = 'All Time') {
     'Annual/Transfer Fee': f.annualFee ?? 0,
     'Admission Fee': f.admissionFee ?? 0,
     'Late Fee': f.lateFee ?? 0,
-    'Status': f.status === 'paid' ? (f.remainingAmount > 0 ? 'Partial' : 'Paid') : 'Pending',
+    'Status': f.status === 'paid' && (!f.remainingAmount || f.remainingAmount <= 0) ? 'Paid' : (f.status === 'partial' || f.remainingAmount > 0 ? 'Partial' : 'Pending'),
     'Payment Date': formatDate(f.paymentDate),
     'Cheque / Ref No': sanitizeExcelCell(f.chequeNo || ''),
   }))
@@ -98,7 +98,7 @@ export function exportFeesToCsv(fees = [], periodLabel = 'All Time') {
     'Total Fee (INR)': f.totalAmount ?? f.amount ?? 0,
     'Amount Paid (INR)': f.amount ?? 0,
     'Remaining Due (INR)': f.remainingAmount ?? 0,
-    'Status': f.status === 'paid' ? (f.remainingAmount > 0 ? 'Partial' : 'Paid') : 'Pending',
+    'Status': f.status === 'paid' && (!f.remainingAmount || f.remainingAmount <= 0) ? 'Paid' : (f.status === 'partial' || f.remainingAmount > 0 ? 'Partial' : 'Pending'),
     'Payment Date': formatDate(f.paymentDate),
     'Cheque / Ref No': sanitizeExcelCell(f.chequeNo || ''),
   }))
@@ -124,18 +124,18 @@ export function printFeeCollectionReport(fees = [], metrics = {}, periodLabel = 
     minute: '2-digit',
   })
 
-  const totalCollected = metrics.totalCollected ?? fees.reduce((acc, f) => acc + (f.status === 'paid' ? Number(f.amount || 0) : 0), 0)
+  const totalCollected = metrics.totalCollected ?? fees.reduce((acc, f) => acc + (f.status === 'paid' || f.status === 'partial' ? Number(f.amount || 0) : 0), 0)
   const totalDue = metrics.totalDue ?? fees.reduce((acc, f) => acc + (Number(f.remainingAmount || 0)), 0)
   const totalExpected = totalCollected + totalDue
 
   const rowsHtml = fees.length === 0
     ? `<tr><td colspan="9" style="text-align: center; padding: 20px; color: #666;">No fee records found for this period.</td></tr>`
     : fees.map((f, idx) => {
-        const isPaid = f.status === 'paid'
-        const isPartial = isPaid && f.remainingAmount > 0
+        const isPaid = f.status === 'paid' && (!f.remainingAmount || f.remainingAmount <= 0)
+        const isPartial = f.status === 'partial' || (f.status === 'paid' && f.remainingAmount > 0)
         const statusBadge = isPaid
-          ? (isPartial ? '<span style="color: #92400e; font-weight: bold;">Partial</span>' : '<span style="color: #15803d; font-weight: bold;">Paid</span>')
-          : '<span style="color: #b91c1c; font-weight: bold;">Pending</span>'
+          ? '<span style="color: #15803d; font-weight: bold;">Paid</span>'
+          : (isPartial ? '<span style="color: #92400e; font-weight: bold;">Partial</span>' : '<span style="color: #b91c1c; font-weight: bold;">Pending</span>')
 
         return `
           <tr style="border-bottom: 1px solid #e2e8f0; font-size: 8.5pt;">

@@ -86,9 +86,9 @@ function FeeRecordsPage() {
     if (statusFilter === 'paid') {
       list = list.filter((f) => f.status === 'paid' && (!f.remainingAmount || f.remainingAmount <= 0))
     } else if (statusFilter === 'partial') {
-      list = list.filter((f) => f.status === 'paid' && f.remainingAmount > 0)
+      list = list.filter((f) => f.status === 'partial' || (f.status === 'paid' && f.remainingAmount > 0))
     } else if (statusFilter === 'pending') {
-      list = list.filter((f) => f.status === 'pending')
+      list = list.filter((f) => f.status === 'pending' || (!f.amount && f.remainingAmount > 0))
     }
 
     return list
@@ -345,7 +345,11 @@ function FeeRecordsPage() {
                     <tr
                       key={fee.docId}
                       className={`border-b border-slate-100 transition-colors hover:bg-slate-50/80 ${
-                        fee.status === 'paid' ? 'bg-emerald-50/20' : 'bg-rose-50/20'
+                        fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
+                          ? 'bg-emerald-50/20'
+                          : fee.status === 'partial' || fee.remainingAmount > 0
+                          ? 'bg-amber-50/20'
+                          : 'bg-rose-50/20'
                       }`}
                     >
                       <td className="px-3 py-3">
@@ -366,23 +370,23 @@ function FeeRecordsPage() {
                       <td className="px-3 py-3">
                         <span
                           className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${
-                            fee.status === 'paid'
-                              ? fee.remainingAmount > 0
-                                ? 'bg-amber-50 text-amber-800 ring-1 ring-amber-200'
-                                : 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+                            fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
+                              ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+                              : fee.status === 'partial' || fee.remainingAmount > 0
+                              ? 'bg-amber-50 text-amber-800 ring-1 ring-amber-200'
                               : 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
                           }`}
                         >
-                          {fee.status === 'paid'
-                            ? fee.remainingAmount > 0
-                              ? 'Partial'
-                              : 'Paid'
+                          {fee.status === 'paid' && (!fee.remainingAmount || fee.remainingAmount <= 0)
+                            ? 'Paid'
+                            : fee.status === 'partial' || fee.remainingAmount > 0
+                            ? 'Partial'
                             : 'Pending'}
                         </span>
                       </td>
                       <td className="px-3 py-3 text-slate-600">{formatDisplayDate(fee.paymentDate)}</td>
                       <td className="px-3 py-3 text-right">
-                        {fee.status === 'paid' && (
+                        {(fee.status === 'paid' || fee.status === 'partial' || fee.amount > 0) && (
                           <button
                             type="button"
                             onClick={() => handlePrint(fee)}

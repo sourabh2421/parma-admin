@@ -62,10 +62,25 @@ function PendingFeesPage() {
     }
   }, [])
 
+  const feeByStudentForPeriod = useMemo(() => {
+    const map = new Map()
+    fees.forEach((fee) => {
+      if (fee.month === month && Number(fee.year) === Number(year)) {
+        map.set(fee.studentId, fee)
+      }
+    })
+    return map
+  }, [fees, month, year])
+
   const paidStudentIdsForPeriod = useMemo(() => {
     const set = new Set()
     fees.forEach((fee) => {
-      if (fee.month === month && Number(fee.year) === Number(year) && fee.status === 'paid') {
+      if (
+        fee.month === month &&
+        Number(fee.year) === Number(year) &&
+        fee.status === 'paid' &&
+        (!fee.remainingAmount || Number(fee.remainingAmount) <= 0)
+      ) {
         set.add(fee.studentId)
       }
     })
@@ -75,19 +90,29 @@ function PendingFeesPage() {
   const pendingRows = useMemo(() => {
     return students
       .filter((s) => !paidStudentIdsForPeriod.has(s.id))
-      .map((s) => ({
-        studentId: s.id,
-        studentName: s.name,
-        class: s.class,
-        pendingMonth: `${month} ${year}`,
-        pendingAmount: '—',
-      }))
+      .map((s) => {
+        const fee = feeByStudentForPeriod.get(s.id)
+        let pendingAmount = '—'
+        if (fee && (fee.status === 'partial' || Number(fee.remainingAmount) > 0)) {
+          pendingAmount = `INR ${Number(fee.remainingAmount || 0).toLocaleString('en-IN')} (Partial)`
+        } else if (fee && fee.totalAmount) {
+          pendingAmount = `INR ${Number(fee.totalAmount).toLocaleString('en-IN')}`
+        }
+
+        return {
+          studentId: s.id,
+          studentName: s.name,
+          class: s.class,
+          pendingMonth: `${month} ${year}`,
+          pendingAmount,
+        }
+      })
       .sort((a, b) => {
         const classComp = compareClasses(a.class, b.class)
         if (classComp !== 0) return classComp
         return a.studentName.localeCompare(b.studentName)
       })
-  }, [students, paidStudentIdsForPeriod, month, year])
+  }, [students, paidStudentIdsForPeriod, feeByStudentForPeriod, month, year])
 
   const yearSelectOptions = useMemo(() => {
     const y = new Date().getFullYear()

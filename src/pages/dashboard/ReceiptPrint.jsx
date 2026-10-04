@@ -1,14 +1,16 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { numberToWordsIndian } from '../../utils/numberToWords.js'
+import { getPaymentDoc } from '../../firebase/feeRepository.js'
+import { formatMonthRange } from '../../utils/monthRangeFormatter.js'
 
 /**
  * ReceiptPrint Component
  * 
- * Opens a new window with a printable fee receipt containing two copies:
- * 1. Parent Copy
- * 2. School Copy
+ * Generates an official, authentic school fee receipt matching Parma Academy's physical receipt book.
  * 
- * Styled to accurately match Parma Academy's official physical fee receipt book.
+ * Supports:
+ * 1. Single-month receipt (exact physical receipt layout with 6 fee heads).
+ * 2. Multi-month combined receipt (displays all covered months with allocations & total received).
  */
 
 function generateReceiptNumber(year, month, studentId) {
@@ -43,7 +45,9 @@ function formatPaymentDate(paymentDate) {
   
   const date = paymentDate instanceof Date 
     ? paymentDate 
-    : new Date(paymentDate)
+    : typeof paymentDate.toDate === 'function'
+      ? paymentDate.toDate()
+      : new Date(paymentDate)
   
   if (isNaN(date.getTime())) {
     return 'N/A'
@@ -58,15 +62,13 @@ function formatPaymentDate(paymentDate) {
 
 function formatAmount(amount) {
   if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
-    return '0.00'
+    return '0'
   }
-  return amount.toLocaleString('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
+  return amount.toLocaleString('en-IN')
 }
 
-function parseClassAndSection(classStr = '') {
+function parseClassAndSection(classStr) {
+  if (!classStr) return { className: '—', section: 'A' }
   const cleaned = String(classStr || '').trim()
   const match = cleaned.match(/^(.*?)(?:\s+|-)(Section\s+|Sec\s+)?([A-Z])$/i)
   if (match) {
@@ -81,13 +83,47 @@ function parseClassAndSection(classStr = '') {
   }
 }
 
-export default function ReceiptPrint({ student, fee, onClose }) {
+export default function ReceiptPrint({ student, fee, payment = null, onClose }) {
   if (!student || !fee) {
     console.error('ReceiptPrint: Missing required props', { student, fee })
     return null
   }
+
+  const [paymentData, setPaymentData] = useState(payment)
+  const [readyToPrint, setReadyToPrint] = useState(Boolean(payment))
+
+  // Fetch parent payment document if fee belongs to a multi-month transaction
+  useEffect(() => {
+    let active = true
+    if (payment) {
+      setPaymentData(payment)
+      setReadyToPrint(true)
+      return
+    }
+
+    if (fee.paymentId) {
+      getPaymentDoc(fee.paymentId)
+        .then((doc) => {
+          if (active) {
+            if (doc) setPaymentData(doc)
+            setReadyToPrint(true)
+          }
+        })
+        .catch(() => {
+          if (active) setReadyToPrint(true)
+        })
+    } else {
+      setReadyToPrint(true)
+    }
+
+    return () => {
+      active = false
+    }
+  }, [fee, payment])
   
   useEffect(() => {
+    if (!readyToPrint) return
+
     const escapeHtml = (str) => {
       return String(str ?? '')
         .replace(/&/g, '&amp;')
@@ -102,11 +138,25 @@ export default function ReceiptPrint({ student, fee, onClose }) {
         ? escapeHtml(String(value).trim())
         : fallback
     }
-    
-    const receiptNumber = generateReceiptNumber(fee.year, fee.month, student.id)
-    const formattedDate = formatPaymentDate(fee.paymentDate)
 
-    const paidAmount = Number(fee.amount) || 0
+    const isMultiMonth = Boolean(
+      paymentData &&
+      Array.isArray(paymentData.allocations) &&
+      paymentData.allocations.length > 1,
+    )
+    
+    // Receipt Number: Prioritize payment receipt number, then fee.receiptNos, fallback to legacy generator
+    const receiptNumber =
+      paymentData?.receiptNo ||
+      (Array.isArray(fee.receiptNos) && fee.receiptNos.length > 0 ? fee.receiptNos[0] : null) ||
+      generateReceiptNumber(fee.year, fee.month, student.id)
+
+    const formattedDate = formatPaymentDate(paymentData?.paidOn || fee.paymentDate)
+
+    const paidAmount = isMultiMonth
+      ? Number(paymentData.totalReceived) || 0
+      : Number(fee.amount) || 0
+
     const tFee = fee.tuitionFee != null ? Number(fee.tuitionFee) : paidAmount
     const cFee = fee.conveyanceFee != null ? Number(fee.conveyanceFee) : 0
     const eFee = fee.examFee != null ? Number(fee.examFee) : 0
@@ -130,14 +180,24 @@ export default function ReceiptPrint({ student, fee, onClose }) {
         : Math.max(0, totalFee - paidAmount)
 
     const wordsText =
-      fee.amountInWords || numberToWordsIndian(paidAmount || totalFee)
-    const chequeText = fee.chequeNo
-      ? fee.chequeNo
-      : fee.status === 'paid'
-        ? 'Cash / Online'
-        : '—'
+      isMultiMonth
+        ? numberToWordsIndian(paymentData.totalReceived)
+        : fee.amountInWords || numberToWordsIndian(paidAmount || totalFee)
+
+    const chequeText =
+      paymentData?.reference
+        ? `${paymentData.mode ? paymentData.mode.toUpperCase() + ': ' : ''}${paymentData.reference}`
+        : fee.chequeNo
+          ? fee.chequeNo
+          : fee.status === 'paid' || fee.status === 'partial'
+            ? 'Cash / Online'
+            : '—'
 
     const { className, section } = parseClassAndSection(student.class)
+
+    const monthLabel = isMultiMonth
+      ? formatMonthRange(paymentData.allocations.map((a) => a.month), paymentData.allocations[0]?.year) || `${paymentData.allocations.length} Months`
+      : `${safeValue(fee.month)} ${safeValue(fee.year)}`
 
     const renderCopyHtml = (copyTitle) => `
       <div class="receipt-copy">
@@ -190,11 +250,39 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           <div class="meta-row">
             <div class="meta-cell" style="width: 100%;">
               <span class="meta-label">Month(s):</span>
-              <span class="meta-value underline bold">${safeValue(fee.month)} ${safeValue(fee.year)}</span>
+              <span class="meta-value underline bold">${safeValue(monthLabel)}</span>
             </div>
           </div>
         </div>
 
+        ${isMultiMonth ? `
+        <!-- Combined Multi-Month Table -->
+        <table class="fee-schedule-table">
+          <thead>
+            <tr>
+              <th style="width: 28%;">Month</th>
+              <th style="width: 44%;">Schedule Status</th>
+              <th style="width: 28%; text-align: right;">Amount Paid (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paymentData.allocations.map((a) => `
+              <tr>
+                <td class="bold">${safeValue(a.month)} ${safeValue(a.year)}</td>
+                <td style="font-size: 7.5pt; color: #475569;">
+                  Due: ₹${formatAmount(a.totalAmount)} ${a.remainingAmount > 0 ? `· <span class="text-red">Bal: ₹${formatAmount(a.remainingAmount)}</span>` : '· <span class="text-green">Cleared</span>'}
+                </td>
+                <td class="amount-cell bold text-green">₹ ${formatAmount(a.amount)}</td>
+              </tr>
+            `).join('')}
+            <tr class="total-row">
+              <td colspan="2" class="bold">Total Received ₹</td>
+              <td class="amount-cell bold text-green">₹ ${formatAmount(paidAmount)}</td>
+            </tr>
+          </tbody>
+        </table>
+        ` : `
+        <!-- Standard Single-Month Schedule Table -->
         <table class="fee-schedule-table">
           <thead>
             <tr>
@@ -248,6 +336,7 @@ export default function ReceiptPrint({ student, fee, onClose }) {
             `}
           </tbody>
         </table>
+        `}
 
         <div class="footer-meta">
           <div class="meta-row">
@@ -281,52 +370,55 @@ export default function ReceiptPrint({ student, fee, onClose }) {
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Fee Receipt - ${receiptNumber}</title>
+        <title>Fee Receipt - ${safeValue(receiptNumber)}</title>
         <style>
           @page {
             size: A4 portrait;
-            margin: 8mm 10mm;
+            margin: 0;
           }
           
           * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           
           body {
-            font-family: 'Times New Roman', Times, serif, Arial, sans-serif;
-            font-size: 8.5pt;
-            line-height: 1.25;
-            color: #000;
+            font-family: 'Arial', 'Helvetica', sans-serif;
             background: #fff;
+            color: #000;
+            display: flex;
+            justify-content: center;
           }
           
           .receipt-container {
-            width: 190mm;
-            height: 278mm;
+            width: 210mm;
+            height: 297mm;
+            padding: 5mm 9mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
           }
           
           .receipt-copy {
-            height: 132mm;
-            border: 1.5px solid #222;
-            padding: 4mm 5mm;
+            height: 140mm;
+            border: 1.8px solid #0f172a;
+            border-radius: 3mm;
+            padding: 3mm 4.5mm;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
             position: relative;
-            background: #fff;
+            background-color: #fff;
           }
           
           .header-container {
             text-align: center;
-            border-bottom: 1.5px solid #222;
+            border-bottom: 1.5px solid #000;
             padding-bottom: 1.5mm;
             margin-bottom: 2mm;
+            position: relative;
           }
           
           .top-meta-row {
@@ -334,24 +426,22 @@ export default function ReceiptPrint({ student, fee, onClose }) {
             justify-content: space-between;
             align-items: center;
             font-size: 7.5pt;
-            font-family: Arial, sans-serif;
-            margin-bottom: 0.5mm;
+            font-weight: bold;
           }
           
           .copy-badge {
-            background: #111;
-            color: #fff;
-            padding: 0.5mm 2.5mm;
-            font-size: 7pt;
-            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-size: 7.5pt;
+            background: #f1f5f9;
+            padding: 0.5mm 2.5mm;
+            border: 1px solid #94a3b8;
             border-radius: 1mm;
           }
           
           .school-phone {
-            font-weight: bold;
-            letter-spacing: 0.5px;
+            font-family: monospace;
+            font-size: 8pt;
           }
           
           .school-title {
@@ -439,12 +529,13 @@ export default function ReceiptPrint({ student, fee, onClose }) {
           
           .amount-cell {
             text-align: right;
-            font-family: Arial, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 8.5pt;
           }
           
           .total-row {
             background: #f8fafc;
-            font-size: 8.5pt;
+            font-weight: bold;
           }
           
           .paid-row {
@@ -566,9 +657,8 @@ export default function ReceiptPrint({ student, fee, onClose }) {
         if (onClose) onClose()
       }, 1000)
     }, 250)
-    
-  }, [student, fee, onClose])
-  
+  }, [readyToPrint, student, fee, paymentData, onClose])
+
   return null
 }
 

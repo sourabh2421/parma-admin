@@ -119,7 +119,9 @@ export function calculatePeriodMetrics(filteredFees = []) {
     const paidAmt = Number(fee.amount) || 0
     const remAmt = Number(fee.remainingAmount) || 0
 
-    if (fee.status === 'paid') {
+    const isPaidLike = fee.status === 'paid' || fee.status === 'partial' || paidAmt > 0
+
+    if (isPaidLike) {
       totalCollected += paidAmt
       if (remAmt > 0) {
         totalDue += remAmt
