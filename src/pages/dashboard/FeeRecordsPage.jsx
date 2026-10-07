@@ -9,6 +9,7 @@ import {
   calculatePeriodMetrics,
   filterFeesByPeriod,
 } from '../../utils/feeFilter.js'
+import { compareAcademicPeriod } from '../../utils/feeAllocation.js'
 import {
   exportFeesToCsv,
   exportFeesToExcel,
@@ -32,10 +33,11 @@ function FeeRecordsPage() {
     isFirebaseConfigured() ? '' : 'Firebase is not configured. Add environment variables and restart.',
   )
 
-  // Filters state
+  // Filters & sorting state
   const [selectedPeriod, setSelectedPeriod] = useState('running')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('month-asc')
 
   // Print receipt state
   const [printingFeeRecord, setPrintingFeeRecord] = useState(null)
@@ -91,8 +93,33 @@ function FeeRecordsPage() {
       list = list.filter((f) => f.status === 'pending' || (!f.amount && f.remainingAmount > 0))
     }
 
-    return list
-  }, [periodFees, searchQuery, statusFilter])
+    return [...list].sort((a, b) => {
+      if (sortBy === 'month-asc') {
+        const cmp = compareAcademicPeriod(a, b)
+        if (cmp !== 0) return cmp
+        return (a.studentName || '').localeCompare(b.studentName || '')
+      }
+      if (sortBy === 'month-desc') {
+        const cmp = compareAcademicPeriod(b, a)
+        if (cmp !== 0) return cmp
+        return (a.studentName || '').localeCompare(b.studentName || '')
+      }
+      if (sortBy === 'date-desc') {
+        const ta = a.paymentDate ? new Date(a.paymentDate).getTime() : a.updatedAt ? new Date(a.updatedAt).getTime() : 0
+        const tb = b.paymentDate ? new Date(b.paymentDate).getTime() : b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+        return tb - ta
+      }
+      if (sortBy === 'date-asc') {
+        const ta = a.paymentDate ? new Date(a.paymentDate).getTime() : a.updatedAt ? new Date(a.updatedAt).getTime() : 0
+        const tb = b.paymentDate ? new Date(b.paymentDate).getTime() : b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+        return ta - tb
+      }
+      if (sortBy === 'name-asc') {
+        return (a.studentName || '').localeCompare(b.studentName || '')
+      }
+      return 0
+    })
+  }, [periodFees, searchQuery, statusFilter, sortBy])
 
   const selectedPeriodLabel = useMemo(() => {
     return PERIOD_OPTIONS.find((p) => p.id === selectedPeriod)?.label || 'Selected Period'
@@ -296,21 +323,41 @@ function FeeRecordsPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <label htmlFor="status-filter" className="text-xs font-semibold uppercase text-slate-500">
-            Status:
-          </label>
-          <select
-            id="status-filter"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200"
-          >
-            <option value="all">All Statuses</option>
-            <option value="paid">Fully Paid</option>
-            <option value="partial">Partial Payment (With Due)</option>
-            <option value="pending">Pending</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label htmlFor="sort-by" className="text-xs font-semibold uppercase text-slate-500">
+              Sort:
+            </label>
+            <select
+              id="sort-by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200"
+            >
+              <option value="month-asc">Month (Apr → Mar)</option>
+              <option value="month-desc">Month (Mar → Apr)</option>
+              <option value="date-desc">Newest Payment</option>
+              <option value="date-asc">Oldest Payment</option>
+              <option value="name-asc">Student Name (A-Z)</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label htmlFor="status-filter" className="text-xs font-semibold uppercase text-slate-500">
+              Status:
+            </label>
+            <select
+              id="status-filter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200"
+            >
+              <option value="all">All Statuses</option>
+              <option value="paid">Fully Paid</option>
+              <option value="partial">Partial Payment (With Due)</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -325,7 +372,18 @@ function FeeRecordsPage() {
                 <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-3 py-3">Student</th>
                   <th className="px-3 py-3">Class</th>
-                  <th className="px-3 py-3">Month</th>
+                  <th
+                    className="px-3 py-3 cursor-pointer select-none hover:text-slate-800 transition-colors"
+                    onClick={() => setSortBy((prev) => (prev === 'month-asc' ? 'month-desc' : 'month-asc'))}
+                    title="Click to toggle month sort order (Academic calendar)"
+                  >
+                    <div className="inline-flex items-center gap-1.5">
+                      <span>Month</span>
+                      <span className="text-[10px] text-emerald-600 font-bold">
+                        {sortBy === 'month-asc' ? '▲ (Apr–Mar)' : sortBy === 'month-desc' ? '▼ (Mar–Apr)' : '↕'}
+                      </span>
+                    </div>
+                  </th>
                   <th className="px-3 py-3">Year</th>
                   <th className="px-3 py-3">Amount</th>
                   <th className="px-3 py-3">Status</th>

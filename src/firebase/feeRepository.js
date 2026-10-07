@@ -25,6 +25,7 @@ import { assertAdminCanWrite } from './writeGuard.js'
 import {
   allocateMultiMonthPayment,
   calculateMultiMonthSchedule,
+  compareAcademicPeriod,
   formatReceiptNumber,
   getAcademicSession,
   sanitizeReceiptDocId,
@@ -214,7 +215,7 @@ export function subscribeFeesForStudent(studentId, onData, onError) {
   return onSnapshot(
     q,
     (snapshot) => {
-      const list = snapshot.docs.map(mapFeeDoc).filter(Boolean).sort(sortFeeRowsDesc)
+      const list = snapshot.docs.map(mapFeeDoc).filter(Boolean).sort(compareAcademicPeriod)
       onData(list)
     },
     (error) => onError?.(error),

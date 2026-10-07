@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { subscribeFeesForStudent } from '../../firebase/feeRepository.js'
 import { useToast } from '../../context/useToast.js'
+import { compareAcademicPeriod } from '../../utils/feeAllocation.js'
 import AddFeeModal from './AddFeeModal.jsx'
 import ReceiptPrint from './ReceiptPrint.jsx'
 
@@ -17,6 +18,7 @@ function StudentDetailModal({ student, onClose }) {
   const [feeError, setFeeError] = useState('')
   const [showAddFee, setShowAddFee] = useState(false)
   const [printingFee, setPrintingFee] = useState(null)
+  const [sortDir, setSortDir] = useState('asc')
 
   useEffect(() => {
     if (!student) return undefined
@@ -30,6 +32,13 @@ function StudentDetailModal({ student, onClose }) {
     )
     return unsub
   }, [student])
+
+  const sortedFees = useMemo(() => {
+    return [...fees].sort((a, b) => {
+      const cmp = compareAcademicPeriod(a, b)
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+  }, [fees, sortDir])
 
 
 
@@ -97,7 +106,18 @@ function StudentDetailModal({ student, onClose }) {
             <table className="min-w-[640px] w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <th className="px-3 py-2">Month</th>
+                  <th
+                    className="px-3 py-2 cursor-pointer select-none hover:text-slate-800 transition-colors"
+                    onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                    title="Click to toggle month sort order"
+                  >
+                    <div className="inline-flex items-center gap-1.5">
+                      <span>Month</span>
+                      <span className="text-[10px] text-emerald-600 font-bold">
+                        {sortDir === 'asc' ? '▲ (Apr–Mar)' : '▼ (Mar–Apr)'}
+                      </span>
+                    </div>
+                  </th>
                   <th className="px-3 py-2">Year</th>
                   <th className="px-3 py-2">Amount</th>
                   <th className="px-3 py-2">Status</th>
@@ -106,14 +126,14 @@ function StudentDetailModal({ student, onClose }) {
                 </tr>
               </thead>
               <tbody>
-                {fees.length === 0 ? (
+                {sortedFees.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
                       No fee records yet for this student.
                     </td>
                   </tr>
                 ) : (
-                  fees.map((fee) => (
+                  sortedFees.map((fee) => (
                     <tr key={fee.docId} className="border-b border-slate-100">
                       <td className="px-3 py-2 text-slate-800">{fee.month}</td>
                       <td className="px-3 py-2 text-slate-800">{fee.year}</td>
