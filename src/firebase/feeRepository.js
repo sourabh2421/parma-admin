@@ -275,6 +275,7 @@ export async function recordFeePaymentTransaction({
   breakdown = {},
   nonRecurringOverrides = {},
   perMonthCustomizations = {},
+  waiveOffAmount = 0,
   totalReceived = 0,
   manualAllocations = null,
   waiverApprovedBy = '',
@@ -338,6 +339,8 @@ export async function recordFeePaymentTransaction({
       breakdown,
       nonRecurringOverrides,
       perMonthCustomizations,
+      waiveOffAmount,
+      waiverApprovedBy,
     })
 
     // Validate waivers (ensure reason + approver, and net due >= existingPaid)

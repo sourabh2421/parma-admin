@@ -93,7 +93,8 @@ function AddFeeModal({ student, onClose, onCreated }) {
   const [totalReceivedInput, setTotalReceivedInput] = useState('')
   const [manualAllocations, setManualAllocations] = useState({})
   const [perMonthCustomizations, setPerMonthCustomizations] = useState({})
-  const [waiverApprovedBy, setWaiverApprovedBy] = useState('Management')
+  const [waiveOffAmount, setWaiveOffAmount] = useState('')
+  const [waiverApprovedBy, setWaiverApprovedBy] = useState('Principal')
   const [existingFees, setExistingFees] = useState([])
 
   // Subscribe to existing fee records for this student to detect prior payments/top-ups
@@ -354,6 +355,8 @@ function AddFeeModal({ student, onClose, onCreated }) {
       },
       nonRecurringOverrides,
       perMonthCustomizations,
+      waiveOffAmount: toRupees(waiveOffAmount),
+      waiverApprovedBy: waiverApprovedBy.trim() || 'Management',
     })
   }, [
     isMultiMonth,
@@ -368,7 +371,14 @@ function AddFeeModal({ student, onClose, onCreated }) {
     lateFee,
     nonRecurringOverrides,
     perMonthCustomizations,
+    waiveOffAmount,
+    waiverApprovedBy,
   ])
+
+  // Total gross due across all selected months
+  const totalGrossDue = useMemo(() => {
+    return multiMonthSchedule.reduce((acc, m) => acc + (m.grossFee || 0), 0)
+  }, [multiMonthSchedule])
 
   // Total net due across all selected months
   const totalNetDue = useMemo(() => {
@@ -569,9 +579,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
         },
         nonRecurringOverrides,
         perMonthCustomizations,
+        waiveOffAmount: toRupees(waiveOffAmount),
         totalReceived: allocationState.totalReceived,
         manualAllocations: Object.keys(manualAllocations).length > 0 ? manualAllocations : null,
-        waiverApprovedBy: waiverApprovedBy.trim(),
+        waiverApprovedBy: waiverApprovedBy.trim() || 'Management',
         paymentMode,
         reference: chequeNo.trim(),
         paymentDate: paymentDate || new Date(),
@@ -879,48 +890,6 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   onChange={(e) => handleScheduleChange('conveyance', e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
-
-                {isMultiMonth && Number(conveyanceFee) > 0 && selectedMonths.size > 0 && (
-                  <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-amber-950 mb-1.5">
-                      <span>Waive conveyance for month(s):</span>
-                      {multiMonthSchedule.some((m) => m.conveyanceWaiver > 0) && (
-                        <span className="text-[10px] text-amber-800 font-bold bg-amber-200/70 px-1.5 py-0.2 rounded">
-                          {multiMonthSchedule.filter((m) => m.conveyanceWaiver > 0).length} month(s) waived
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {sortMonthsInAcademicOrder(
-                        Array.from(selectedMonths).map((mName) => ({
-                          month: mName,
-                          year: getYearForAcademicMonth(session, mName),
-                        }))
-                      ).map((mObj) => {
-                        const key = `${mObj.month}_${mObj.year}`
-                        const isWaived = Boolean(perMonthCustomizations[key]?.waiveConveyance)
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            onClick={() => handleWaiveConveyanceToggle(key, !isWaived)}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
-                              isWaived
-                                ? 'bg-amber-600 text-white border-amber-700 shadow-sm ring-1 ring-amber-400'
-                                : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400 hover:bg-amber-50/40'
-                            }`}
-                            title={isWaived ? `Conveyance waived for ${mObj.month}` : `Click to waive conveyance for ${mObj.month}`}
-                          >
-                            {isWaived ? `✓ ${mObj.month.slice(0, 3)} Waived` : `Waive ${mObj.month.slice(0, 3)}`}
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <p className="mt-1.5 text-[10px] text-amber-800">
-                      💡 Click a month to waive ₹{toRupees(conveyanceFee)} conveyance fee for that month.
-                    </p>
-                  </div>
-                )}
               </div>
 
               <div>
@@ -1097,25 +1066,109 @@ function AddFeeModal({ student, onClose, onCreated }) {
             </div>
           )}
 
-          {/* MULTI-MONTH: Total Due & Total Received with Auto-Allocation */}
+          {/* MULTI-MONTH: Waive Off Section & Total Received with Equal Distribution */}
           {isMultiMonth && (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Waive Off Text Field & Approver */}
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-2.5">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
+                      <span>🎁 Waive Off / Concession (Optional)</span>
+                    </h4>
+                    <p className="text-[11px] text-amber-800 mt-0.5">
+                      Enter amount to waive off. The remaining final amount will be equally divided across all {selectedMonths.size} selected month{selectedMonths.size > 1 ? 's' : ''}.
+                    </p>
+                  </div>
+                  {toRupees(waiveOffAmount) > 0 && selectedMonths.size > 0 && (
+                    <span className="self-start sm:self-auto rounded-md bg-amber-200/80 px-2 py-0.5 text-[11px] font-black text-amber-950">
+                      - ₹{toRupees(waiveOffAmount).toLocaleString()} Total Waived
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="waive-off-amount" className="block text-xs font-bold uppercase text-amber-950 mb-1">
+                      Waive Off Amount (₹)
+                    </label>
+                    <input
+                      id="waive-off-amount"
+                      type="number"
+                      min="0"
+                      max={totalGrossDue}
+                      placeholder="0"
+                      value={waiveOffAmount}
+                      onChange={(e) => {
+                        setWaiveOffAmount(e.target.value)
+                        setManualAllocations({})
+                      }}
+                      onWheel={(e) => e.target.blur()}
+                      className="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-base font-black text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-amber-400 shadow-sm"
+                    />
+                    {toRupees(waiveOffAmount) > 0 && selectedMonths.size > 0 && (
+                      <p className="text-[11px] font-bold text-emerald-700 mt-1">
+                        Equally divided: ₹{Math.round(toRupees(waiveOffAmount) / selectedMonths.size).toLocaleString()} waived / month
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="waived-by" className="text-xs font-bold uppercase text-amber-950">
+                        Waived Off By *
+                      </label>
+                      <div className="flex items-center gap-1 text-[10px]">
+                        {['Principal', 'Manager', 'Director', 'Management'].map((title) => (
+                          <button
+                            key={title}
+                            type="button"
+                            onClick={() => setWaiverApprovedBy(title)}
+                            className="rounded px-1.5 py-0.5 font-bold bg-amber-200/80 text-amber-950 hover:bg-amber-300 transition"
+                          >
+                            {title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <input
+                      id="waived-by"
+                      type="text"
+                      placeholder="e.g. Principal / Manager"
+                      value={waiverApprovedBy}
+                      onChange={(e) => setWaiverApprovedBy(e.target.value)}
+                      className="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-amber-400 shadow-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Due & Amount Received */}
               <div className="grid gap-3 sm:grid-cols-2">
-                {/* Total Due (Read-only) */}
+                {/* Final Amount Due (Read-only) */}
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    Total Due ({selectedMonths.size} Months)
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Final Amount Due ({selectedMonths.size} Months)
+                    </span>
+                    {totalWaivedSum > 0 && (
+                      <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
+                        Waived: ₹{totalWaivedSum.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xl font-black text-slate-900 mt-0.5">
                     ₹ {totalNetDue.toLocaleString()}
                   </div>
                   {totalWaivedSum > 0 ? (
                     <p className="text-[11px] text-emerald-700 font-semibold mt-1">
-                      Waived: ₹ {totalWaivedSum.toLocaleString()}
+                      Gross ₹{totalGrossDue.toLocaleString()} − ₹{totalWaivedSum.toLocaleString()} = ₹{totalNetDue.toLocaleString()} (₹{selectedMonths.size > 0 ? Math.round(totalNetDue / selectedMonths.size).toLocaleString() : 0} / month)
                     </p>
                   ) : (
                     <p className="text-[11px] text-slate-500 mt-1">
-                      Sum of scheduled amounts for all selected months
+                      {selectedMonths.size > 0
+                        ? `₹${Math.round(totalNetDue / selectedMonths.size).toLocaleString()} / month across ${selectedMonths.size} months`
+                        : 'Select months above'}
                     </p>
                   )}
                 </div>
@@ -1167,15 +1220,6 @@ function AddFeeModal({ student, onClose, onCreated }) {
                       Monthly Fee Allocation Preview (Oldest Month First)
                     </span>
                     <div className="flex items-center gap-3">
-                      {Object.keys(perMonthCustomizations).length > 0 && (
-                        <button
-                          type="button"
-                          onClick={handleResetAllCustomizations}
-                          className="text-[11px] font-semibold text-blue-700 hover:underline"
-                        >
-                          ↺ Reset All to Rates
-                        </button>
-                      )}
                       {Object.keys(manualAllocations).length > 0 && (
                         <button
                           type="button"
@@ -1192,195 +1236,100 @@ function AddFeeModal({ student, onClose, onCreated }) {
                     <table className="w-full min-w-[700px] text-left text-xs border-collapse">
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
-                          <th className="py-2 px-2.5" style={{ minWidth: '130px' }}>Month</th>
-                          <th className="py-2 px-2 text-right" style={{ minWidth: '95px' }}>Tuition (₹)</th>
-                          <th className="py-2 px-2 text-right" style={{ minWidth: '115px' }}>Conveyance (₹)</th>
-                          <th className="py-2 px-2 text-right" style={{ minWidth: '75px' }}>Other (₹)</th>
-                          <th className="py-2 px-2 text-right" style={{ minWidth: '85px' }}>Due (₹)</th>
-                          <th className="py-2 px-2 text-right" style={{ minWidth: '100px' }}>Paid (₹)</th>
-                          <th className="py-2 px-2 text-right" style={{ minWidth: '85px' }}>Remaining (₹)</th>
-                          <th className="py-2 px-2 text-center" style={{ minWidth: '75px' }}>Status</th>
+                          <th className="py-2.5 px-3">Month</th>
+                          <th className="py-2.5 px-3 text-right">Scheduled (₹)</th>
+                          <th className="py-2.5 px-3 text-right">Waived Off (₹)</th>
+                          <th className="py-2.5 px-3 text-right">Net Due (₹)</th>
+                          <th className="py-2.5 px-3 text-right" style={{ minWidth: '110px' }}>Paid (₹)</th>
+                          <th className="py-2.5 px-3 text-right">Remaining (₹)</th>
+                          <th className="py-2.5 px-3 text-center">Status</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {allocationState.allocations.map((a) => {
                           const monthKey = `${a.month}_${a.year}`
-                          const custom = perMonthCustomizations[monthKey] || {}
                           return (
-                            <React.Fragment key={monthKey}>
-                              <tr className="hover:bg-slate-50/50">
-                                <td className="py-2 px-2.5 font-semibold text-slate-800">
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span>{a.month} {a.year}</span>
-                                    {a.isCustomized && (
-                                      <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800">
-                                        Customised
-                                      </span>
-                                    )}
-                                  </div>
-                                  {a.isCustomized && !a.isFullyPaid && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleResetRow(monthKey)}
-                                      className="block text-[10px] text-blue-600 hover:underline mt-0.5"
-                                    >
-                                      Reset to rates
-                                    </button>
-                                  )}
-                                  {a.isFullyPaid && (
-                                    <span className="block text-[10px] text-slate-400 font-normal">
-                                      Already fully paid (locked)
-                                    </span>
-                                  )}
-                                  {a.existingRecord && !a.isFullyPaid && a.existingPaid > 0 && (
-                                    <span className="block text-[10px] text-amber-700 font-normal">
-                                      Prev paid: ₹{a.existingPaid}
-                                    </span>
-                                  )}
-                                </td>
-
-                                {/* Tuition (Editable) */}
-                                <td className="py-2 px-2 text-right">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    value={custom.tuitionFee !== undefined ? custom.tuitionFee : tuitionFee}
-                                    disabled={a.isFullyPaid}
-                                    onChange={(e) => handleTuitionCellChange(monthKey, e.target.value)}
-                                    onWheel={(e) => e.target.blur()}
-                                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
-                                  />
-                                </td>
-
-                                {/* Conveyance (Editable + Waive Checkbox) */}
-                                <td className="py-2 px-2 text-right">
-                                  <div className="flex flex-col items-end">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      step="1"
-                                      value={custom.waiveConveyance ? 0 : (custom.conveyanceFee !== undefined ? custom.conveyanceFee : conveyanceFee)}
-                                      disabled={a.isFullyPaid || custom.waiveConveyance}
-                                      onChange={(e) => handleConveyanceCellChange(monthKey, e.target.value)}
-                                      onWheel={(e) => e.target.blur()}
-                                      className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
-                                    />
-                                    <label className="inline-flex items-center gap-1 mt-1 text-[10px] text-slate-700 cursor-pointer select-none">
-                                      <input
-                                        type="checkbox"
-                                        checked={Boolean(custom.waiveConveyance)}
-                                        disabled={a.isFullyPaid}
-                                        onChange={(e) => handleWaiveConveyanceToggle(monthKey, e.target.checked)}
-                                        className="rounded text-emerald-600 focus:ring-emerald-400 h-3 w-3"
-                                      />
-                                      <span className="font-medium">Waive</span>
-                                    </label>
-                                  </div>
-                                </td>
-
-                                {/* Other (Read-only) */}
-                                <td className="py-2 px-2 text-right font-medium text-slate-600">
-                                  ₹ {a.otherCharges.toLocaleString()}
-                                </td>
-
-                                {/* Due (Net) */}
-                                <td className="py-2 px-2 text-right">
-                                  <div className="font-bold text-slate-900">
-                                    ₹ {a.totalAmount.toLocaleString()}
-                                  </div>
-                                  {a.waiverTotal > 0 && (
-                                    <div className="text-[10px] text-emerald-700 font-semibold">
-                                      Waived: ₹{a.waiverTotal.toLocaleString()}
-                                    </div>
-                                  )}
-                                </td>
-
-                                {/* Paid (Editable) */}
-                                <td className="py-2 px-2 text-right">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max={a.netDue}
-                                    step="1"
-                                    value={a.allocatedPaid}
-                                    disabled={a.isFullyPaid}
-                                    onChange={(e) => handleManualCellChange(monthKey, e.target.value)}
-                                    onWheel={(e) => e.target.blur()}
-                                    className={`w-full rounded-lg border px-2 py-1 text-right text-xs font-bold outline-none ${
-                                      a.allocatedPaid > 0
-                                        ? 'border-emerald-500 bg-emerald-50/70 text-slate-900'
-                                        : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400'
-                                    } disabled:bg-slate-100 disabled:text-slate-400`}
-                                  />
-                                </td>
-
-                                {/* Remaining */}
-                                <td className="py-2 px-2 text-right font-semibold text-slate-700">
-                                  {a.remainingAmount > 0 ? (
-                                    <span className="text-amber-800">₹ {a.remainingAmount.toLocaleString()}</span>
-                                  ) : (
-                                    <span className="text-emerald-700">₹ 0</span>
-                                  )}
-                                </td>
-
-                                {/* Status */}
-                                <td className="py-2 px-2 text-center">
-                                  <span
-                                    className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                      a.status === 'paid'
-                                        ? 'bg-emerald-100 text-emerald-800'
-                                        : a.status === 'partial'
-                                          ? 'bg-amber-100 text-amber-900'
-                                          : 'bg-rose-100 text-rose-800'
-                                    }`}
-                                  >
-                                    {a.status === 'paid' ? 'Paid' : a.status === 'partial' ? 'Partial' : 'Pending'}
+                            <tr key={monthKey} className="hover:bg-slate-50/60 transition-colors">
+                              <td className="py-2.5 px-3 font-semibold text-slate-800">
+                                <div>{a.month} {a.year}</div>
+                                {a.isFullyPaid && (
+                                  <span className="block text-[10px] text-slate-400 font-normal">
+                                    Already fully paid (locked)
                                   </span>
-                                </td>
-                              </tr>
+                                )}
+                                {a.existingRecord && !a.isFullyPaid && a.existingPaid > 0 && (
+                                  <span className="block text-[10px] text-amber-700 font-normal">
+                                    Prev paid: ₹{a.existingPaid.toLocaleString()}
+                                  </span>
+                                )}
+                              </td>
 
-                              {/* Inline Waiver Details Row if Month has Waiver */}
-                              {a.waiverTotal > 0 && (
-                                <tr className="bg-amber-50/50 border-b border-slate-200">
-                                  <td colSpan={8} className="py-2 px-3">
-                                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                                      <span className="font-bold text-amber-950 text-[11px]">
-                                        Waiver Reason for {a.month} (₹{a.waiverTotal.toLocaleString()} waived):
-                                      </span>
-                                      <select
-                                        value={custom.reason || ''}
-                                        onChange={(e) => handleWaiverReasonChange(monthKey, e.target.value)}
-                                        className="rounded-lg border border-amber-300 bg-white px-2 py-1 text-xs font-medium text-slate-900 outline-none focus:ring-1 focus:ring-amber-500"
-                                        required
-                                      >
-                                        <option value="">Select Reason *</option>
-                                        {WAIVER_REASONS.map((r) => (
-                                          <option key={r} value={r}>
-                                            {r}
-                                          </option>
-                                        ))}
-                                      </select>
-                                      {custom.reason === 'Other' && (
-                                        <input
-                                          type="text"
-                                          placeholder="Specify other reason *"
-                                          value={custom.otherReasonText || ''}
-                                          onChange={(e) => handleOtherReasonChange(monthKey, e.target.value)}
-                                          className="rounded-lg border border-amber-300 bg-white px-2 py-1 text-xs text-slate-900 outline-none focus:ring-1 focus:ring-amber-500"
-                                          required
-                                        />
-                                      )}
-                                      {a.waiverExceedsPaid && (
-                                        <span className="font-bold text-rose-700 text-[11px]">
-                                          ❌ Cannot reduce due (₹{a.totalAmount.toLocaleString()}) below already paid amount (₹{a.existingPaid.toLocaleString()})
-                                        </span>
-                                      )}
-                                    </div>
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
+                              {/* Scheduled Gross Rate */}
+                              <td className="py-2.5 px-3 text-right font-medium text-slate-600">
+                                ₹ {a.grossFee.toLocaleString()}
+                              </td>
+
+                              {/* Waived Off */}
+                              <td className="py-2.5 px-3 text-right">
+                                {a.waiverTotal > 0 ? (
+                                  <span className="font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded text-[11px]">
+                                    - ₹ {a.waiverTotal.toLocaleString()}
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-400">—</span>
+                                )}
+                              </td>
+
+                              {/* Net Due (Equally divided) */}
+                              <td className="py-2.5 px-3 text-right">
+                                <span className="font-bold text-slate-900">
+                                  ₹ {a.totalAmount.toLocaleString()}
+                                </span>
+                              </td>
+
+                              {/* Paid (Editable) */}
+                              <td className="py-2.5 px-3 text-right">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={a.netDue}
+                                  step="1"
+                                  value={a.allocatedPaid}
+                                  disabled={a.isFullyPaid}
+                                  onChange={(e) => handleManualCellChange(monthKey, e.target.value)}
+                                  onWheel={(e) => e.target.blur()}
+                                  className={`w-full rounded-lg border px-2.5 py-1 text-right text-xs font-bold outline-none ${
+                                    a.allocatedPaid > 0
+                                      ? 'border-emerald-500 bg-emerald-50/70 text-slate-900'
+                                      : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400'
+                                  } disabled:bg-slate-100 disabled:text-slate-400`}
+                                />
+                              </td>
+
+                              {/* Remaining */}
+                              <td className="py-2.5 px-3 text-right font-semibold text-slate-700">
+                                {a.remainingAmount > 0 ? (
+                                  <span className="text-amber-800">₹ {a.remainingAmount.toLocaleString()}</span>
+                                ) : (
+                                  <span className="text-emerald-700 font-bold">₹ 0</span>
+                                )}
+                              </td>
+
+                              {/* Status */}
+                              <td className="py-2.5 px-3 text-center">
+                                <span
+                                  className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    a.status === 'paid'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : a.status === 'partial'
+                                        ? 'bg-amber-100 text-amber-900'
+                                        : 'bg-rose-100 text-rose-800'
+                                  }`}
+                                >
+                                  {a.status === 'paid' ? 'Paid' : a.status === 'partial' ? 'Partial' : 'Pending'}
+                                </span>
+                              </td>
+                            </tr>
                           )
                         })}
                       </tbody>
@@ -1407,50 +1356,6 @@ function AddFeeModal({ student, onClose, onCreated }) {
                         ❌ Overpayment: Exceeds total due
                       </span>
                     )}
-                  </div>
-                </div>
-              )}
-
-              {/* Waiver Authorization Box */}
-              {totalWaivedSum > 0 && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-3.5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-900">
-                        Waiver Authorization
-                      </span>
-                      <p className="text-[11px] text-amber-800 mt-0.5">
-                        Total ₹{totalWaivedSum.toLocaleString()} waived across {multiMonthSchedule.filter((m) => m.waiverTotal > 0).length} month(s).
-                      </p>
-                    </div>
-                    <div className="w-full sm:w-72">
-                      <div className="flex items-center justify-between mb-1">
-                        <label htmlFor="waiver-approved-by" className="text-[11px] font-bold uppercase text-amber-950">
-                          Approved By *
-                        </label>
-                        <div className="flex items-center gap-1 text-[10px]">
-                          {['Management', 'Principal', 'Director'].map((title) => (
-                            <button
-                              key={title}
-                              type="button"
-                              onClick={() => setWaiverApprovedBy(title)}
-                              className="font-medium text-amber-800 underline hover:text-amber-950"
-                            >
-                              {title}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <input
-                        id="waiver-approved-by"
-                        type="text"
-                        placeholder="Management"
-                        value={waiverApprovedBy}
-                        onChange={(e) => setWaiverApprovedBy(e.target.value)}
-                        required
-                        className="w-full rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-amber-400"
-                      />
-                    </div>
                   </div>
                 </div>
               )}

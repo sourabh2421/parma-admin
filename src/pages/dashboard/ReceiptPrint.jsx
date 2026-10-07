@@ -326,6 +326,14 @@ export default function ReceiptPrint({ student, fee, payment = null, onClose }) 
                 <td class="amount-cell italic text-green" style="font-size: 7.5pt;">- ₹${formatAmount(totalTuitionWaived)}</td>
               </tr>
             ` : ''}
+            ${(paymentData?.totalWaived > 0 && totalConveyanceWaived === 0 && totalTuitionWaived === 0) ? `
+              <tr style="background: #f8fafc; font-size: 7.5pt;">
+                <td colspan="4" class="italic" style="color: #047857;">
+                  Waive Off / Discount: ₹${formatAmount(paymentData.totalWaived)}
+                </td>
+                <td class="amount-cell italic text-green" style="font-size: 7.5pt;">- ₹${formatAmount(paymentData.totalWaived)}</td>
+              </tr>
+            ` : ''}
             <tr class="total-row">
               <td colspan="4" class="bold">Total Received ₹</td>
               <td class="amount-cell bold text-green">₹ ${formatAmount(paidAmount)}</td>

@@ -146,12 +146,16 @@ export function buildMonthDues({
   overrides = {},
   perMonthCustomizations = {},
   existingRecords = [],
+  waiveOffAmount = 0,
+  waiverApprovedBy = '',
+  waiverReason = 'Management waiver',
 }) {
   if (!months || months.length === 0) return []
 
   const sortedMonths = sortMonthsInAcademicOrder(months)
   const defaultTuition = toRupees(rates.tuitionFee)
   const defaultConveyance = toRupees(rates.conveyanceFee)
+  const numericWaiveOff = toRupees(waiveOffAmount)
 
   // Map existing records if provided
   const existingMap = new Map()
@@ -163,13 +167,13 @@ export function buildMonthDues({
     }
   }
 
-  return sortedMonths.map((mObj, idx) => {
+  // Pre-compute basic head amounts and existing status for each month
+  const rawMonths = sortedMonths.map((mObj, idx) => {
     const isFirst = idx === 0
     const mName = mObj.month
     const mYear = Number(mObj.year)
     const key = `${mName}_${mYear}`
 
-    // Non-recurring components apply to first month by default or overridden month
     const getOtherHead = (head) => {
       const targetMonth = overrides[head]
       if (targetMonth) {
@@ -184,14 +188,113 @@ export function buildMonthDues({
     const late = getOtherHead('lateFee')
     const otherTotal = exam + annual + admission + late
 
-    // Per-month customizations
-    const custom = perMonthCustomizations[key] || perMonthCustomizations[mName] || null
+    const grossTuition = defaultTuition
+    const grossConveyance = defaultConveyance
+    const grossFee = grossTuition + grossConveyance + otherTotal
+
+    const existing = mObj.existingRecord || existingMap.get(key) || null
+    let existingPaid = 0
+    let isFullyPaid = false
+    if (existing && existing.deleted !== true) {
+      existingPaid = toRupees(existing.amount)
+      const exTot =
+        existing.totalAmount != null ? toRupees(existing.totalAmount) : grossFee
+      const exRem =
+        existing.remainingAmount != null
+          ? toRupees(existing.remainingAmount)
+          : Math.max(0, exTot - existingPaid)
+      if (exRem <= 0 && existingPaid > 0) {
+        isFullyPaid = true
+      }
+    }
+
+    return {
+      mObj,
+      mName,
+      mYear,
+      key,
+      exam,
+      annual,
+      admission,
+      late,
+      otherTotal,
+      grossTuition,
+      grossConveyance,
+      grossFee,
+      existing,
+      existingPaid,
+      isFullyPaid,
+    }
+  })
+
+  // When a global Waive Off amount is entered (> 0):
+  // The final amount is equally divided across the selected months.
+  if (numericWaiveOff > 0) {
+    const totalGrossSum = rawMonths.reduce((sum, m) => sum + m.grossFee, 0)
+    const finalTotalAmount = Math.max(0, totalGrossSum - numericWaiveOff)
+    const count = rawMonths.length
+    const baseDue = Math.floor(finalTotalAmount / count)
+    const remainder = finalTotalAmount % count
+
+    const approver = String(waiverApprovedBy || 'Management').trim()
+    const reason = String(waiverReason || 'Management waiver').trim()
+
+    return rawMonths.map((m, idx) => {
+      const netFee = baseDue + (idx < remainder ? 1 : 0)
+      const waiverTotal = Math.max(0, m.grossFee - netFee)
+      const waiverExceedsPaid = Boolean(m.existing && netFee < m.existingPaid)
+
+      const waivers = []
+      if (waiverTotal > 0) {
+        waivers.push({
+          head: 'general',
+          amount: waiverTotal,
+          reason,
+          approvedBy: approver,
+        })
+      }
+
+      const netDue = m.isFullyPaid ? 0 : Math.max(0, netFee - m.existingPaid)
+
+      return {
+        month: m.mName,
+        year: m.mYear,
+        tuitionFee: m.grossTuition,
+        conveyanceFee: m.grossConveyance,
+        grossTuition: m.grossTuition,
+        grossConveyance: m.grossConveyance,
+        examFee: m.exam,
+        annualFee: m.annual,
+        admissionFee: m.admission,
+        lateFee: m.late,
+        otherCharges: m.otherTotal,
+        grossFee: m.grossFee,
+        waiverTotal,
+        waivers,
+        waiveConveyance: false,
+        isCustomized: true,
+        waiverReason: reason,
+        waiverApprovedBy: approver,
+        totalAmount: netFee, // net due for this month
+        netDue,
+        existingRecord: m.existing,
+        existingPaid: m.existingPaid,
+        isFullyPaid: m.isFullyPaid,
+        waiverExceedsPaid,
+      }
+    })
+  }
+
+  // Fallback: per-month customization / standard rates
+  return rawMonths.map((m, idx) => {
+    const key = m.key
+    const custom = perMonthCustomizations[key] || perMonthCustomizations[m.mName] || null
     const hasCustomTuition = custom && custom.tuitionFee !== undefined && custom.tuitionFee !== ''
     const hasCustomConveyance = custom && custom.conveyanceFee !== undefined && custom.conveyanceFee !== ''
     const waiveConveyance = Boolean(custom?.waiveConveyance)
 
-    const enteredTuition = hasCustomTuition ? toRupees(custom.tuitionFee) : defaultTuition
-    let enteredConveyance = defaultConveyance
+    const enteredTuition = hasCustomTuition ? toRupees(custom.tuitionFee) : m.grossTuition
+    let enteredConveyance = m.grossConveyance
     if (waiveConveyance) {
       enteredConveyance = 0
     } else if (hasCustomConveyance) {
@@ -200,16 +303,14 @@ export function buildMonthDues({
 
     const isCustomized = Boolean(
       waiveConveyance ||
-        (hasCustomTuition && enteredTuition !== defaultTuition) ||
-        (hasCustomConveyance && enteredConveyance !== defaultConveyance),
+        (hasCustomTuition && enteredTuition !== m.grossTuition) ||
+        (hasCustomConveyance && enteredConveyance !== m.grossConveyance),
     )
 
-    // Gross rates: default rate or entered rate if entered > default
-    const grossTuition = Math.max(defaultTuition, enteredTuition)
-    const grossConveyance = Math.max(defaultConveyance, enteredConveyance)
-    const grossFee = grossTuition + grossConveyance + otherTotal
+    const grossTuition = Math.max(m.grossTuition, enteredTuition)
+    const grossConveyance = Math.max(m.grossConveyance, enteredConveyance)
+    const grossFee = grossTuition + grossConveyance + m.otherTotal
 
-    // Waivers: if entered < gross
     const tuitionWaiver = Math.max(0, grossTuition - enteredTuition)
     const conveyanceWaiver = waiveConveyance
       ? grossConveyance
@@ -241,48 +342,26 @@ export function buildMonthDues({
       })
     }
 
-    // Net fee for this month (grossFee - waiverTotal)
     const netFee = grossFee - waiverTotal
-
-    // Check existing record
-    const existing = mObj.existingRecord || existingMap.get(key) || null
-    let existingPaid = 0
-    let isFullyPaid = false
     let waiverExceedsPaid = false
-
-    if (existing && existing.deleted !== true) {
-      existingPaid = toRupees(existing.amount)
-      const exTot =
-        existing.totalAmount != null ? toRupees(existing.totalAmount) : grossFee
-      const exRem =
-        existing.remainingAmount != null
-          ? toRupees(existing.remainingAmount)
-          : Math.max(0, exTot - existingPaid)
-      if (exRem <= 0 && existingPaid > 0) {
-        isFullyPaid = true
-      }
-      if (netFee < existingPaid) {
-        waiverExceedsPaid = true
-      }
+    if (m.existing && m.existing.deleted !== true && netFee < m.existingPaid) {
+      waiverExceedsPaid = true
     }
 
-    // Amount actually needing collection (net due):
-    // If fully paid -> 0
-    // Otherwise -> Math.max(0, netFee - existingPaid)
-    const netDue = isFullyPaid ? 0 : Math.max(0, netFee - existingPaid)
+    const netDue = m.isFullyPaid ? 0 : Math.max(0, netFee - m.existingPaid)
 
     return {
-      month: mName,
-      year: mYear,
-      tuitionFee: enteredTuition, // charged net tuition
-      conveyanceFee: enteredConveyance, // charged net conveyance
+      month: m.mName,
+      year: m.mYear,
+      tuitionFee: enteredTuition,
+      conveyanceFee: enteredConveyance,
       grossTuition,
       grossConveyance,
-      examFee: exam,
-      annualFee: annual,
-      admissionFee: admission,
-      lateFee: late,
-      otherCharges: otherTotal,
+      examFee: m.exam,
+      annualFee: m.annual,
+      admissionFee: m.admission,
+      lateFee: m.late,
+      otherCharges: m.otherTotal,
       grossFee,
       waiverTotal,
       waivers,
@@ -290,11 +369,11 @@ export function buildMonthDues({
       isCustomized,
       waiverReason,
       waiverApprovedBy,
-      totalAmount: netFee, // net figure for this month
+      totalAmount: netFee,
       netDue,
-      existingRecord: existing,
-      existingPaid,
-      isFullyPaid,
+      existingRecord: m.existing,
+      existingPaid: m.existingPaid,
+      isFullyPaid: m.isFullyPaid,
       waiverExceedsPaid,
     }
   })
@@ -309,6 +388,9 @@ export function buildMonthDues({
  * @param {Object} params.breakdown - Per-month recurring & non-recurring fee values
  * @param {Object} [params.nonRecurringOverrides] - Map of headName -> assigned month
  * @param {Object} [params.perMonthCustomizations] - Map of month_year -> custom values
+ * @param {number} [params.waiveOffAmount] - Global waive off amount subtracted from final total
+ * @param {string} [params.waiverApprovedBy] - Name/title of person approving the waiver
+ * @param {string} [params.waiverReason] - Reason for waiver
  * @returns {Array} Array of months with calculated total due and breakdown
  */
 export function calculateMultiMonthSchedule({
@@ -316,6 +398,9 @@ export function calculateMultiMonthSchedule({
   breakdown = {},
   nonRecurringOverrides = {},
   perMonthCustomizations = {},
+  waiveOffAmount = 0,
+  waiverApprovedBy = '',
+  waiverReason = 'Management waiver',
 }) {
   return buildMonthDues({
     months,
@@ -331,6 +416,9 @@ export function calculateMultiMonthSchedule({
     },
     overrides: nonRecurringOverrides,
     perMonthCustomizations,
+    waiveOffAmount,
+    waiverApprovedBy,
+    waiverReason,
   })
 }
 

@@ -837,6 +837,88 @@ describe('Fee Allocation Module (Pure Engine)', () => {
       expect(scheduled[1].totalAmount).toBe(0)
       expect(scheduled[1].netDue).toBe(0)
     })
+
+    it('equally divides final net amount across selected months when waiveOffAmount is provided', () => {
+      const months = [
+        { month: 'July', year: 2026 },
+        { month: 'August', year: 2026 },
+        { month: 'September', year: 2026 },
+        { month: 'October', year: 2026 },
+      ]
+
+      // Tuition = 2000, Conveyance = 200 -> 2200 per month, total gross = 8800.
+      // Waive off 400 -> final total = 8400 -> equally divided = 2100 per month.
+      const scheduled = calculateMultiMonthSchedule({
+        months,
+        breakdown: { tuitionFee: 2000, conveyanceFee: 200 },
+        waiveOffAmount: 400,
+        waiverApprovedBy: 'Principal',
+      })
+
+      expect(scheduled).toHaveLength(4)
+      const totalNetDue = scheduled.reduce((sum, m) => sum + m.netDue, 0)
+      const totalGross = scheduled.reduce((sum, m) => sum + m.grossFee, 0)
+      const totalWaived = scheduled.reduce((sum, m) => sum + m.waiverTotal, 0)
+
+      expect(totalGross).toBe(8800)
+      expect(totalWaived).toBe(400)
+      expect(totalNetDue).toBe(8400)
+
+      scheduled.forEach((m) => {
+        expect(m.grossFee).toBe(2200)
+        expect(m.waiverTotal).toBe(100)
+        expect(m.totalAmount).toBe(2100)
+        expect(m.netDue).toBe(2100)
+        expect(m.waivers).toEqual([
+          {
+            head: 'general',
+            amount: 100,
+            reason: 'Management waiver',
+            approvedBy: 'Principal',
+          },
+        ])
+      })
+
+      // When 8400 is paid, all 4 months are marked Paid
+      const allocation = allocateMultiMonthPayment({
+        scheduledMonths: scheduled,
+        totalReceived: 8400,
+      })
+
+      expect(allocation.isValid).toBe(true)
+      expect(allocation.totalAllocated).toBe(8400)
+      allocation.allocations.forEach((a) => {
+        expect(a.allocatedPaid).toBe(2100)
+        expect(a.remainingAmount).toBe(0)
+        expect(a.status).toBe('paid')
+      })
+    })
+
+    it('correctly handles uneven rupee division when dividing final amount across months', () => {
+      const months = [
+        { month: 'April', year: 2026 },
+        { month: 'May', year: 2026 },
+        { month: 'June', year: 2026 },
+      ]
+
+      // Gross = 3000, waive off 100 -> final = 2900 across 3 months -> 967, 967, 966
+      const scheduled = calculateMultiMonthSchedule({
+        months,
+        breakdown: { tuitionFee: 1000 },
+        waiveOffAmount: 100,
+        waiverApprovedBy: 'Manager',
+      })
+
+      expect(scheduled[0].totalAmount).toBe(967)
+      expect(scheduled[1].totalAmount).toBe(967)
+      expect(scheduled[2].totalAmount).toBe(966)
+
+      const sumNet = scheduled.reduce((acc, m) => acc + m.totalAmount, 0)
+      const sumWaived = scheduled.reduce((acc, m) => acc + m.waiverTotal, 0)
+      expect(sumNet).toBe(2900)
+      expect(sumWaived).toBe(100)
+    })
   })
 })
+
 
