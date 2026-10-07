@@ -93,7 +93,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
   const [totalReceivedInput, setTotalReceivedInput] = useState('')
   const [manualAllocations, setManualAllocations] = useState({})
   const [perMonthCustomizations, setPerMonthCustomizations] = useState({})
-  const [waiverApprovedBy, setWaiverApprovedBy] = useState('')
+  const [waiverApprovedBy, setWaiverApprovedBy] = useState('Management')
   const [existingFees, setExistingFees] = useState([])
 
   // Subscribe to existing fee records for this student to detect prior payments/top-ups
@@ -267,11 +267,14 @@ function AddFeeModal({ student, onClose, onCreated }) {
   }
 
   const handleConveyanceCellChange = (monthKey, val) => {
+    const isZero = val === '0' || (val !== '' && Number(val) === 0)
     setPerMonthCustomizations((prev) => ({
       ...prev,
       [monthKey]: {
         ...prev[monthKey],
         conveyanceFee: val,
+        waiveConveyance: isZero ? true : prev[monthKey]?.waiveConveyance,
+        reason: isZero && !prev[monthKey]?.reason ? 'Management waiver' : (prev[monthKey]?.reason || ''),
       },
     }))
     setManualAllocations({})
@@ -283,7 +286,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
       [monthKey]: {
         ...prev[monthKey],
         waiveConveyance: checked,
-        reason: checked && !prev[monthKey]?.reason ? 'Vacation month' : (prev[monthKey]?.reason || ''),
+        reason: checked && !prev[monthKey]?.reason ? 'Management waiver' : (prev[monthKey]?.reason || ''),
       },
     }))
     setManualAllocations({})
@@ -876,6 +879,48 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   onChange={(e) => handleScheduleChange('conveyance', e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 />
+
+                {isMultiMonth && Number(conveyanceFee) > 0 && selectedMonths.size > 0 && (
+                  <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-amber-950 mb-1.5">
+                      <span>Waive conveyance for month(s):</span>
+                      {multiMonthSchedule.some((m) => m.conveyanceWaiver > 0) && (
+                        <span className="text-[10px] text-amber-800 font-bold bg-amber-200/70 px-1.5 py-0.2 rounded">
+                          {multiMonthSchedule.filter((m) => m.conveyanceWaiver > 0).length} month(s) waived
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {sortMonthsInAcademicOrder(
+                        Array.from(selectedMonths).map((mName) => ({
+                          month: mName,
+                          year: getYearForAcademicMonth(session, mName),
+                        }))
+                      ).map((mObj) => {
+                        const key = `${mObj.month}_${mObj.year}`
+                        const isWaived = Boolean(perMonthCustomizations[key]?.waiveConveyance)
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => handleWaiveConveyanceToggle(key, !isWaived)}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
+                              isWaived
+                                ? 'bg-amber-600 text-white border-amber-700 shadow-sm ring-1 ring-amber-400'
+                                : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400 hover:bg-amber-50/40'
+                            }`}
+                            title={isWaived ? `Conveyance waived for ${mObj.month}` : `Click to waive conveyance for ${mObj.month}`}
+                          >
+                            {isWaived ? `✓ ${mObj.month.slice(0, 3)} Waived` : `Waive ${mObj.month.slice(0, 3)}`}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <p className="mt-1.5 text-[10px] text-amber-800">
+                      💡 Click a month to waive ₹{toRupees(conveyanceFee)} conveyance fee for that month.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1372,20 +1417,34 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <span className="text-xs font-bold uppercase tracking-wider text-amber-900">
-                        Waiver Authorization Required
+                        Waiver Authorization
                       </span>
                       <p className="text-[11px] text-amber-800 mt-0.5">
-                        Total ₹{totalWaivedSum.toLocaleString()} waived across months. Approver name is mandatory.
+                        Total ₹{totalWaivedSum.toLocaleString()} waived across {multiMonthSchedule.filter((m) => m.waiverTotal > 0).length} month(s).
                       </p>
                     </div>
-                    <div className="w-full sm:w-64">
-                      <label htmlFor="waiver-approved-by" className="block text-[11px] font-bold uppercase text-amber-950 mb-1">
-                        Approved By *
-                      </label>
+                    <div className="w-full sm:w-72">
+                      <div className="flex items-center justify-between mb-1">
+                        <label htmlFor="waiver-approved-by" className="text-[11px] font-bold uppercase text-amber-950">
+                          Approved By *
+                        </label>
+                        <div className="flex items-center gap-1 text-[10px]">
+                          {['Management', 'Principal', 'Director'].map((title) => (
+                            <button
+                              key={title}
+                              type="button"
+                              onClick={() => setWaiverApprovedBy(title)}
+                              className="font-medium text-amber-800 underline hover:text-amber-950"
+                            >
+                              {title}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                       <input
                         id="waiver-approved-by"
                         type="text"
-                        placeholder="e.g. Principal / Manager"
+                        placeholder="Management"
                         value={waiverApprovedBy}
                         onChange={(e) => setWaiverApprovedBy(e.target.value)}
                         required

@@ -114,8 +114,8 @@ export function toRupees(val) {
 }
 
 export const WAIVER_REASONS = [
-  'Vacation month',
   'Management waiver',
+  'Vacation month',
   'Transport not used',
   'Other',
 ]
