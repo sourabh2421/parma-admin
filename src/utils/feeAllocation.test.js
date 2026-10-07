@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   allocateMultiMonthPayment,
+  buildMonthDues,
   calculateMultiMonthSchedule,
   compareAcademicPeriod,
   formatReceiptNumber,
@@ -10,6 +11,8 @@ import {
   sanitizeReceiptDocId,
   sortMonthsInAcademicOrder,
   toRupees,
+  validateMultiMonthWaivers,
+  WAIVER_REASONS,
 } from './feeAllocation.js'
 
 describe('Fee Allocation Module (Pure Engine)', () => {
@@ -405,4 +408,435 @@ describe('Fee Allocation Module (Pure Engine)', () => {
       expect(sanitizeReceiptDocId('PA-2026-27/0143')).toBe('PA-2026-27-0143')
     })
   })
+
+  describe('Per-Month Customizations & Tracked Waivers', () => {
+    it('outputs identical results when no customizations are provided (regression)', () => {
+      const months = [
+        { month: 'April', year: 2026 },
+        { month: 'May', year: 2026 },
+      ]
+      const breakdown = {
+        tuitionFee: 3000,
+        conveyanceFee: 500,
+        examFee: 400,
+      }
+
+      const schedule = calculateMultiMonthSchedule({ months, breakdown })
+      expect(schedule).toHaveLength(2)
+      expect(schedule[0].grossFee).toBe(3900)
+      expect(schedule[0].waiverTotal).toBe(0)
+      expect(schedule[0].waivers).toEqual([])
+      expect(schedule[0].totalAmount).toBe(3900)
+      expect(schedule[0].netDue).toBe(3900)
+      expect(schedule[0].isCustomized).toBe(false)
+
+      expect(schedule[1].grossFee).toBe(3500)
+      expect(schedule[1].waiverTotal).toBe(0)
+      expect(schedule[1].totalAmount).toBe(3500)
+      expect(schedule[1].netDue).toBe(3500)
+      expect(schedule[1].isCustomized).toBe(false)
+    })
+
+    it('handles conveyance Rs 200 & tuition Rs 2,400 over 5 months with 2 months conveyance waived (net due 12,600, full payment marks all 5 Paid)', () => {
+      const months = [
+        { month: 'April', year: 2026 },
+        { month: 'May', year: 2026 },
+        { month: 'June', year: 2026 },
+        { month: 'July', year: 2026 },
+        { month: 'August', year: 2026 },
+      ]
+
+      const perMonthCustomizations = {
+        July_2026: {
+          waiveConveyance: true,
+          reason: 'Vacation month',
+          approvedBy: 'Principal',
+        },
+        August_2026: {
+          waiveConveyance: true,
+          reason: 'Vacation month',
+          approvedBy: 'Principal',
+        },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      expect(scheduled).toHaveLength(5)
+
+      // Apr, May, Jun: 2400 tuition + 200 conv = 2600 due
+      ;[0, 1, 2].forEach((i) => {
+        expect(scheduled[i].tuitionFee).toBe(2400)
+        expect(scheduled[i].conveyanceFee).toBe(200)
+        expect(scheduled[i].grossFee).toBe(2600)
+        expect(scheduled[i].waiverTotal).toBe(0)
+        expect(scheduled[i].totalAmount).toBe(2600)
+        expect(scheduled[i].netDue).toBe(2600)
+        expect(scheduled[i].isCustomized).toBe(false)
+      })
+
+      // Jul, Aug: 2400 tuition + 0 conv (200 waived) = 2400 due
+      ;[3, 4].forEach((i) => {
+        expect(scheduled[i].tuitionFee).toBe(2400)
+        expect(scheduled[i].conveyanceFee).toBe(0)
+        expect(scheduled[i].grossFee).toBe(2600)
+        expect(scheduled[i].waiverTotal).toBe(200)
+        expect(scheduled[i].totalAmount).toBe(2400)
+        expect(scheduled[i].netDue).toBe(2400)
+        expect(scheduled[i].isCustomized).toBe(true)
+        expect(scheduled[i].waivers).toHaveLength(1)
+        expect(scheduled[i].waivers[0]).toEqual({
+          head: 'conveyance',
+          amount: 200,
+          reason: 'Vacation month',
+          approvedBy: 'Principal',
+        })
+      })
+
+      const totalNetDue = scheduled.reduce((sum, m) => sum + m.netDue, 0)
+      expect(totalNetDue).toBe(12600)
+
+      // Paying full 12,600 marks all five months Paid
+      const res = allocateMultiMonthPayment({
+        scheduledMonths: scheduled,
+        totalReceived: 12600,
+      })
+
+      expect(res.isValid).toBe(true)
+      expect(res.totalNetDue).toBe(12600)
+      expect(res.totalAllocated).toBe(12600)
+      expect(res.unallocatedAmount).toBe(0)
+
+      res.allocations.forEach((a) => {
+        expect(a.allocatedPaid).toBe(a.netDue)
+        expect(a.remainingAmount).toBe(0)
+        expect(a.status).toBe('paid')
+      })
+    })
+
+    it('handles the same waiver with part payment (oldest months fill first)', () => {
+      const months = [
+        { month: 'April', year: 2026 },
+        { month: 'May', year: 2026 },
+        { month: 'June', year: 2026 },
+        { month: 'July', year: 2026 },
+        { month: 'August', year: 2026 },
+      ]
+
+      const perMonthCustomizations = {
+        July_2026: { waiveConveyance: true, reason: 'Vacation month', approvedBy: 'Principal' },
+        August_2026: { waiveConveyance: true, reason: 'Vacation month', approvedBy: 'Principal' },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      // Parent pays 6000:
+      // Month 1 (April, due 2600): paid 2600 -> Paid
+      // Month 2 (May, due 2600): paid 2600 -> Paid
+      // Month 3 (June, due 2600): paid 800, remaining 1800 -> Partial
+      // Month 4 (July, due 2400): paid 0, remaining 2400 -> Pending
+      // Month 5 (August, due 2400): paid 0, remaining 2400 -> Pending
+      const res = allocateMultiMonthPayment({
+        scheduledMonths: scheduled,
+        totalReceived: 6000,
+      })
+
+      expect(res.isValid).toBe(true)
+      expect(res.allocations[0].allocatedPaid).toBe(2600)
+      expect(res.allocations[0].remainingAmount).toBe(0)
+      expect(res.allocations[0].status).toBe('paid')
+
+      expect(res.allocations[1].allocatedPaid).toBe(2600)
+      expect(res.allocations[1].remainingAmount).toBe(0)
+      expect(res.allocations[1].status).toBe('paid')
+
+      expect(res.allocations[2].allocatedPaid).toBe(800)
+      expect(res.allocations[2].remainingAmount).toBe(1800)
+      expect(res.allocations[2].status).toBe('partial')
+
+      expect(res.allocations[3].allocatedPaid).toBe(0)
+      expect(res.allocations[3].remainingAmount).toBe(2400)
+      expect(res.allocations[3].status).toBe('pending')
+
+      expect(res.allocations[4].allocatedPaid).toBe(0)
+      expect(res.allocations[4].remainingAmount).toBe(2400)
+      expect(res.allocations[4].status).toBe('pending')
+    })
+
+    it('tracks manual tuition override on one month', () => {
+      const months = [
+        { month: 'April', year: 2026 },
+        { month: 'May', year: 2026 },
+      ]
+
+      // May tuition manually reduced from 2400 to 2000
+      const perMonthCustomizations = {
+        May_2026: {
+          tuitionFee: 2000,
+          reason: 'Management waiver',
+          approvedBy: 'Director',
+        },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      expect(scheduled[0].tuitionFee).toBe(2400)
+      expect(scheduled[0].waiverTotal).toBe(0)
+
+      expect(scheduled[1].tuitionFee).toBe(2000)
+      expect(scheduled[1].conveyanceFee).toBe(200)
+      expect(scheduled[1].grossFee).toBe(2600)
+      expect(scheduled[1].waiverTotal).toBe(400)
+      expect(scheduled[1].totalAmount).toBe(2200)
+      expect(scheduled[1].netDue).toBe(2200)
+      expect(scheduled[1].waivers).toEqual([
+        {
+          head: 'tuition',
+          amount: 400,
+          reason: 'Management waiver',
+          approvedBy: 'Director',
+        },
+      ])
+    })
+
+    it('handles waiver on an existing Pending month (due reduced, status & remaining recomputed)', () => {
+      const months = [
+        {
+          month: 'April',
+          year: 2026,
+          existingRecord: {
+            amount: 0,
+            totalAmount: 2600,
+            remainingAmount: 2600,
+            status: 'pending',
+          },
+        },
+      ]
+
+      // Waive conveyance (200) on existing pending month
+      const perMonthCustomizations = {
+        April_2026: {
+          waiveConveyance: true,
+          reason: 'Transport not used',
+          approvedBy: 'Accountant',
+        },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      expect(scheduled[0].grossFee).toBe(2600)
+      expect(scheduled[0].waiverTotal).toBe(200)
+      expect(scheduled[0].totalAmount).toBe(2400)
+      expect(scheduled[0].netDue).toBe(2400)
+
+      const res = allocateMultiMonthPayment({
+        scheduledMonths: scheduled,
+        totalReceived: 2400,
+      })
+
+      expect(res.isValid).toBe(true)
+      expect(res.allocations[0].allocatedPaid).toBe(2400)
+      expect(res.allocations[0].remainingAmount).toBe(0)
+      expect(res.allocations[0].status).toBe('paid')
+    })
+
+    it('rejects a waiver that would push net due below the amount already paid', () => {
+      const months = [
+        {
+          month: 'April',
+          year: 2026,
+          existingRecord: {
+            amount: 2500,
+            totalAmount: 2600,
+            remainingAmount: 100,
+            status: 'partial',
+          },
+        },
+      ]
+
+      // Attempting to waive conveyance (200), bringing net fee to 2400, which is below 2500 already paid
+      const perMonthCustomizations = {
+        April_2026: {
+          waiveConveyance: true,
+          reason: 'Management waiver',
+          approvedBy: 'Manager',
+        },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      expect(scheduled[0].waiverExceedsPaid).toBe(true)
+
+      const val = validateMultiMonthWaivers({
+        scheduledMonths: scheduled,
+        approvedBy: 'Manager',
+      })
+      expect(val.valid).toBe(false)
+      expect(val.error).toContain('reduces due (₹2,400) below already paid amount (₹2,500)')
+
+      const alloc = allocateMultiMonthPayment({
+        scheduledMonths: scheduled,
+        totalReceived: 0,
+      })
+      expect(alloc.hasInvalidWaiver).toBe(true)
+      expect(alloc.isValid).toBe(false)
+    })
+
+    it('locks rows for fully paid months', () => {
+      const months = [
+        {
+          month: 'April',
+          year: 2026,
+          existingRecord: {
+            amount: 2600,
+            totalAmount: 2600,
+            remainingAmount: 0,
+            status: 'paid',
+          },
+        },
+      ]
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+      })
+
+      expect(scheduled[0].isFullyPaid).toBe(true)
+      expect(scheduled[0].netDue).toBe(0)
+
+      const res = allocateMultiMonthPayment({
+        scheduledMonths: scheduled,
+        totalReceived: 0,
+      })
+
+      expect(res.allocations[0].allocatedPaid).toBe(0)
+      expect(res.allocations[0].remainingAmount).toBe(0)
+      expect(res.allocations[0].status).toBe('paid')
+    })
+
+    it('updates only non-customized rows when rate fields change, and supports reset', () => {
+      const months = [
+        { month: 'April', year: 2026 },
+        { month: 'May', year: 2026 },
+      ]
+
+      let perMonthCustomizations = {
+        May_2026: { tuitionFee: 2000 },
+      }
+
+      // Initial schedule at rate 2400
+      let scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+      expect(scheduled[0].tuitionFee).toBe(2400)
+      expect(scheduled[1].tuitionFee).toBe(2000)
+
+      // Rate changes to 2800 -> April updates to 2800, May remains custom 2000
+      scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2800, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+      expect(scheduled[0].tuitionFee).toBe(2800)
+      expect(scheduled[1].tuitionFee).toBe(2000)
+
+      // Resetting customizations restores May to 2800
+      perMonthCustomizations = {}
+      scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2800, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+      expect(scheduled[0].tuitionFee).toBe(2800)
+      expect(scheduled[1].tuitionFee).toBe(2800)
+      expect(scheduled[1].isCustomized).toBe(false)
+    })
+
+    it('requires waiver reason and approver to save', () => {
+      const months = [{ month: 'April', year: 2026 }]
+      const perMonthCustomizations = {
+        April_2026: {
+          waiveConveyance: true,
+          reason: '',
+          approvedBy: '',
+        },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      // Missing reason
+      let val = validateMultiMonthWaivers({ scheduledMonths: scheduled, approvedBy: 'Principal' })
+      expect(val.valid).toBe(false)
+      expect(val.error).toContain('Please select or enter a waiver reason')
+
+      // Reason provided, but missing approver
+      scheduled[0].waiverReason = 'Vacation month'
+      val = validateMultiMonthWaivers({ scheduledMonths: scheduled, approvedBy: '' })
+      expect(val.valid).toBe(false)
+      expect(val.error).toContain('Please enter who approved the waiver')
+
+      // Both provided -> Valid
+      val = validateMultiMonthWaivers({ scheduledMonths: scheduled, approvedBy: 'Principal' })
+      expect(val.valid).toBe(true)
+      expect(val.approvedBy).toBe('Principal')
+    })
+
+    it('maintains academic ordering across year boundary and sanitizes negative amounts', () => {
+      const months = [
+        { month: 'February', year: 2027 },
+        { month: 'November', year: 2026 },
+      ]
+
+      const perMonthCustomizations = {
+        February_2027: {
+          tuitionFee: -500, // Negative input
+          conveyanceFee: -200,
+        },
+      }
+
+      const scheduled = buildMonthDues({
+        months,
+        rates: { tuitionFee: 2400, conveyanceFee: 200 },
+        perMonthCustomizations,
+      })
+
+      // Oldest first: Nov 2026 before Feb 2027
+      expect(scheduled[0].month).toBe('November')
+      expect(scheduled[0].year).toBe(2026)
+      expect(scheduled[1].month).toBe('February')
+      expect(scheduled[1].year).toBe(2027)
+
+      // Sanitized negative amounts
+      expect(scheduled[1].tuitionFee).toBe(0)
+      expect(scheduled[1].conveyanceFee).toBe(0)
+      expect(scheduled[1].totalAmount).toBe(0)
+      expect(scheduled[1].netDue).toBe(0)
+    })
+  })
 })
+

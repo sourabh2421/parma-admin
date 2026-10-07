@@ -30,6 +30,7 @@ import {
   sanitizeReceiptDocId,
   sortMonthsInAcademicOrder,
   toRupees,
+  validateMultiMonthWaivers,
 } from '../utils/feeAllocation.js'
 import { numberToWordsIndian } from '../utils/numberToWords.js'
 
@@ -140,6 +141,9 @@ export function mapFeeDoc(snapshot) {
     month: String(d.month ?? '').trim(),
     year: Number(d.year) || 0,
     amount,
+    grossFee: d.grossFee != null ? Number(d.grossFee) : totalAmount,
+    waiverTotal: d.waiverTotal != null ? Number(d.waiverTotal) : 0,
+    waivers: Array.isArray(d.waivers) ? d.waivers : [],
     totalAmount,
     remainingAmount,
     tuitionFee,
@@ -269,8 +273,10 @@ export async function recordFeePaymentTransaction({
   months = [],
   breakdown = {},
   nonRecurringOverrides = {},
+  perMonthCustomizations = {},
   totalReceived = 0,
   manualAllocations = null,
+  waiverApprovedBy = '',
   paymentMode = 'cash',
   reference = '',
   paymentDate = new Date(),
@@ -319,7 +325,7 @@ export async function recordFeePaymentTransaction({
       })
     }
 
-    // 3. Prepare schedule with existing record information
+    // 3. Prepare schedule with existing record information & customizations
     const monthsWithExisting = monthDocReads.map((read) => ({
       month: read.month,
       year: read.year,
@@ -330,7 +336,17 @@ export async function recordFeePaymentTransaction({
       months: monthsWithExisting,
       breakdown,
       nonRecurringOverrides,
+      perMonthCustomizations,
     })
+
+    // Validate waivers (ensure reason + approver, and net due >= existingPaid)
+    const waiverVal = validateMultiMonthWaivers({
+      scheduledMonths: scheduled,
+      approvedBy: waiverApprovedBy,
+    })
+    if (!waiverVal.valid) {
+      throw new Error(waiverVal.error)
+    }
 
     // 4. Allocate payment
     const allocationResult = allocateMultiMonthPayment({
@@ -340,6 +356,9 @@ export async function recordFeePaymentTransaction({
     })
 
     if (!allocationResult.isValid && totalReceived > 0) {
+      if (allocationResult.hasInvalidWaiver) {
+        throw new Error('A waiver cannot reduce due below the amount already paid.')
+      }
       if (allocationResult.exceedsTotalDue) {
         throw new Error(
           `Amount received (₹${totalReceived}) exceeds total due (₹${allocationResult.totalNetDue}).`,
@@ -358,6 +377,11 @@ export async function recordFeePaymentTransaction({
         ? buildPaymentTimestamp('paid', paymentDate) || Timestamp.now()
         : null
 
+    const totalWaivedInPayment = allocationResult.allocations.reduce(
+      (sum, a) => sum + (a.waiverTotal || 0),
+      0,
+    )
+
     // 5. Create Payment Document (only when money was actually received)
     if (totalReceived > 0) {
       const paymentRef = doc(db, COLLECTION_PAYMENTS, paymentDocId)
@@ -367,6 +391,7 @@ export async function recordFeePaymentTransaction({
         studentName: String(student.name ?? '').trim(),
         class: String(student.class ?? '').trim(),
         totalReceived: allocationResult.totalReceived,
+        totalWaived: totalWaivedInPayment,
         mode: String(paymentMode || 'cash').toLowerCase(),
         reference: String(reference || '').trim(),
         paidOn: paymentTs,
@@ -377,9 +402,19 @@ export async function recordFeePaymentTransaction({
           month: a.month,
           year: a.year,
           amount: a.allocatedPaid,
-          totalAmount: a.totalAmount,
+          grossFee: a.grossFee ?? a.totalAmount,
+          totalAmount: a.totalAmount, // net total
           remainingAmount: a.remainingAmount,
           status: a.status,
+          waived: a.waiverTotal || 0,
+          waivers: (a.waivers || []).map((w) => ({
+            ...w,
+            enteredBy: String(enteredBy || '').trim(),
+            at: paymentTs || Timestamp.now(),
+            receiptNo,
+          })),
+          tuitionFee: a.tuitionFee,
+          conveyanceFee: a.conveyanceFee,
         })),
         status: 'active',
         createdAt: serverTimestamp(),
@@ -405,6 +440,20 @@ export async function recordFeePaymentTransaction({
           ? [...prevReceiptNos, receiptNo]
           : prevReceiptNos
 
+      // Append newly granted waivers to any existing waivers on this fee document
+      const prevWaivers = Array.isArray(ex?.waivers) ? ex.waivers : []
+      const newMonthWaivers = (a.waivers || []).map((w) => ({
+        ...w,
+        enteredBy: String(enteredBy || '').trim(),
+        at: paymentTs || Timestamp.now(),
+        receiptNo: totalReceived > 0 ? receiptNo : null,
+      }))
+      const updatedWaivers = [...prevWaivers, ...newMonthWaivers]
+      const updatedWaiverTotal = updatedWaivers.reduce(
+        (sum, w) => sum + (Number(w.amount) || 0),
+        0,
+      )
+
       // Status determination
       let computedStatus = a.status
       if (explicitStatus && allocationResult.allocations.length === 1) {
@@ -419,10 +468,13 @@ export async function recordFeePaymentTransaction({
         month: a.month,
         year: a.year,
         amount: a.cumulativePaid,
-        totalAmount: a.totalAmount,
-        remainingAmount: a.remainingAmount,
-        tuitionFee: a.tuitionFee,
-        conveyanceFee: a.conveyanceFee,
+        grossFee: a.grossFee ?? a.totalAmount,
+        waiverTotal: updatedWaiverTotal,
+        waivers: updatedWaivers,
+        totalAmount: a.totalAmount, // NET due
+        remainingAmount: a.remainingAmount, // NET remaining
+        tuitionFee: a.grossTuition ?? a.tuitionFee, // GROSS rate charged
+        conveyanceFee: a.grossConveyance ?? a.conveyanceFee, // GROSS rate charged
         examFee: a.examFee,
         annualFee: a.annualFee,
         admissionFee: a.admissionFee,

@@ -255,33 +255,85 @@ export default function ReceiptPrint({ student, fee, payment = null, onClose }) 
           </div>
         </div>
 
-        ${isMultiMonth ? `
+        ${isMultiMonth ? (() => {
+          const waivedConveyanceMonths = []
+          let totalConveyanceWaived = 0
+          const waivedTuitionMonths = []
+          let totalTuitionWaived = 0
+
+          if (Array.isArray(paymentData?.allocations)) {
+            paymentData.allocations.forEach((a) => {
+              if (Array.isArray(a.waivers)) {
+                a.waivers.forEach((w) => {
+                  if (w.head === 'conveyance') {
+                    totalConveyanceWaived += Number(w.amount || 0)
+                    if (!waivedConveyanceMonths.includes(a.month)) {
+                      waivedConveyanceMonths.push(a.month)
+                    }
+                  } else if (w.head === 'tuition') {
+                    totalTuitionWaived += Number(w.amount || 0)
+                    if (!waivedTuitionMonths.includes(a.month)) {
+                      waivedTuitionMonths.push(a.month)
+                    }
+                  }
+                })
+              } else if (a.waived > 0) {
+                totalConveyanceWaived += Number(a.waived)
+                if (!waivedConveyanceMonths.includes(a.month)) {
+                  waivedConveyanceMonths.push(a.month)
+                }
+              }
+            })
+          }
+
+          return `
         <!-- Combined Multi-Month Table -->
         <table class="fee-schedule-table">
           <thead>
             <tr>
-              <th style="width: 28%;">Month</th>
-              <th style="width: 44%;">Schedule Status</th>
-              <th style="width: 28%; text-align: right;">Amount Paid (₹)</th>
+              <th style="width: 20%;">Month</th>
+              <th style="width: 15%; text-align: right;">Tuition</th>
+              <th style="width: 17%; text-align: right;">Conveyance</th>
+              <th style="width: 26%;">Status / Due</th>
+              <th style="width: 22%; text-align: right;">Paid (₹)</th>
             </tr>
           </thead>
           <tbody>
             ${paymentData.allocations.map((a) => `
               <tr>
                 <td class="bold">${safeValue(a.month)} ${safeValue(a.year)}</td>
-                <td style="font-size: 7.5pt; color: #475569;">
+                <td class="amount-cell">${a.tuitionFee != null ? `₹${formatAmount(a.tuitionFee)}` : '—'}</td>
+                <td class="amount-cell">${Number(a.conveyanceFee) > 0 ? `₹${formatAmount(a.conveyanceFee)}` : (a.waived > 0 ? '<span class="italic text-green">Waived</span>' : '—')}</td>
+                <td style="font-size: 7.2pt; color: #475569;">
                   Due: ₹${formatAmount(a.totalAmount)} ${a.remainingAmount > 0 ? `· <span class="text-red">Bal: ₹${formatAmount(a.remainingAmount)}</span>` : '· <span class="text-green">Cleared</span>'}
                 </td>
                 <td class="amount-cell bold text-green">₹ ${formatAmount(a.amount)}</td>
               </tr>
             `).join('')}
+            ${totalConveyanceWaived > 0 ? `
+              <tr style="background: #f8fafc; font-size: 7.5pt;">
+                <td colspan="4" class="italic" style="color: #047857;">
+                  Conveyance waived: ₹${formatAmount(totalConveyanceWaived)} (${waivedConveyanceMonths.join(', ')})
+                </td>
+                <td class="amount-cell italic text-green" style="font-size: 7.5pt;">- ₹${formatAmount(totalConveyanceWaived)}</td>
+              </tr>
+            ` : ''}
+            ${totalTuitionWaived > 0 ? `
+              <tr style="background: #f8fafc; font-size: 7.5pt;">
+                <td colspan="4" class="italic" style="color: #047857;">
+                  Tuition waived: ₹${formatAmount(totalTuitionWaived)} (${waivedTuitionMonths.join(', ')})
+                </td>
+                <td class="amount-cell italic text-green" style="font-size: 7.5pt;">- ₹${formatAmount(totalTuitionWaived)}</td>
+              </tr>
+            ` : ''}
             <tr class="total-row">
-              <td colspan="2" class="bold">Total Received ₹</td>
+              <td colspan="4" class="bold">Total Received ₹</td>
               <td class="amount-cell bold text-green">₹ ${formatAmount(paidAmount)}</td>
             </tr>
           </tbody>
         </table>
-        ` : `
+        `
+        })() : `
         <!-- Standard Single-Month Schedule Table -->
         <table class="fee-schedule-table">
           <thead>

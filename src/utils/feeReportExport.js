@@ -56,6 +56,16 @@ export function exportFeesToExcel(fees = [], periodLabel = 'All Time') {
     'Class': sanitizeExcelCell(f.class || ''),
     'Month': sanitizeExcelCell(f.month || ''),
     'Year': f.year || '',
+    'Gross Fee (INR)': f.grossFee ?? (f.totalAmount ?? f.amount ?? 0),
+    'Waiver Total (INR)': f.waiverTotal ?? 0,
+    'Waiver Reason(s)': sanitizeExcelCell(
+      Array.isArray(f.waivers) && f.waivers.length > 0
+        ? f.waivers
+            .map((w) => `${w.head ? w.head + ': ' : ''}${w.reason || 'Waiver'}`)
+            .filter(Boolean)
+            .join('; ')
+        : f.waiverReason || '',
+    ),
     'Total Fee (INR)': f.totalAmount ?? f.amount ?? 0,
     'Amount Paid (INR)': f.amount ?? 0,
     'Remaining Due (INR)': f.remainingAmount ?? 0,
@@ -95,6 +105,16 @@ export function exportFeesToCsv(fees = [], periodLabel = 'All Time') {
     'Class': sanitizeExcelCell(f.class || ''),
     'Month': sanitizeExcelCell(f.month || ''),
     'Year': f.year || '',
+    'Gross Fee (INR)': f.grossFee ?? (f.totalAmount ?? f.amount ?? 0),
+    'Waiver Total (INR)': f.waiverTotal ?? 0,
+    'Waiver Reason(s)': sanitizeExcelCell(
+      Array.isArray(f.waivers) && f.waivers.length > 0
+        ? f.waivers
+            .map((w) => `${w.head ? w.head + ': ' : ''}${w.reason || 'Waiver'}`)
+            .filter(Boolean)
+            .join('; ')
+        : f.waiverReason || '',
+    ),
     'Total Fee (INR)': f.totalAmount ?? f.amount ?? 0,
     'Amount Paid (INR)': f.amount ?? 0,
     'Remaining Due (INR)': f.remainingAmount ?? 0,
@@ -110,6 +130,51 @@ export function exportFeesToCsv(fees = [], periodLabel = 'All Time') {
   const blob = new Blob([csvOutput], { type: 'text/csv;charset=utf-8;' })
   const cleanPeriod = periodLabel.toLowerCase().replace(/\s+/g, '_')
   downloadBlob(`parma_fee_records_${cleanPeriod}_${Date.now()}.csv`, blob)
+}
+
+/**
+ * Exports fee records to JSON.
+ */
+export function exportFeesToJson(fees = [], periodLabel = 'All Time') {
+  const jsonRows = fees.map((f, idx) => ({
+    srNo: idx + 1,
+    studentId: f.studentId || '',
+    studentName: f.studentName || '',
+    class: f.class || '',
+    month: f.month || '',
+    year: f.year || '',
+    grossFee: f.grossFee ?? (f.totalAmount ?? f.amount ?? 0),
+    waiverTotal: f.waiverTotal ?? 0,
+    waiverReasons:
+      Array.isArray(f.waivers) && f.waivers.length > 0
+        ? f.waivers
+            .map((w) => `${w.head ? w.head + ': ' : ''}${w.reason || 'Waiver'}`)
+            .filter(Boolean)
+            .join('; ')
+        : f.waiverReason || '',
+    waivers: f.waivers || [],
+    totalFee: f.totalAmount ?? f.amount ?? 0,
+    amountPaid: f.amount ?? 0,
+    remainingDue: f.remainingAmount ?? 0,
+    tuitionFee: f.tuitionFee ?? 0,
+    conveyanceFee: f.conveyanceFee ?? 0,
+    examFee: f.examFee ?? 0,
+    annualFee: f.annualFee ?? 0,
+    admissionFee: f.admissionFee ?? 0,
+    lateFee: f.lateFee ?? 0,
+    status:
+      f.status === 'paid' && (!f.remainingAmount || f.remainingAmount <= 0)
+        ? 'Paid'
+        : f.status === 'partial' || f.remainingAmount > 0
+          ? 'Partial'
+          : 'Pending',
+    paymentDate: formatDate(f.paymentDate),
+    chequeNo: f.chequeNo || '',
+  }))
+
+  const blob = new Blob([JSON.stringify(jsonRows, null, 2)], { type: 'application/json' })
+  const cleanPeriod = periodLabel.toLowerCase().replace(/\s+/g, '_')
+  downloadBlob(`parma_fee_records_${cleanPeriod}_${Date.now()}.json`, blob)
 }
 
 /**

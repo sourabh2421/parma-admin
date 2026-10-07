@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {
@@ -19,6 +19,8 @@ import {
   NON_RECURRING_HEADS,
   sortMonthsInAcademicOrder,
   toRupees,
+  validateMultiMonthWaivers,
+  WAIVER_REASONS,
 } from '../../utils/feeAllocation.js'
 
 const MONTH_OPTIONS = [
@@ -90,6 +92,8 @@ function AddFeeModal({ student, onClose, onCreated }) {
   })
   const [totalReceivedInput, setTotalReceivedInput] = useState('')
   const [manualAllocations, setManualAllocations] = useState({})
+  const [perMonthCustomizations, setPerMonthCustomizations] = useState({})
+  const [waiverApprovedBy, setWaiverApprovedBy] = useState('')
   const [existingFees, setExistingFees] = useState([])
 
   // Subscribe to existing fee records for this student to detect prior payments/top-ups
@@ -225,6 +229,8 @@ function AddFeeModal({ student, onClose, onCreated }) {
       setSelectedMonths(new Set())
       setTotalReceivedInput('')
       setManualAllocations({})
+      setPerMonthCustomizations({})
+      setWaiverApprovedBy('')
     }
   }
 
@@ -245,6 +251,75 @@ function AddFeeModal({ student, onClose, onCreated }) {
   // Quick Select buttons for academic quarters
   const selectQuarter = (monthNames) => {
     setSelectedMonths(new Set(monthNames))
+    setManualAllocations({})
+  }
+
+  // Handle per-month custom edits
+  const handleTuitionCellChange = (monthKey, val) => {
+    setPerMonthCustomizations((prev) => ({
+      ...prev,
+      [monthKey]: {
+        ...prev[monthKey],
+        tuitionFee: val,
+      },
+    }))
+    setManualAllocations({})
+  }
+
+  const handleConveyanceCellChange = (monthKey, val) => {
+    setPerMonthCustomizations((prev) => ({
+      ...prev,
+      [monthKey]: {
+        ...prev[monthKey],
+        conveyanceFee: val,
+      },
+    }))
+    setManualAllocations({})
+  }
+
+  const handleWaiveConveyanceToggle = (monthKey, checked) => {
+    setPerMonthCustomizations((prev) => ({
+      ...prev,
+      [monthKey]: {
+        ...prev[monthKey],
+        waiveConveyance: checked,
+        reason: checked && !prev[monthKey]?.reason ? 'Vacation month' : (prev[monthKey]?.reason || ''),
+      },
+    }))
+    setManualAllocations({})
+  }
+
+  const handleWaiverReasonChange = (monthKey, reason) => {
+    setPerMonthCustomizations((prev) => ({
+      ...prev,
+      [monthKey]: {
+        ...prev[monthKey],
+        reason,
+      },
+    }))
+  }
+
+  const handleOtherReasonChange = (monthKey, otherReasonText) => {
+    setPerMonthCustomizations((prev) => ({
+      ...prev,
+      [monthKey]: {
+        ...prev[monthKey],
+        otherReasonText,
+      },
+    }))
+  }
+
+  const handleResetRow = (monthKey) => {
+    setPerMonthCustomizations((prev) => {
+      const next = { ...prev }
+      delete next[monthKey]
+      return next
+    })
+    setManualAllocations({})
+  }
+
+  const handleResetAllCustomizations = () => {
+    setPerMonthCustomizations({})
     setManualAllocations({})
   }
 
@@ -275,6 +350,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
         lateFee,
       },
       nonRecurringOverrides,
+      perMonthCustomizations,
     })
   }, [
     isMultiMonth,
@@ -288,11 +364,17 @@ function AddFeeModal({ student, onClose, onCreated }) {
     admissionFee,
     lateFee,
     nonRecurringOverrides,
+    perMonthCustomizations,
   ])
 
   // Total net due across all selected months
   const totalNetDue = useMemo(() => {
     return multiMonthSchedule.reduce((acc, m) => acc + (m.isFullyPaid ? 0 : m.netDue), 0)
+  }, [multiMonthSchedule])
+
+  // Total waiver across all selected months
+  const totalWaivedSum = useMemo(() => {
+    return multiMonthSchedule.reduce((acc, m) => acc + (m.waiverTotal || 0), 0)
   }, [multiMonthSchedule])
 
   // Live Allocation calculation
@@ -425,7 +507,33 @@ function AddFeeModal({ student, onClose, onCreated }) {
 
   // Multi-month submission
   const handleMultiMonthSubmit = async () => {
+    // Check if any waiver pushed net due below existingPaid
+    const invalidWaiverMonth = multiMonthSchedule.find((m) => m.waiverExceedsPaid)
+    if (invalidWaiverMonth) {
+      showToast(
+        `Waiver in ${invalidWaiverMonth.month} ${invalidWaiverMonth.year} reduces due (₹${invalidWaiverMonth.totalAmount.toLocaleString()}) below already paid amount (₹${invalidWaiverMonth.existingPaid.toLocaleString()}).`,
+        'error',
+      )
+      return
+    }
+
+    // Validate waiver reason and approver if waivers exist
+    if (totalWaivedSum > 0) {
+      const waiverVal = validateMultiMonthWaivers({
+        scheduledMonths: multiMonthSchedule,
+        approvedBy: waiverApprovedBy,
+      })
+      if (!waiverVal.valid) {
+        showToast(waiverVal.error, 'error')
+        return
+      }
+    }
+
     if (!allocationState.isValid) {
+      if (allocationState.hasInvalidWaiver) {
+        showToast('A waiver cannot reduce due below the amount already paid.', 'error')
+        return
+      }
       if (allocationState.exceedsTotalDue) {
         showToast(`Amount received exceeds total due (₹${totalNetDue.toLocaleString()}).`, 'error')
         return
@@ -457,8 +565,10 @@ function AddFeeModal({ student, onClose, onCreated }) {
           lateFee,
         },
         nonRecurringOverrides,
+        perMonthCustomizations,
         totalReceived: allocationState.totalReceived,
         manualAllocations: Object.keys(manualAllocations).length > 0 ? manualAllocations : null,
+        waiverApprovedBy: waiverApprovedBy.trim(),
         paymentMode,
         reference: chequeNo.trim(),
         paymentDate: paymentDate || new Date(),
@@ -954,9 +1064,15 @@ function AddFeeModal({ student, onClose, onCreated }) {
                   <div className="text-xl font-black text-slate-900 mt-0.5">
                     ₹ {totalNetDue.toLocaleString()}
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Sum of scheduled amounts for all selected months
-                  </p>
+                  {totalWaivedSum > 0 ? (
+                    <p className="text-[11px] text-emerald-700 font-semibold mt-1">
+                      Waived: ₹ {totalWaivedSum.toLocaleString()}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Sum of scheduled amounts for all selected months
+                    </p>
+                  )}
                 </div>
 
                 {/* Amount Received Input */}
@@ -986,6 +1102,7 @@ function AddFeeModal({ student, onClose, onCreated }) {
                       setTotalReceivedInput(e.target.value)
                       setManualAllocations({})
                     }}
+                    onWheel={(e) => e.target.blur()}
                     className="mt-1 w-full rounded-xl border border-emerald-500 bg-white px-3 py-2 text-xl font-black text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm"
                     required
                   />
@@ -1000,92 +1117,230 @@ function AddFeeModal({ student, onClose, onCreated }) {
               {/* LIVE ALLOCATION PREVIEW TABLE */}
               {selectedMonths.size > 0 && (
                 <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                  <div className="bg-slate-100/90 px-3.5 py-2 flex items-center justify-between border-b border-slate-200">
+                  <div className="bg-slate-100/90 px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                       Monthly Fee Allocation Preview (Oldest Month First)
                     </span>
-                    {Object.keys(manualAllocations).length > 0 && (
-                      <button
-                        type="button"
-                        onClick={handleResetToAuto}
-                        className="text-[11px] font-semibold text-emerald-700 hover:underline"
-                      >
-                        ↺ Reset to Auto Allocation
-                      </button>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {Object.keys(perMonthCustomizations).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleResetAllCustomizations}
+                          className="text-[11px] font-semibold text-blue-700 hover:underline"
+                        >
+                          ↺ Reset All to Rates
+                        </button>
+                      )}
+                      {Object.keys(manualAllocations).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleResetToAuto}
+                          className="text-[11px] font-semibold text-emerald-700 hover:underline"
+                        >
+                          ↺ Reset to Auto Allocation
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
-                        <th className="py-2 px-3">Month</th>
-                        <th className="py-2 px-3 text-right">Due (₹)</th>
-                        <th className="py-2 px-3 text-right" style={{ width: '130px' }}>Paid (₹)</th>
-                        <th className="py-2 px-3 text-right">Remaining (₹)</th>
-                        <th className="py-2 px-3 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {allocationState.allocations.map((a) => {
-                        const monthKey = `${a.month}_${a.year}`
-                        return (
-                          <tr key={monthKey} className="hover:bg-slate-50/50">
-                            <td className="py-2 px-3 font-semibold text-slate-800">
-                              {a.month} {a.year}
-                              {a.isFullyPaid && (
-                                <span className="block text-[10px] text-slate-400 font-normal">
-                                  Already fully paid (skipped)
-                                </span>
+                  <div className="overflow-x-auto w-full">
+                    <table className="w-full min-w-[700px] text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                          <th className="py-2 px-2.5" style={{ minWidth: '130px' }}>Month</th>
+                          <th className="py-2 px-2 text-right" style={{ minWidth: '95px' }}>Tuition (₹)</th>
+                          <th className="py-2 px-2 text-right" style={{ minWidth: '115px' }}>Conveyance (₹)</th>
+                          <th className="py-2 px-2 text-right" style={{ minWidth: '75px' }}>Other (₹)</th>
+                          <th className="py-2 px-2 text-right" style={{ minWidth: '85px' }}>Due (₹)</th>
+                          <th className="py-2 px-2 text-right" style={{ minWidth: '100px' }}>Paid (₹)</th>
+                          <th className="py-2 px-2 text-right" style={{ minWidth: '85px' }}>Remaining (₹)</th>
+                          <th className="py-2 px-2 text-center" style={{ minWidth: '75px' }}>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {allocationState.allocations.map((a) => {
+                          const monthKey = `${a.month}_${a.year}`
+                          const custom = perMonthCustomizations[monthKey] || {}
+                          return (
+                            <React.Fragment key={monthKey}>
+                              <tr className="hover:bg-slate-50/50">
+                                <td className="py-2 px-2.5 font-semibold text-slate-800">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span>{a.month} {a.year}</span>
+                                    {a.isCustomized && (
+                                      <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800">
+                                        Customised
+                                      </span>
+                                    )}
+                                  </div>
+                                  {a.isCustomized && !a.isFullyPaid && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleResetRow(monthKey)}
+                                      className="block text-[10px] text-blue-600 hover:underline mt-0.5"
+                                    >
+                                      Reset to rates
+                                    </button>
+                                  )}
+                                  {a.isFullyPaid && (
+                                    <span className="block text-[10px] text-slate-400 font-normal">
+                                      Already fully paid (locked)
+                                    </span>
+                                  )}
+                                  {a.existingRecord && !a.isFullyPaid && a.existingPaid > 0 && (
+                                    <span className="block text-[10px] text-amber-700 font-normal">
+                                      Prev paid: ₹{a.existingPaid}
+                                    </span>
+                                  )}
+                                </td>
+
+                                {/* Tuition (Editable) */}
+                                <td className="py-2 px-2 text-right">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={custom.tuitionFee !== undefined ? custom.tuitionFee : tuitionFee}
+                                    disabled={a.isFullyPaid}
+                                    onChange={(e) => handleTuitionCellChange(monthKey, e.target.value)}
+                                    onWheel={(e) => e.target.blur()}
+                                    className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
+                                  />
+                                </td>
+
+                                {/* Conveyance (Editable + Waive Checkbox) */}
+                                <td className="py-2 px-2 text-right">
+                                  <div className="flex flex-col items-end">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      step="1"
+                                      value={custom.waiveConveyance ? 0 : (custom.conveyanceFee !== undefined ? custom.conveyanceFee : conveyanceFee)}
+                                      disabled={a.isFullyPaid || custom.waiveConveyance}
+                                      onChange={(e) => handleConveyanceCellChange(monthKey, e.target.value)}
+                                      onWheel={(e) => e.target.blur()}
+                                      className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 disabled:bg-slate-100 disabled:text-slate-400"
+                                    />
+                                    <label className="inline-flex items-center gap-1 mt-1 text-[10px] text-slate-700 cursor-pointer select-none">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(custom.waiveConveyance)}
+                                        disabled={a.isFullyPaid}
+                                        onChange={(e) => handleWaiveConveyanceToggle(monthKey, e.target.checked)}
+                                        className="rounded text-emerald-600 focus:ring-emerald-400 h-3 w-3"
+                                      />
+                                      <span className="font-medium">Waive</span>
+                                    </label>
+                                  </div>
+                                </td>
+
+                                {/* Other (Read-only) */}
+                                <td className="py-2 px-2 text-right font-medium text-slate-600">
+                                  ₹ {a.otherCharges.toLocaleString()}
+                                </td>
+
+                                {/* Due (Net) */}
+                                <td className="py-2 px-2 text-right">
+                                  <div className="font-bold text-slate-900">
+                                    ₹ {a.totalAmount.toLocaleString()}
+                                  </div>
+                                  {a.waiverTotal > 0 && (
+                                    <div className="text-[10px] text-emerald-700 font-semibold">
+                                      Waived: ₹{a.waiverTotal.toLocaleString()}
+                                    </div>
+                                  )}
+                                </td>
+
+                                {/* Paid (Editable) */}
+                                <td className="py-2 px-2 text-right">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max={a.netDue}
+                                    step="1"
+                                    value={a.allocatedPaid}
+                                    disabled={a.isFullyPaid}
+                                    onChange={(e) => handleManualCellChange(monthKey, e.target.value)}
+                                    onWheel={(e) => e.target.blur()}
+                                    className={`w-full rounded-lg border px-2 py-1 text-right text-xs font-bold outline-none ${
+                                      a.allocatedPaid > 0
+                                        ? 'border-emerald-500 bg-emerald-50/70 text-slate-900'
+                                        : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400'
+                                    } disabled:bg-slate-100 disabled:text-slate-400`}
+                                  />
+                                </td>
+
+                                {/* Remaining */}
+                                <td className="py-2 px-2 text-right font-semibold text-slate-700">
+                                  {a.remainingAmount > 0 ? (
+                                    <span className="text-amber-800">₹ {a.remainingAmount.toLocaleString()}</span>
+                                  ) : (
+                                    <span className="text-emerald-700">₹ 0</span>
+                                  )}
+                                </td>
+
+                                {/* Status */}
+                                <td className="py-2 px-2 text-center">
+                                  <span
+                                    className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                      a.status === 'paid'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : a.status === 'partial'
+                                          ? 'bg-amber-100 text-amber-900'
+                                          : 'bg-rose-100 text-rose-800'
+                                    }`}
+                                  >
+                                    {a.status === 'paid' ? 'Paid' : a.status === 'partial' ? 'Partial' : 'Pending'}
+                                  </span>
+                                </td>
+                              </tr>
+
+                              {/* Inline Waiver Details Row if Month has Waiver */}
+                              {a.waiverTotal > 0 && (
+                                <tr className="bg-amber-50/50 border-b border-slate-200">
+                                  <td colSpan={8} className="py-2 px-3">
+                                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                                      <span className="font-bold text-amber-950 text-[11px]">
+                                        Waiver Reason for {a.month} (₹{a.waiverTotal.toLocaleString()} waived):
+                                      </span>
+                                      <select
+                                        value={custom.reason || ''}
+                                        onChange={(e) => handleWaiverReasonChange(monthKey, e.target.value)}
+                                        className="rounded-lg border border-amber-300 bg-white px-2 py-1 text-xs font-medium text-slate-900 outline-none focus:ring-1 focus:ring-amber-500"
+                                        required
+                                      >
+                                        <option value="">Select Reason *</option>
+                                        {WAIVER_REASONS.map((r) => (
+                                          <option key={r} value={r}>
+                                            {r}
+                                          </option>
+                                        ))}
+                                      </select>
+                                      {custom.reason === 'Other' && (
+                                        <input
+                                          type="text"
+                                          placeholder="Specify other reason *"
+                                          value={custom.otherReasonText || ''}
+                                          onChange={(e) => handleOtherReasonChange(monthKey, e.target.value)}
+                                          className="rounded-lg border border-amber-300 bg-white px-2 py-1 text-xs text-slate-900 outline-none focus:ring-1 focus:ring-amber-500"
+                                          required
+                                        />
+                                      )}
+                                      {a.waiverExceedsPaid && (
+                                        <span className="font-bold text-rose-700 text-[11px]">
+                                          ❌ Cannot reduce due (₹{a.totalAmount.toLocaleString()}) below already paid amount (₹{a.existingPaid.toLocaleString()})
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
                               )}
-                              {a.existingRecord && !a.isFullyPaid && a.existingPaid > 0 && (
-                                <span className="block text-[10px] text-amber-700 font-normal">
-                                  Prev paid: ₹{a.existingPaid} (Top-up mode)
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-2 px-3 text-right font-medium text-slate-700">
-                              ₹ {a.totalAmount.toLocaleString()}
-                            </td>
-                            <td className="py-2 px-3 text-right">
-                              <input
-                                type="number"
-                                min="0"
-                                max={a.totalAmount}
-                                value={a.allocatedPaid}
-                                disabled={a.isFullyPaid}
-                                onChange={(e) => handleManualCellChange(monthKey, e.target.value)}
-                                className={`w-full rounded-lg border px-2 py-1 text-right text-xs font-bold outline-none ${
-                                  a.allocatedPaid > 0
-                                    ? 'border-emerald-500 bg-emerald-50/70 text-slate-900'
-                                    : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400'
-                                }`}
-                              />
-                            </td>
-                            <td className="py-2 px-3 text-right font-semibold text-slate-700">
-                              {a.remainingAmount > 0 ? (
-                                <span className="text-amber-800">₹ {a.remainingAmount.toLocaleString()}</span>
-                              ) : (
-                                <span className="text-emerald-700">₹ 0</span>
-                              )}
-                            </td>
-                            <td className="py-2 px-3 text-center">
-                              <span
-                                className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  a.status === 'paid'
-                                    ? 'bg-emerald-100 text-emerald-800'
-                                    : a.status === 'partial'
-                                      ? 'bg-amber-100 text-amber-900'
-                                      : 'bg-rose-100 text-rose-800'
-                                }`}
-                              >
-                                {a.status === 'paid' ? 'Paid' : a.status === 'partial' ? 'Partial' : 'Pending'}
-                              </span>
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                            </React.Fragment>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
 
                   {/* Allocation Status Bar */}
                   <div className="bg-slate-50 px-3.5 py-2 border-t border-slate-200 flex items-center justify-between text-xs">
@@ -1107,6 +1362,36 @@ function AddFeeModal({ student, onClose, onCreated }) {
                         ❌ Overpayment: Exceeds total due
                       </span>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Waiver Authorization Box */}
+              {totalWaivedSum > 0 && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                        Waiver Authorization Required
+                      </span>
+                      <p className="text-[11px] text-amber-800 mt-0.5">
+                        Total ₹{totalWaivedSum.toLocaleString()} waived across months. Approver name is mandatory.
+                      </p>
+                    </div>
+                    <div className="w-full sm:w-64">
+                      <label htmlFor="waiver-approved-by" className="block text-[11px] font-bold uppercase text-amber-950 mb-1">
+                        Approved By *
+                      </label>
+                      <input
+                        id="waiver-approved-by"
+                        type="text"
+                        placeholder="e.g. Principal / Manager"
+                        value={waiverApprovedBy}
+                        onChange={(e) => setWaiverApprovedBy(e.target.value)}
+                        required
+                        className="w-full rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-amber-400"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
