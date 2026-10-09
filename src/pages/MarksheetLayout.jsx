@@ -36,7 +36,7 @@ export default function MarksheetLayout() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#191a1a] text-[#fff9fb] flex flex-col print:bg-white print:text-black print:min-h-0">
+    <div className="marksheet-portal min-h-screen bg-[#191a1a] text-white flex flex-col print:bg-white print:text-black print:min-h-0">
       {/* Topbar */}
       <header className="no-print sticky top-0 z-30 border-b border-[#333538] bg-[#252627]/95 px-4 sm:px-6 py-2.5 backdrop-blur-md shadow-md">
         <div className="flex items-center justify-between">

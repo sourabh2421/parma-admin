@@ -681,13 +681,13 @@ export default function MarksEntryPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           {/* Class Stream Selector */}
           <div>
-            <label className="block text-[11px] font-bold text-[#d3d4d9] mb-1">
+            <label className="block text-xs font-bold text-white mb-1.5">
               1. Class Stream
             </label>
             <select
               value={selectedClass}
               onChange={(e) => handleClassStreamChange(e.target.value)}
-              className="w-full rounded-xl border border-[#4b88a2]/60 bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+              className="w-full rounded-xl border border-[#4b88a2]/60 bg-[#252627] px-3.5 py-2 text-xs font-bold text-white focus:border-[#4b88a2] focus:outline-none"
             >
               {ALL_CLASSES.map((cls) => (
                 <option key={cls} value={cls}>
@@ -699,13 +699,13 @@ export default function MarksEntryPage() {
 
           {/* Student Dropdown Linked to Class */}
           <div>
-            <label className="block text-[11px] font-bold text-[#d3d4d9] mb-1">
+            <label className="block text-xs font-bold text-white mb-1.5">
               2. Select Student ({classStudents.length} in Class {selectedClass})
             </label>
             <select
               value={selectedStudentId}
               onChange={(e) => handleSelectStudent(e.target.value)}
-              className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+              className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-white focus:border-[#4b88a2] focus:outline-none"
             >
               {classStudents.length > 0 ? (
                 classStudents.map((s) => (
@@ -721,7 +721,7 @@ export default function MarksEntryPage() {
 
           {/* Academic Session */}
           <div>
-            <label className="block text-[11px] font-bold text-[#d3d4d9] mb-1">
+            <label className="block text-xs font-bold text-white mb-1.5">
               3. Academic Session
             </label>
             <input
@@ -730,8 +730,8 @@ export default function MarksEntryPage() {
               value={record.session || '2026-27'}
               onChange={(e) => setRecord({ ...record, session: e.target.value })}
               className={!isAdminUnlocked
-                ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3.5 py-2 text-xs font-bold text-slate-300 cursor-not-allowed select-none"
-                : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3.5 py-2 text-xs font-bold text-white cursor-not-allowed select-none"
+                : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-white focus:border-[#4b88a2] focus:outline-none"
               }
             />
           </div>
@@ -754,7 +754,7 @@ export default function MarksEntryPage() {
         {/* Student Profile Info */}
         <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-[#fff9fb] flex items-center gap-2">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <User className="h-4 w-4 text-[#4b88a2]" />
               <span>Student Profile Information</span>
             </h3>
@@ -770,20 +770,20 @@ export default function MarksEntryPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-5 text-xs">
             <div>
-              <label className="block font-semibold text-[#d3d4d9] mb-1">Student's Name</label>
+              <label className="block font-bold text-white mb-1.5">Student's Name</label>
               <input
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.name || ''}
                 onChange={(e) => setRecord({ ...record, name: e.target.value })}
                 className={!isAdminUnlocked
-                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
-                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-white font-bold focus:border-[#4b88a2] focus:outline-none"
                 }
               />
             </div>
             <div>
-              <label className="block font-semibold text-[#d3d4d9] mb-1">Date of Birth</label>
+              <label className="block font-bold text-white mb-1.5">Date of Birth</label>
               <input
                 type="text"
                 readOnly={!isAdminUnlocked}
@@ -791,47 +791,47 @@ export default function MarksEntryPage() {
                 placeholder="DD/MM/YYYY"
                 onChange={(e) => setRecord({ ...record, dob: e.target.value })}
                 className={!isAdminUnlocked
-                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
-                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-white font-bold focus:border-[#4b88a2] focus:outline-none"
                 }
               />
             </div>
             <div>
-              <label className="block font-semibold text-[#d3d4d9] mb-1">Father's Name</label>
+              <label className="block font-bold text-white mb-1.5">Father's Name</label>
               <input
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.fatherName || ''}
                 onChange={(e) => setRecord({ ...record, fatherName: e.target.value })}
                 className={!isAdminUnlocked
-                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
-                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-white font-bold focus:border-[#4b88a2] focus:outline-none"
                 }
               />
             </div>
             <div>
-              <label className="block font-semibold text-[#d3d4d9] mb-1">Class</label>
+              <label className="block font-bold text-white mb-1.5">Class</label>
               <input
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.class || ''}
                 onChange={(e) => setRecord({ ...record, class: e.target.value })}
                 className={!isAdminUnlocked
-                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
-                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-white font-bold focus:border-[#4b88a2] focus:outline-none"
                 }
               />
             </div>
             <div>
-              <label className="block font-semibold text-[#d3d4d9] mb-1">Student ID</label>
+              <label className="block font-bold text-white mb-1.5">Student ID</label>
               <input
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.studentId || record.id || ''}
                 onChange={(e) => setRecord({ ...record, studentId: e.target.value })}
                 className={!isAdminUnlocked
-                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-slate-300 font-semibold cursor-not-allowed select-none"
-                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-[#fff9fb] font-semibold focus:border-[#4b88a2] focus:outline-none"
+                  ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
+                  : "w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-2 text-white font-bold focus:border-[#4b88a2] focus:outline-none"
                 }
               />
             </div>
@@ -842,10 +842,10 @@ export default function MarksEntryPage() {
         <div className="rounded-2xl border border-[#333538] bg-[#202122] p-6 overflow-x-auto">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
             <div>
-              <h3 className="text-sm font-bold text-[#fff9fb] flex items-center gap-2">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 Scholastic Subjects Marks for Class {selectedClass}
               </h3>
-              <p className="text-xs text-[#d3d4d9] mt-0.5">
+              <p className="text-xs text-white/90 mt-0.5">
                 {selectedExam === 'ALL'
                   ? 'Showing all 6 periodic evaluations for the academic year.'
                   : `Currently editing: ${selectedExam} (${EXAM_SCHEDULE[selectedExam]}). Previously saved marks are locked in Teacher Mode.`}
@@ -862,10 +862,10 @@ export default function MarksEntryPage() {
           {selectedExam !== 'ALL' ? (
             <div className="space-y-3">
               <div className="bg-[#252627] border border-[#4b88a2]/30 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
-                <span className="font-bold text-[#fff9fb]">
+                <span className="font-bold text-white">
                   Target Exam: <strong className="text-[#4b88a2] text-sm ml-1">{selectedExam}</strong> ({EXAM_SCHEDULE[selectedExam]})
                 </span>
-                <span className="text-[#d3d4d9] text-[11px]">
+                <span className="text-white/90 text-xs font-medium">
                   {selectedExam === 'SA-1' || selectedExam === 'SA-2'
                     ? 'Enter Theory, Assignment, and Oral marks. Saved entries lock automatically.'
                     : 'Enter Formative Assessment marks (Max 20 per subject). Saved entries lock automatically.'}
@@ -876,7 +876,7 @@ export default function MarksEntryPage() {
                 /* SA-1 SPECIALIZED TABLE (Theory + Assignment + Oral + Live Totals + Single Subject Save) */
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
+                    <tr className="border-b border-[#333538] text-white uppercase text-[11px] font-extrabold">
                       <th className="py-2.5 px-3">Subject Name</th>
                       <th className="py-2.5 px-2 text-center w-28">SA-1 Theory</th>
                       {!isNursery && <th className="py-2.5 px-2 text-center w-28">Assignment</th>}
@@ -911,14 +911,14 @@ export default function MarksEntryPage() {
 
                       return (
                         <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
-                          <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
+                          <td className="py-2.5 px-3 font-bold text-white text-sm">
                             <div className="flex items-center gap-1.5">
                               <span>{sub.name}</span>
                               {isSubjectFullyLocked && (
                                 <span title="Saved and locked for teachers" className="text-amber-400 text-xs">🔒</span>
                               )}
                             </div>
-                            <span className="block text-[10px] font-normal text-[#d3d4d9]/70">
+                            <span className="block text-[11px] font-semibold text-white/80">
                               FA1: {sub.fa1Obt !== undefined && sub.fa1Obt !== '' ? sub.fa1Obt : '—'} | FA2: {sub.fa2Obt !== undefined && sub.fa2Obt !== '' ? sub.fa2Obt : '—'}
                             </span>
                           </td>
@@ -934,11 +934,11 @@ export default function MarksEntryPage() {
                                 onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
                                 onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                 className={isTheoryLocked
-                                  ? "w-20 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-2 py-1 text-center font-bold text-slate-300 text-sm cursor-not-allowed opacity-90"
-                                  : "w-20 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                                  ? "w-20 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-2 py-1 text-center font-extrabold text-white text-sm cursor-not-allowed opacity-95"
+                                  : "w-20 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-white text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
                                 }
                               />
-                              <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5 font-semibold">
+                              <span className="text-[10px] text-white/80 mt-0.5 font-semibold">
                                 / {sub.sa1Max || config.theoryMax}
                               </span>
                             </div>
@@ -957,16 +957,16 @@ export default function MarksEntryPage() {
                                     onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
                                     onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                     className={isAssignLocked
-                                      ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
-                                      : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                      ? "w-16 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-white text-xs cursor-not-allowed opacity-95"
+                                      : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                                     }
                                   />
-                                  <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                  <span className="text-[10px] text-white/80 mt-0.5 font-medium">
                                     {config.assignLabel} (/{config.assignMax})
                                   </span>
                                 </div>
                               ) : (
-                                <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                                <span className="text-[11px] font-bold text-white/40">NA</span>
                               )}
                             </td>
                           )}
@@ -1228,7 +1228,7 @@ export default function MarksEntryPage() {
                 /* FA-1, FA-2, FA-3, FA-4 STANDARD TABLE WITH SINGLE SUBJECT SAVE */
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
+                    <tr className="border-b border-[#333538] text-white uppercase text-[11px] font-extrabold">
                       <th className="py-2.5 px-3">Subject Name</th>
                       <th className="py-2.5 px-3 text-center w-36">Marks Obtained</th>
                       <th className="py-2.5 px-3 text-center w-28">Max Marks</th>
@@ -1249,7 +1249,7 @@ export default function MarksEntryPage() {
 
                       return (
                         <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
-                          <td className="py-2.5 px-3 font-bold text-[#fff9fb] text-sm">
+                          <td className="py-2.5 px-3 font-bold text-white text-sm">
                             <div className="flex items-center gap-1.5">
                               <span>{sub.name}</span>
                               {isObtLocked && (
@@ -1266,8 +1266,8 @@ export default function MarksEntryPage() {
                               onChange={(e) => handleScholasticChange(idx, fields.obt, e.target.value)}
                               onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                               className={isObtLocked
-                                ? "w-24 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-3 py-1.5 text-center font-bold text-slate-300 text-sm cursor-not-allowed opacity-90"
-                                : "w-24 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-3 py-1.5 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
+                                ? "w-24 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-3 py-1.5 text-center font-extrabold text-white text-sm cursor-not-allowed opacity-95"
+                                : "w-24 rounded-lg border border-[#4b88a2]/60 bg-[#252627] px-3 py-1.5 text-center font-extrabold text-white text-sm focus:border-[#4b88a2] focus:ring-1 focus:ring-[#4b88a2] focus:outline-none"
                               }
                             />
                           </td>
@@ -1278,17 +1278,17 @@ export default function MarksEntryPage() {
                               value={sub[fields.max] ?? 20}
                               onChange={(e) => handleScholasticChange(idx, fields.max, e.target.value)}
                               onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
-                              className="w-20 rounded-lg border border-[#333538] bg-[#252627]/60 px-2 py-1.5 text-center text-[#d3d4d9] font-semibold focus:outline-none"
+                              className="w-20 rounded-lg border border-[#333538] bg-[#252627]/60 px-2 py-1.5 text-center text-white font-bold focus:outline-none"
                             />
                           </td>
-                          <td className="py-2.5 px-3 text-center text-[10.5px] text-[#d3d4d9]">
-                            <span className="font-mono">
+                          <td className="py-2.5 px-3 text-center text-xs text-white">
+                            <span className="font-mono font-bold text-white">
                               FA1:{sub.fa1Obt !== undefined && sub.fa1Obt !== '' ? sub.fa1Obt : '—'} | FA2:{sub.fa2Obt !== undefined && sub.fa2Obt !== '' ? sub.fa2Obt : '—'} | FA3:{sub.fa3Obt !== undefined && sub.fa3Obt !== '' ? sub.fa3Obt : '—'} | FA4:{sub.fa4Obt !== undefined && sub.fa4Obt !== '' ? sub.fa4Obt : '—'}
                             </span>
                           </td>
                           <td className="py-2.5 px-3 text-center">
                             {isObtLocked && !isAdminUnlocked ? (
-                              <span className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-400 bg-slate-800/40 border border-slate-700/40 rounded-lg">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-950/40 border border-amber-600/40 rounded-lg">
                                 <Lock className="h-3 w-3 text-amber-400" /> Locked
                               </span>
                             ) : (
@@ -1297,7 +1297,7 @@ export default function MarksEntryPage() {
                                   type="button"
                                   onClick={() => handleSaveSubject(idx, sub.name)}
                                   disabled={savingSubject === sub.name}
-                                  className="rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 hover:bg-[#4b88a2] text-[#fff9fb] px-2.5 py-1.5 text-xs font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  className="rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 hover:bg-[#4b88a2] text-white px-2.5 py-1.5 text-xs font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
                                   title={`Save marks for ${sub.name} only`}
                                 >
                                   <Save className="h-3 w-3" />
@@ -1307,7 +1307,7 @@ export default function MarksEntryPage() {
                                   type="button"
                                   onClick={() => handleSaveSubjectAndNext(idx, sub.name)}
                                   disabled={savingSubject === sub.name}
-                                  className="rounded-lg bg-[#252627] border border-[#333538] hover:border-[#4b88a2] hover:text-[#fff9fb] text-[#d3d4d9] px-2.5 py-1.5 text-xs font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
+                                  className="rounded-lg bg-[#252627] border border-[#333538] hover:border-[#4b88a2] hover:text-white text-white px-2.5 py-1.5 text-xs font-bold transition disabled:opacity-50 inline-flex items-center gap-1 shadow-xs"
                                   title={`Save ${sub.name} and move to next student in Class ${selectedClass}`}
                                 >
                                   <span>Next →</span>
@@ -1326,19 +1326,19 @@ export default function MarksEntryPage() {
             /* Comprehensive All-Exams Table with Lock Indicators */
             <table className="w-full text-left text-xs border-collapse min-w-[850px]">
               <thead>
-                <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
+                <tr className="border-b border-[#333538] text-white uppercase text-[10px] font-extrabold">
                   <th className="py-2 px-3" rowSpan={2}>Subject</th>
-                  <th className="py-1 px-2 text-center border-b border-[#4b88a2]/30" colSpan={5}>
+                  <th className="py-1 px-2 text-center border-b border-[#4b88a2]/30 text-white font-extrabold" colSpan={5}>
                     TERM 1 (Half-Yearly)
                   </th>
-                  <th className="py-1 px-2 text-center border-b border-[#bb0a21]/30" colSpan={5}>
+                  <th className="py-1 px-2 text-center border-b border-[#bb0a21]/30 text-white font-extrabold" colSpan={5}>
                     TERM 2 (Annual)
                   </th>
-                  <th className="py-1 px-2 text-center border-b border-emerald-500/30" rowSpan={2}>
+                  <th className="py-1 px-2 text-center border-b border-emerald-500/30 text-white font-extrabold" rowSpan={2}>
                     Grand Total
                   </th>
                 </tr>
-                <tr className="border-b border-[#333538] text-[#d3d4d9] text-[10px]">
+                <tr className="border-b border-[#333538] text-white text-[10px] font-bold">
                   <th className="py-1 px-1.5 text-center">FA-1</th>
                   <th className="py-1 px-1.5 text-center">FA-2</th>
                   {!isNursery && <th className="py-1 px-1.5 text-center">Assign</th>}
@@ -1384,7 +1384,7 @@ export default function MarksEntryPage() {
 
                   return (
                     <tr key={idx} className="border-b border-[#333538]/60 hover:bg-[#252627]">
-                      <td className="py-2 px-3 font-bold text-[#fff9fb] text-xs">{sub.name}</td>
+                      <td className="py-2 px-3 font-bold text-white text-xs">{sub.name}</td>
 
                       {/* FA-1 */}
                       <td className="py-2 px-1 text-center">
@@ -1394,8 +1394,8 @@ export default function MarksEntryPage() {
                           value={sub.fa1Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa1Obt', e.target.value)}
                           className={isFa1Locked
-                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                           }
                         />
                       </td>
@@ -1408,8 +1408,8 @@ export default function MarksEntryPage() {
                           value={sub.fa2Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa2Obt', e.target.value)}
                           className={isFa2Locked
-                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                           }
                         />
                       </td>
@@ -1424,12 +1424,12 @@ export default function MarksEntryPage() {
                               value={sub.sa1AssignObt ?? ''}
                               onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
                               className={isSa1AssignLocked
-                                ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                                : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                                : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                               }
                             />
                           ) : (
-                            <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                            <span className="text-[10px] text-white/40">NA</span>
                           )}
                         </td>
                       )}
@@ -1444,12 +1444,12 @@ export default function MarksEntryPage() {
                               value={sub.sa1OralObt ?? ''}
                               onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
                               className={isSa1OralLocked
-                                ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                                : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                                : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                               }
                             />
                           ) : (
-                            <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                            <span className="text-[10px] text-white/40">NA</span>
                           )}
                         </td>
                       )}
@@ -1462,8 +1462,8 @@ export default function MarksEntryPage() {
                           value={sub.sa1Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
                           className={isSa1ThLocked
-                            ? "w-14 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                            : "w-14 rounded-lg border border-[#4b88a2]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#4b88a2] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            ? "w-14 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                            : "w-14 rounded-lg border border-[#4b88a2]/50 bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                           }
                         />
                       </td>
@@ -1476,8 +1476,8 @@ export default function MarksEntryPage() {
                           value={sub.fa3Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa3Obt', e.target.value)}
                           className={isFa3Locked
-                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                           }
                         />
                       </td>
@@ -1490,8 +1490,8 @@ export default function MarksEntryPage() {
                           value={sub.fa4Obt ?? ''}
                           onChange={(e) => handleScholasticChange(idx, 'fa4Obt', e.target.value)}
                           className={isFa4Locked
-                            ? "w-12 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                            ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                            : "w-12 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                           }
                         />
                       </td>
@@ -1505,12 +1505,12 @@ export default function MarksEntryPage() {
                             value={sub.sa2AssignObt ?? ''}
                             onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
                             className={isSa2AssignLocked
-                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                              ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#bb0a21] focus:outline-none"
                             }
                           />
                         ) : (
-                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                          <span className="text-[10px] text-white/40">NA</span>
                         )}
                       </td>
 
@@ -1523,8 +1523,8 @@ export default function MarksEntryPage() {
                             value={sub.sa2OralObt ?? ''}
                             onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
                             className={isSa2OralLocked
-                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#bb0a21] focus:outline-none"
+                              ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#bb0a21] focus:outline-none"
                             }
                           />
                         ) : (

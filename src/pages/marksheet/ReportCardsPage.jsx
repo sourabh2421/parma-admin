@@ -270,7 +270,7 @@ export default function ReportCardsPage() {
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label className="block text-[11px] font-bold text-[#d3d4d9] mb-1">
+            <label className="block text-xs font-bold text-white mb-1.5">
               Filter by Class (for preview & bulk printing)
             </label>
             <select
@@ -278,7 +278,7 @@ export default function ReportCardsPage() {
               onChange={(e) => {
                 setFilterClass(e.target.value)
               }}
-              className="w-full rounded-xl border border-[#4b88a2]/60 bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+              className="w-full rounded-xl border border-[#4b88a2]/60 bg-[#252627] px-3.5 py-2 text-xs font-bold text-white focus:border-[#4b88a2] focus:outline-none"
             >
               <option value="ALL">All Classes ({allMergedStudents.length} Students)</option>
               {ALL_CLASSES.map((cls) => {
@@ -293,13 +293,13 @@ export default function ReportCardsPage() {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-[11px] font-bold text-[#d3d4d9] mb-1">
+            <label className="block text-xs font-bold text-white mb-1.5">
               Select Student to Preview ({filteredStudents.length} available)
             </label>
             <select
               value={currentStudent?.id || ''}
               onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+              className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 text-xs font-bold text-white focus:border-[#4b88a2] focus:outline-none"
             >
               {filteredStudents.map((s) => (
                 <option key={s.id} value={s.id}>

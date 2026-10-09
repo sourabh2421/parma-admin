@@ -31,23 +31,96 @@ body {
   color: #d3d4d9;
 }
 
-/* Ensure all form inputs, selects, textareas, and options have readable dark text by default on light backgrounds */
-input:not([class*="text-white"]),
-select:not([class*="text-white"]),
-textarea:not([class*="text-white"]),
-option:not([class*="text-white"]) {
+/* Ensure all form inputs on light backgrounds (fee modal, etc.) have readable dark text by default */
+:not(.marksheet-portal) input:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+:not(.marksheet-portal) select:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+:not(.marksheet-portal) textarea:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+:not(.marksheet-portal) option:not([class*="text-white"]):not([class*="text-[#fff9fb]"]) {
   color: #0f172a;
 }
 
-input:not([class*="text-white"])::placeholder,
-textarea:not([class*="text-white"])::placeholder {
+:not(.marksheet-portal) input:not([class*="text-white"])::placeholder,
+:not(.marksheet-portal) textarea:not([class*="text-white"])::placeholder {
   color: #64748b;
   opacity: 1;
 }
 
-select option {
+:not(.marksheet-portal) select option {
   background-color: #ffffff;
   color: #0f172a;
+}
+
+/* ==========================================================================
+   MARKSHEET PORTAL (DARK THEME OVERRIDE)
+   Ensure every font, label, heading, input, select, option, and table cell
+   is pure crisp white across the marksheet portal
+   ========================================================================== */
+.marksheet-portal {
+  color: #ffffff !important;
+}
+
+.marksheet-portal input,
+.marksheet-portal select,
+.marksheet-portal textarea,
+.marksheet-portal option {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.marksheet-portal input:read-only,
+.marksheet-portal input:disabled,
+.marksheet-portal select:disabled,
+.marksheet-portal textarea:disabled {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.marksheet-portal select option {
+  background-color: #252627 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.marksheet-portal input::placeholder,
+.marksheet-portal textarea::placeholder {
+  color: rgba(255, 255, 255, 0.65) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+  opacity: 1 !important;
+}
+
+.marksheet-portal label,
+.marksheet-portal th,
+.marksheet-portal td,
+.marksheet-portal p,
+.marksheet-portal h1,
+.marksheet-portal h2,
+.marksheet-portal h3,
+.marksheet-portal h4,
+.marksheet-portal h5,
+.marksheet-portal strong {
+  color: #ffffff;
+}
+
+/* Retain explicit status/accent highlight colors */
+.marksheet-portal .text-amber-300,
+.marksheet-portal .text-amber-400 {
+  color: #fcd34d !important;
+  -webkit-text-fill-color: #fcd34d !important;
+}
+.marksheet-portal .text-emerald-300,
+.marksheet-portal .text-emerald-400 {
+  color: #34d399 !important;
+  -webkit-text-fill-color: #34d399 !important;
+}
+.marksheet-portal .text-red-400,
+.marksheet-portal [class*="text-[#bb0a21]"] {
+  color: #f87171 !important;
+  -webkit-text-fill-color: #f87171 !important;
+}
+.marksheet-portal [class*="text-[#4b88a2]"] {
+  color: #79b7d3 !important;
+  -webkit-text-fill-color: #79b7d3 !important;
 }
 
 #root {
