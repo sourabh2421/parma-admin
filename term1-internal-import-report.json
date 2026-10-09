@@ -1,0 +1,1835 @@
+{
+  "executedAt": "2026-10-09T13:52:35.204Z",
+  "mode": "APPLY",
+  "excelFile": "/Users/jarvis/parma-admin/public/Parma Academy - Term-I Internal Assessment Marks Entry (1).xlsx",
+  "totalExcelRows": 260,
+  "matchedCount": 260,
+  "checksums": {
+    "fa1": 26427,
+    "fa2": 27911,
+    "assignment": 20091.5,
+    "oral": 20397
+  },
+  "students": [
+    {
+      "id": "72",
+      "name": "Devansh Singh",
+      "class": "I",
+      "rollNo": 1,
+      "subjectsCount": 8
+    },
+    {
+      "id": "73",
+      "name": "Akhand Tripathi",
+      "class": "I",
+      "rollNo": 2,
+      "subjectsCount": 8
+    },
+    {
+      "id": "77",
+      "name": "Saksham Dwivedi",
+      "class": "I",
+      "rollNo": 3,
+      "subjectsCount": 8
+    },
+    {
+      "id": "75",
+      "name": "Vibhunarayan Pandey",
+      "class": "I",
+      "rollNo": 4,
+      "subjectsCount": 8
+    },
+    {
+      "id": "76",
+      "name": "Darshika Tiwari",
+      "class": "I",
+      "rollNo": 5,
+      "subjectsCount": 8
+    },
+    {
+      "id": "78",
+      "name": "Satvik Tiwari",
+      "class": "I",
+      "rollNo": 6,
+      "subjectsCount": 8
+    },
+    {
+      "id": "79",
+      "name": "Mohd Adnan Ansari",
+      "class": "I",
+      "rollNo": 7,
+      "subjectsCount": 8
+    },
+    {
+      "id": "80",
+      "name": "Prabal Gupta",
+      "class": "I",
+      "rollNo": 8,
+      "subjectsCount": 8
+    },
+    {
+      "id": "82",
+      "name": "Aadya",
+      "class": "I",
+      "rollNo": 9,
+      "subjectsCount": 8
+    },
+    {
+      "id": "83",
+      "name": "Adarsh Tripathi",
+      "class": "I",
+      "rollNo": 10,
+      "subjectsCount": 8
+    },
+    {
+      "id": "84",
+      "name": "Pragyan Chauhan",
+      "class": "I",
+      "rollNo": 11,
+      "subjectsCount": 8
+    },
+    {
+      "id": "85",
+      "name": "Rudra Yadav",
+      "class": "I",
+      "rollNo": 12,
+      "subjectsCount": 8
+    },
+    {
+      "id": "86",
+      "name": "Shivansh Singh",
+      "class": "I",
+      "rollNo": 13,
+      "subjectsCount": 8
+    },
+    {
+      "id": "87",
+      "name": "Shivansh Yadav",
+      "class": "I",
+      "rollNo": 14,
+      "subjectsCount": 8
+    },
+    {
+      "id": "88",
+      "name": "Aadvik Yadav",
+      "class": "I",
+      "rollNo": 15,
+      "subjectsCount": 8
+    },
+    {
+      "id": "89",
+      "name": "Vedanjli",
+      "class": "I",
+      "rollNo": 16,
+      "subjectsCount": 8
+    },
+    {
+      "id": "90",
+      "name": "Pushpendra Chauhan",
+      "class": "I",
+      "rollNo": 17,
+      "subjectsCount": 8
+    },
+    {
+      "id": "81",
+      "name": "Yuvraj Yadav",
+      "class": "I",
+      "rollNo": 18,
+      "subjectsCount": 8
+    },
+    {
+      "id": "74",
+      "name": "Saksham Yadav",
+      "class": "I",
+      "rollNo": 19,
+      "subjectsCount": 8
+    },
+    {
+      "id": "304",
+      "name": "Avyansh Sharma",
+      "class": "I",
+      "rollNo": 20,
+      "subjectsCount": 8
+    },
+    {
+      "id": "91",
+      "name": "Ayushman Tiwari",
+      "class": "I",
+      "rollNo": 21,
+      "subjectsCount": 8
+    },
+    {
+      "id": "305",
+      "name": "Raghav Shukla",
+      "class": "I",
+      "rollNo": 22,
+      "subjectsCount": 8
+    },
+    {
+      "id": "306",
+      "name": "Vanika Gupta",
+      "class": "I",
+      "rollNo": 23,
+      "subjectsCount": 8
+    },
+    {
+      "id": "307",
+      "name": "Satyam Jaiswal",
+      "class": "I",
+      "rollNo": 24,
+      "subjectsCount": 8
+    },
+    {
+      "id": "308",
+      "name": "Gauri Gupta",
+      "class": "I",
+      "rollNo": 25,
+      "subjectsCount": 8
+    },
+    {
+      "id": "92",
+      "name": "Deveshna Singh",
+      "class": "I",
+      "rollNo": 26,
+      "subjectsCount": 8
+    },
+    {
+      "id": "309",
+      "name": "Devanshi panday",
+      "class": "I",
+      "rollNo": 27,
+      "subjectsCount": 8
+    },
+    {
+      "id": "93",
+      "name": "Athrav",
+      "class": "I",
+      "rollNo": 28,
+      "subjectsCount": 8
+    },
+    {
+      "id": "303",
+      "name": "Aditiya Yadav",
+      "class": "I",
+      "rollNo": 29,
+      "subjectsCount": 8
+    },
+    {
+      "id": "302",
+      "name": "Divyansh Yadav",
+      "class": "I",
+      "rollNo": 30,
+      "subjectsCount": 8
+    },
+    {
+      "id": "301",
+      "name": "Vedgarbha",
+      "class": "I",
+      "rollNo": 31,
+      "subjectsCount": 8
+    },
+    {
+      "id": "105",
+      "name": "Aadarsh Gupta",
+      "class": "II",
+      "rollNo": 1,
+      "subjectsCount": 8
+    },
+    {
+      "id": "95",
+      "name": "Akshita Ranjan",
+      "class": "II",
+      "rollNo": 2,
+      "subjectsCount": 8
+    },
+    {
+      "id": "104",
+      "name": "Aradhya Chaudhary",
+      "class": "II",
+      "rollNo": 3,
+      "subjectsCount": 8
+    },
+    {
+      "id": "319",
+      "name": "Aradhya Singh",
+      "class": "II",
+      "rollNo": 4,
+      "subjectsCount": 8
+    },
+    {
+      "id": "320",
+      "name": "Aryan tripathi",
+      "class": "II",
+      "rollNo": 5,
+      "subjectsCount": 8
+    },
+    {
+      "id": "94",
+      "name": "Atul Kumar",
+      "class": "II",
+      "rollNo": 6,
+      "subjectsCount": 8
+    },
+    {
+      "id": "103",
+      "name": "Anika Singh",
+      "class": "II",
+      "rollNo": 7,
+      "subjectsCount": 8
+    },
+    {
+      "id": "321",
+      "name": "Divya",
+      "class": "Ii",
+      "rollNo": 8,
+      "subjectsCount": 8
+    },
+    {
+      "id": "97",
+      "name": "Manya Yadav",
+      "class": "II",
+      "rollNo": 9,
+      "subjectsCount": 8
+    },
+    {
+      "id": "96",
+      "name": "Bhaskar Upadhyay",
+      "class": "II",
+      "rollNo": 10,
+      "subjectsCount": 8
+    },
+    {
+      "id": "98",
+      "name": "Ritik Yadav",
+      "class": "II",
+      "rollNo": 11,
+      "subjectsCount": 8
+    },
+    {
+      "id": "106",
+      "name": "Rudrapratap Singh",
+      "class": "II",
+      "rollNo": 12,
+      "subjectsCount": 8
+    },
+    {
+      "id": "108",
+      "name": "Rudra Tripathi",
+      "class": "II",
+      "rollNo": 13,
+      "subjectsCount": 8
+    },
+    {
+      "id": "322",
+      "name": "Shiksha",
+      "class": "II",
+      "rollNo": 14,
+      "subjectsCount": 8
+    },
+    {
+      "id": "101",
+      "name": "Surbhi Singh",
+      "class": "II",
+      "rollNo": 15,
+      "subjectsCount": 8
+    },
+    {
+      "id": "100",
+      "name": "Swastik Pratap Singh Yadav",
+      "class": "II",
+      "rollNo": 16,
+      "subjectsCount": 8
+    },
+    {
+      "id": "323",
+      "name": "Shivanya",
+      "class": "II",
+      "rollNo": 17,
+      "subjectsCount": 8
+    },
+    {
+      "id": "99",
+      "name": "Sitiza Srivastava",
+      "class": "II",
+      "rollNo": 18,
+      "subjectsCount": 8
+    },
+    {
+      "id": "324",
+      "name": "Vedansh Pandey",
+      "class": "II",
+      "rollNo": 19,
+      "subjectsCount": 8
+    },
+    {
+      "id": "102",
+      "name": "Virat Yadav",
+      "class": "II",
+      "rollNo": 20,
+      "subjectsCount": 8
+    },
+    {
+      "id": "325",
+      "name": "Sakshi Yadav",
+      "class": "II",
+      "rollNo": 21,
+      "subjectsCount": 8
+    },
+    {
+      "id": "107",
+      "name": "Sita ram panday",
+      "class": "II",
+      "rollNo": 22,
+      "subjectsCount": 8
+    },
+    {
+      "id": "125",
+      "name": "Aadya Tiwari",
+      "class": "III",
+      "rollNo": 1,
+      "subjectsCount": 10
+    },
+    {
+      "id": "109",
+      "name": "Astha Tiwari",
+      "class": "III",
+      "rollNo": 2,
+      "subjectsCount": 10
+    },
+    {
+      "id": "121",
+      "name": "Ansuda",
+      "class": "III",
+      "rollNo": 3,
+      "subjectsCount": 10
+    },
+    {
+      "id": "116",
+      "name": "Myra Yadav",
+      "class": "III",
+      "rollNo": 4,
+      "subjectsCount": 10
+    },
+    {
+      "id": "114",
+      "name": "Prasidhi Singh",
+      "class": "III",
+      "rollNo": 5,
+      "subjectsCount": 10
+    },
+    {
+      "id": "129",
+      "name": "Priya singh",
+      "class": "III",
+      "rollNo": 6,
+      "subjectsCount": 10
+    },
+    {
+      "id": "110",
+      "name": "Ananya Mishra",
+      "class": "III",
+      "rollNo": 7,
+      "subjectsCount": 10
+    },
+    {
+      "id": "119",
+      "name": "Chhavi",
+      "class": "III",
+      "rollNo": 8,
+      "subjectsCount": 10
+    },
+    {
+      "id": "123",
+      "name": "Akriti",
+      "class": "III",
+      "rollNo": 9,
+      "subjectsCount": 10
+    },
+    {
+      "id": "122",
+      "name": "Surabi Yadav",
+      "class": "III",
+      "rollNo": 10,
+      "subjectsCount": 10
+    },
+    {
+      "id": "111",
+      "name": "Sia Yadav",
+      "class": "III",
+      "rollNo": 11,
+      "subjectsCount": 10
+    },
+    {
+      "id": "113",
+      "name": "Raj Nandini Pandey",
+      "class": "III",
+      "rollNo": 12,
+      "subjectsCount": 10
+    },
+    {
+      "id": "126",
+      "name": "Vatsal",
+      "class": "III",
+      "rollNo": 13,
+      "subjectsCount": 10
+    },
+    {
+      "id": "124",
+      "name": "KritIWA",
+      "class": "III",
+      "rollNo": 14,
+      "subjectsCount": 10
+    },
+    {
+      "id": "127",
+      "name": "Kritika",
+      "class": "III",
+      "rollNo": 15,
+      "subjectsCount": 10
+    },
+    {
+      "id": "112",
+      "name": "Vidhi Yadav",
+      "class": "III",
+      "rollNo": 16,
+      "subjectsCount": 10
+    },
+    {
+      "id": "115",
+      "name": "Ardhya Yadav",
+      "class": "III",
+      "rollNo": 17,
+      "subjectsCount": 10
+    },
+    {
+      "id": "117",
+      "name": "Aadarsh Chaudhary",
+      "class": "III",
+      "rollNo": 18,
+      "subjectsCount": 10
+    },
+    {
+      "id": "310",
+      "name": "Shlok yadav",
+      "class": "III",
+      "rollNo": 19,
+      "subjectsCount": 10
+    },
+    {
+      "id": "128",
+      "name": "Manjali Pandey",
+      "class": "III",
+      "rollNo": 20,
+      "subjectsCount": 10
+    },
+    {
+      "id": "130",
+      "name": "Gauri Gupta",
+      "class": "III",
+      "rollNo": 21,
+      "subjectsCount": 10
+    },
+    {
+      "id": "118",
+      "name": "Arushi",
+      "class": "III",
+      "rollNo": 22,
+      "subjectsCount": 10
+    },
+    {
+      "id": "311",
+      "name": "Shreya",
+      "class": "III",
+      "rollNo": 23,
+      "subjectsCount": 10
+    },
+    {
+      "id": "143",
+      "name": "Kavya Yadav",
+      "class": "IV",
+      "rollNo": 1,
+      "subjectsCount": 10
+    },
+    {
+      "id": "131",
+      "name": "Rishabh Yadav",
+      "class": "IV",
+      "rollNo": 2,
+      "subjectsCount": 10
+    },
+    {
+      "id": "132",
+      "name": "Aureet Yadav",
+      "class": "IV",
+      "rollNo": 3,
+      "subjectsCount": 10
+    },
+    {
+      "id": "133",
+      "name": "Ayanshi Yadav",
+      "class": "IV",
+      "rollNo": 4,
+      "subjectsCount": 10
+    },
+    {
+      "id": "145",
+      "name": "Kirti Patwa",
+      "class": "IV",
+      "rollNo": 5,
+      "subjectsCount": 10
+    },
+    {
+      "id": "139",
+      "name": "Siddharth Kumar",
+      "class": "IV",
+      "rollNo": 6,
+      "subjectsCount": 10
+    },
+    {
+      "id": "138",
+      "name": "Abhi Yadav",
+      "class": "IV",
+      "rollNo": 7,
+      "subjectsCount": 10
+    },
+    {
+      "id": "141",
+      "name": "Sudhanshu Yadav",
+      "class": "IV",
+      "rollNo": 8,
+      "subjectsCount": 10
+    },
+    {
+      "id": "136",
+      "name": "Annu Yadav",
+      "class": "IV",
+      "rollNo": 9,
+      "subjectsCount": 10
+    },
+    {
+      "id": "146",
+      "name": "Harshita",
+      "class": "IV",
+      "rollNo": 10,
+      "subjectsCount": 10
+    },
+    {
+      "id": "134",
+      "name": "Taniya Jaiswal",
+      "class": "IV",
+      "rollNo": 11,
+      "subjectsCount": 10
+    },
+    {
+      "id": "151",
+      "name": "Ganesh",
+      "class": "IV",
+      "rollNo": 12,
+      "subjectsCount": 10
+    },
+    {
+      "id": "147",
+      "name": "Vibhor Shukla",
+      "class": "IV",
+      "rollNo": 13,
+      "subjectsCount": 10
+    },
+    {
+      "id": "148",
+      "name": "Arushi Gupta",
+      "class": "IV",
+      "rollNo": 14,
+      "subjectsCount": 10
+    },
+    {
+      "id": "149",
+      "name": "Shourya Pratap Mishra",
+      "class": "IV",
+      "rollNo": 15,
+      "subjectsCount": 10
+    },
+    {
+      "id": "135",
+      "name": "Shivani Yadav",
+      "class": "IV",
+      "rollNo": 16,
+      "subjectsCount": 10
+    },
+    {
+      "id": "150",
+      "name": "Raghvendra Yadav",
+      "class": "IV",
+      "rollNo": 17,
+      "subjectsCount": 10
+    },
+    {
+      "id": "137",
+      "name": "Shruti Tiwari",
+      "class": "IV",
+      "rollNo": 18,
+      "subjectsCount": 10
+    },
+    {
+      "id": "144",
+      "name": "Rudra Narayan Shukla",
+      "class": "IV",
+      "rollNo": 19,
+      "subjectsCount": 10
+    },
+    {
+      "id": "142",
+      "name": "Hemant Pandey",
+      "class": "IV",
+      "rollNo": 20,
+      "subjectsCount": 10
+    },
+    {
+      "id": "152",
+      "name": "Anand",
+      "class": "IV",
+      "rollNo": 21,
+      "subjectsCount": 10
+    },
+    {
+      "id": "140",
+      "name": "Anuj Yadav",
+      "class": "IV",
+      "rollNo": 22,
+      "subjectsCount": 10
+    },
+    {
+      "id": "153",
+      "name": "Anshika Yadav",
+      "class": "IV",
+      "rollNo": 23,
+      "subjectsCount": 10
+    },
+    {
+      "id": "154",
+      "name": "Ansh",
+      "class": "IV",
+      "rollNo": 24,
+      "subjectsCount": 10
+    },
+    {
+      "id": "315",
+      "name": "Eklavya",
+      "class": "IV",
+      "rollNo": 25,
+      "subjectsCount": 10
+    },
+    {
+      "id": "312",
+      "name": "Vikas",
+      "class": "IV",
+      "rollNo": 26,
+      "subjectsCount": 10
+    },
+    {
+      "id": "313",
+      "name": "Ananya",
+      "class": "IV",
+      "rollNo": 27,
+      "subjectsCount": 10
+    },
+    {
+      "id": "314",
+      "name": "Ankur pal",
+      "class": "IV",
+      "rollNo": 28,
+      "subjectsCount": 10
+    },
+    {
+      "id": "155",
+      "name": "Yuvraj Singh",
+      "class": "V",
+      "rollNo": 1,
+      "subjectsCount": 10
+    },
+    {
+      "id": "156",
+      "name": "Shreya Yadav",
+      "class": "V",
+      "rollNo": 2,
+      "subjectsCount": 10
+    },
+    {
+      "id": "157",
+      "name": "Dharna Dwivedi",
+      "class": "V",
+      "rollNo": 3,
+      "subjectsCount": 10
+    },
+    {
+      "id": "158",
+      "name": "Abhinav Tiwari",
+      "class": "V",
+      "rollNo": 4,
+      "subjectsCount": 10
+    },
+    {
+      "id": "159",
+      "name": "Anvi Yadav",
+      "class": "V",
+      "rollNo": 5,
+      "subjectsCount": 10
+    },
+    {
+      "id": "160",
+      "name": "Kritika Gupta",
+      "class": "V",
+      "rollNo": 6,
+      "subjectsCount": 10
+    },
+    {
+      "id": "161",
+      "name": "Prithvi Chauhan",
+      "class": "V",
+      "rollNo": 7,
+      "subjectsCount": 10
+    },
+    {
+      "id": "162",
+      "name": "Shivansh Dubey",
+      "class": "V",
+      "rollNo": 8,
+      "subjectsCount": 10
+    },
+    {
+      "id": "163",
+      "name": "Lakshya Srivastava",
+      "class": "V",
+      "rollNo": 9,
+      "subjectsCount": 10
+    },
+    {
+      "id": "164",
+      "name": "Parineeti Tiwari",
+      "class": "V",
+      "rollNo": 10,
+      "subjectsCount": 10
+    },
+    {
+      "id": "165",
+      "name": "Abhimanyu Gupta",
+      "class": "V",
+      "rollNo": 11,
+      "subjectsCount": 10
+    },
+    {
+      "id": "166",
+      "name": "Arthav Singh",
+      "class": "V",
+      "rollNo": 12,
+      "subjectsCount": 10
+    },
+    {
+      "id": "167",
+      "name": "Vedika Singh",
+      "class": "V",
+      "rollNo": 13,
+      "subjectsCount": 10
+    },
+    {
+      "id": "168",
+      "name": "Avyaansh Agrahari",
+      "class": "V",
+      "rollNo": 14,
+      "subjectsCount": 10
+    },
+    {
+      "id": "169",
+      "name": "Shaurabh Yadav",
+      "class": "V",
+      "rollNo": 15,
+      "subjectsCount": 10
+    },
+    {
+      "id": "170",
+      "name": "Aarush Shukla",
+      "class": "V",
+      "rollNo": 16,
+      "subjectsCount": 10
+    },
+    {
+      "id": "171",
+      "name": "Prabhu Narayan Pandey",
+      "class": "V",
+      "rollNo": 17,
+      "subjectsCount": 10
+    },
+    {
+      "id": "172",
+      "name": "Ayushi Gupta",
+      "class": "V",
+      "rollNo": 18,
+      "subjectsCount": 10
+    },
+    {
+      "id": "173",
+      "name": "Abhishek Kr. Pandey",
+      "class": "V",
+      "rollNo": 19,
+      "subjectsCount": 10
+    },
+    {
+      "id": "174",
+      "name": "Alok Kr. Pandey",
+      "class": "V",
+      "rollNo": 20,
+      "subjectsCount": 10
+    },
+    {
+      "id": "175",
+      "name": "Kavya Pandey",
+      "class": "V",
+      "rollNo": 21,
+      "subjectsCount": 10
+    },
+    {
+      "id": "176",
+      "name": "Humay Habib",
+      "class": "V",
+      "rollNo": 22,
+      "subjectsCount": 10
+    },
+    {
+      "id": "177",
+      "name": "Bhumika Dwivedi",
+      "class": "V",
+      "rollNo": 23,
+      "subjectsCount": 10
+    },
+    {
+      "id": "178",
+      "name": "Rishit Pandey",
+      "class": "V",
+      "rollNo": 24,
+      "subjectsCount": 10
+    },
+    {
+      "id": "179",
+      "name": "Hardik Verma",
+      "class": "V",
+      "rollNo": 25,
+      "subjectsCount": 10
+    },
+    {
+      "id": "180",
+      "name": "Aaditya Tripathi",
+      "class": "V",
+      "rollNo": 26,
+      "subjectsCount": 10
+    },
+    {
+      "id": "333",
+      "name": "Suryansh Singh",
+      "class": "V",
+      "rollNo": 27,
+      "subjectsCount": 10
+    },
+    {
+      "id": "334",
+      "name": "Nandini Yadav",
+      "class": "V",
+      "rollNo": 28,
+      "subjectsCount": 10
+    },
+    {
+      "id": "181",
+      "name": "Abhijeet Singh",
+      "class": "VI",
+      "rollNo": 1,
+      "subjectsCount": 13
+    },
+    {
+      "id": "182",
+      "name": "Aarti Gupta",
+      "class": "VI",
+      "rollNo": 2,
+      "subjectsCount": 13
+    },
+    {
+      "id": "183",
+      "name": "Ayush Yadav",
+      "class": "VI",
+      "rollNo": 3,
+      "subjectsCount": 13
+    },
+    {
+      "id": "195",
+      "name": "Ayush Yadav",
+      "class": "VI",
+      "rollNo": 4,
+      "subjectsCount": 13
+    },
+    {
+      "id": "199",
+      "name": "Alok Yadav",
+      "class": "VI",
+      "rollNo": 5,
+      "subjectsCount": 13
+    },
+    {
+      "id": "186",
+      "name": "Ayush Gupta",
+      "class": "VI",
+      "rollNo": 6,
+      "subjectsCount": 13
+    },
+    {
+      "id": "196",
+      "name": "Abhay Tiwari",
+      "class": "VI",
+      "rollNo": 7,
+      "subjectsCount": 13
+    },
+    {
+      "id": "197",
+      "name": "Adhikansh Singh",
+      "class": "VI",
+      "rollNo": 8,
+      "subjectsCount": 13
+    },
+    {
+      "id": "198",
+      "name": "Krishna Gupta",
+      "class": "VI",
+      "rollNo": 9,
+      "subjectsCount": 13
+    },
+    {
+      "id": "189",
+      "name": "Pranav",
+      "class": "VI",
+      "rollNo": 10,
+      "subjectsCount": 13
+    },
+    {
+      "id": "185",
+      "name": "Rudra Prajapati",
+      "class": "VI",
+      "rollNo": 11,
+      "subjectsCount": 13
+    },
+    {
+      "id": "187",
+      "name": "Sumit Singh",
+      "class": "VI",
+      "rollNo": 12,
+      "subjectsCount": 13
+    },
+    {
+      "id": "191",
+      "name": "Sneha Yadav",
+      "class": "VI",
+      "rollNo": 13,
+      "subjectsCount": 13
+    },
+    {
+      "id": "188",
+      "name": "Shashank Dubey",
+      "class": "VI",
+      "rollNo": 14,
+      "subjectsCount": 13
+    },
+    {
+      "id": "190",
+      "name": "Shredee Gupta",
+      "class": "VI",
+      "rollNo": 15,
+      "subjectsCount": 13
+    },
+    {
+      "id": "194",
+      "name": "Raghuveer Tiwari",
+      "class": "VI",
+      "rollNo": 16,
+      "subjectsCount": 13
+    },
+    {
+      "id": "184",
+      "name": "Virat Yadav",
+      "class": "VI",
+      "rollNo": 17,
+      "subjectsCount": 13
+    },
+    {
+      "id": "192",
+      "name": "Pratush Yadav",
+      "class": "VI",
+      "rollNo": 18,
+      "subjectsCount": 13
+    },
+    {
+      "id": "317",
+      "name": "Riddhi singh",
+      "class": "VI",
+      "rollNo": 19,
+      "subjectsCount": 13
+    },
+    {
+      "id": "200",
+      "name": "Ankita Yadav",
+      "class": "VII",
+      "rollNo": 1,
+      "subjectsCount": 13
+    },
+    {
+      "id": "201",
+      "name": "Anshika Yadav",
+      "class": "VII",
+      "rollNo": 2,
+      "subjectsCount": 13
+    },
+    {
+      "id": "204",
+      "name": "Aradhya Shukla",
+      "class": "VII",
+      "rollNo": 3,
+      "subjectsCount": 13
+    },
+    {
+      "id": "202",
+      "name": "Ayansh Yadav",
+      "class": "VII",
+      "rollNo": 4,
+      "subjectsCount": 13
+    },
+    {
+      "id": "203",
+      "name": "Ayush Kumar Verma",
+      "class": "VII",
+      "rollNo": 5,
+      "subjectsCount": 13
+    },
+    {
+      "id": "205",
+      "name": "Ishan Verma",
+      "class": "VII",
+      "rollNo": 6,
+      "subjectsCount": 13
+    },
+    {
+      "id": "206",
+      "name": "Kartik Verma",
+      "class": "VII",
+      "rollNo": 7,
+      "subjectsCount": 13
+    },
+    {
+      "id": "209",
+      "name": "Krispy",
+      "class": "VII",
+      "rollNo": 8,
+      "subjectsCount": 13
+    },
+    {
+      "id": "207",
+      "name": "Manas Mishra",
+      "class": "VII",
+      "rollNo": 9,
+      "subjectsCount": 13
+    },
+    {
+      "id": "208",
+      "name": "Nancy Yadav",
+      "class": "VII",
+      "rollNo": 10,
+      "subjectsCount": 13
+    },
+    {
+      "id": "210",
+      "name": "Palak",
+      "class": "VII",
+      "rollNo": 11,
+      "subjectsCount": 13
+    },
+    {
+      "id": "212",
+      "name": "Raja Pandey",
+      "class": "VII",
+      "rollNo": 12,
+      "subjectsCount": 13
+    },
+    {
+      "id": "214",
+      "name": "Shantanu Mishra",
+      "class": "VII",
+      "rollNo": 13,
+      "subjectsCount": 13
+    },
+    {
+      "id": "213",
+      "name": "Shiwangi Yadav",
+      "class": "VII",
+      "rollNo": 14,
+      "subjectsCount": 13
+    },
+    {
+      "id": "215",
+      "name": "Shreya Yadav",
+      "class": "VII",
+      "rollNo": 15,
+      "subjectsCount": 13
+    },
+    {
+      "id": "219",
+      "name": "Swayam Maurya",
+      "class": "VII",
+      "rollNo": 16,
+      "subjectsCount": 13
+    },
+    {
+      "id": "216",
+      "name": "Tanisha",
+      "class": "VII",
+      "rollNo": 17,
+      "subjectsCount": 13
+    },
+    {
+      "id": "217",
+      "name": "Vijay Laxmi",
+      "class": "VII",
+      "rollNo": 18,
+      "subjectsCount": 13
+    },
+    {
+      "id": "218",
+      "name": "Yashwardhan",
+      "class": "VII",
+      "rollNo": 19,
+      "subjectsCount": 13
+    },
+    {
+      "id": "220",
+      "name": "AARAV UPADHAYAY",
+      "class": "VIII",
+      "rollNo": 1,
+      "subjectsCount": 13
+    },
+    {
+      "id": "221",
+      "name": "SAKSHI GUPTA",
+      "class": "VIII",
+      "rollNo": 2,
+      "subjectsCount": 13
+    },
+    {
+      "id": "222",
+      "name": "SMRITI YADAY",
+      "class": "VIII",
+      "rollNo": 3,
+      "subjectsCount": 13
+    },
+    {
+      "id": "223",
+      "name": "PRANJAL MISHRA",
+      "class": "VIII",
+      "rollNo": 4,
+      "subjectsCount": 13
+    },
+    {
+      "id": "224",
+      "name": "VIHAAN SHARMA",
+      "class": "VIII",
+      "rollNo": 5,
+      "subjectsCount": 13
+    },
+    {
+      "id": "225",
+      "name": "AAYUSH TIWARI",
+      "class": "VIII",
+      "rollNo": 6,
+      "subjectsCount": 13
+    },
+    {
+      "id": "226",
+      "name": "TANAY SAINI",
+      "class": "VIII",
+      "rollNo": 7,
+      "subjectsCount": 13
+    },
+    {
+      "id": "227",
+      "name": "DEEKSHA PANDEY",
+      "class": "VIII",
+      "rollNo": 8,
+      "subjectsCount": 13
+    },
+    {
+      "id": "228",
+      "name": "ARADHYA SINGH",
+      "class": "VIII",
+      "rollNo": 9,
+      "subjectsCount": 13
+    },
+    {
+      "id": "229",
+      "name": "AARADHYA GUPTA",
+      "class": "VIII",
+      "rollNo": 10,
+      "subjectsCount": 13
+    },
+    {
+      "id": "230",
+      "name": "AMIT YADAV",
+      "class": "VIII",
+      "rollNo": 11,
+      "subjectsCount": 13
+    },
+    {
+      "id": "231",
+      "name": "PARI GUPTA",
+      "class": "VIII",
+      "rollNo": 12,
+      "subjectsCount": 13
+    },
+    {
+      "id": "232",
+      "name": "ABHISHEK YADAV",
+      "class": "VIII",
+      "rollNo": 13,
+      "subjectsCount": 13
+    },
+    {
+      "id": "233",
+      "name": "PRINCE SAHU",
+      "class": "VIII",
+      "rollNo": 14,
+      "subjectsCount": 13
+    },
+    {
+      "id": "235",
+      "name": "Shivani Yadav",
+      "class": "IX",
+      "rollNo": 1,
+      "subjectsCount": 10
+    },
+    {
+      "id": "234",
+      "name": "Pragati  Mandal",
+      "class": "IX",
+      "rollNo": 2,
+      "subjectsCount": 10
+    },
+    {
+      "id": "250",
+      "name": "Astha Verma",
+      "class": "IX",
+      "rollNo": 3,
+      "subjectsCount": 10
+    },
+    {
+      "id": "245",
+      "name": "Divyanshi Verma",
+      "class": "IX",
+      "rollNo": 4,
+      "subjectsCount": 10
+    },
+    {
+      "id": "246",
+      "name": "Arpita",
+      "class": "IX",
+      "rollNo": 5,
+      "subjectsCount": 10
+    },
+    {
+      "id": "S188",
+      "name": "Vikas Nishad",
+      "class": "IX",
+      "rollNo": 6,
+      "subjectsCount": 10
+    },
+    {
+      "id": "326",
+      "name": "Akhilesh Panday",
+      "class": "IX",
+      "rollNo": 7,
+      "subjectsCount": 10
+    },
+    {
+      "id": "328",
+      "name": "Shani yadav",
+      "class": "IX",
+      "rollNo": 8,
+      "subjectsCount": 10
+    },
+    {
+      "id": "327",
+      "name": "Ansh Tiwari",
+      "class": "IX",
+      "rollNo": 9,
+      "subjectsCount": 10
+    },
+    {
+      "id": "242",
+      "name": "Tejasvi Yadav",
+      "class": "IX",
+      "rollNo": 10,
+      "subjectsCount": 10
+    },
+    {
+      "id": "329",
+      "name": "Md Soeb",
+      "class": "IX",
+      "rollNo": 11,
+      "subjectsCount": 10
+    },
+    {
+      "id": "330",
+      "name": "Vipanshu Chauhan",
+      "class": "IX",
+      "rollNo": 12,
+      "subjectsCount": 10
+    },
+    {
+      "id": "332",
+      "name": "Md sehzad",
+      "class": "IX",
+      "rollNo": 13,
+      "subjectsCount": 10
+    },
+    {
+      "id": "249",
+      "name": "Sarthak Singh",
+      "class": "IX",
+      "rollNo": 14,
+      "subjectsCount": 10
+    },
+    {
+      "id": "251",
+      "name": "Ansh Pratap Singh",
+      "class": "IX",
+      "rollNo": 15,
+      "subjectsCount": 10
+    },
+    {
+      "id": "239",
+      "name": "Anmol Saini",
+      "class": "IX",
+      "rollNo": 16,
+      "subjectsCount": 10
+    },
+    {
+      "id": "247",
+      "name": "Adarsh Yadav",
+      "class": "IX",
+      "rollNo": 17,
+      "subjectsCount": 10
+    },
+    {
+      "id": "248",
+      "name": "Abhay Pratap",
+      "class": "IX",
+      "rollNo": 18,
+      "subjectsCount": 10
+    },
+    {
+      "id": "241",
+      "name": "Amarjeet Yadav",
+      "class": "IX",
+      "rollNo": 19,
+      "subjectsCount": 10
+    },
+    {
+      "id": "240",
+      "name": "Harsh Chaubey",
+      "class": "IX",
+      "rollNo": 20,
+      "subjectsCount": 10
+    },
+    {
+      "id": "236",
+      "name": "Yogesh Singh",
+      "class": "IX",
+      "rollNo": 21,
+      "subjectsCount": 10
+    },
+    {
+      "id": "244",
+      "name": "Sushant Yadav",
+      "class": "IX",
+      "rollNo": 22,
+      "subjectsCount": 10
+    },
+    {
+      "id": "243",
+      "name": "Subhash Jaiswal",
+      "class": "IX",
+      "rollNo": 23,
+      "subjectsCount": 10
+    },
+    {
+      "id": "237",
+      "name": "Rudra Singh",
+      "class": "IX",
+      "rollNo": 24,
+      "subjectsCount": 10
+    },
+    {
+      "id": "S191",
+      "name": "Abdul Samad",
+      "class": "IX",
+      "rollNo": 25,
+      "subjectsCount": 10
+    },
+    {
+      "id": "331",
+      "name": "Shivam sahu",
+      "class": "IX",
+      "rollNo": 26,
+      "subjectsCount": 10
+    },
+    {
+      "id": "252",
+      "name": "Abhilasha Singh",
+      "class": "X",
+      "rollNo": 1,
+      "subjectsCount": 10
+    },
+    {
+      "id": "253",
+      "name": "Akshay Yadav",
+      "class": "X",
+      "rollNo": 2,
+      "subjectsCount": 10
+    },
+    {
+      "id": "255",
+      "name": "Arpita Yadav",
+      "class": "X",
+      "rollNo": 3,
+      "subjectsCount": 10
+    },
+    {
+      "id": "254",
+      "name": "Arpita Manjhi",
+      "class": "X",
+      "rollNo": 4,
+      "subjectsCount": 10
+    },
+    {
+      "id": "256",
+      "name": "Garima Nishad",
+      "class": "X",
+      "rollNo": 5,
+      "subjectsCount": 10
+    },
+    {
+      "id": "257",
+      "name": "Harshit Dubey",
+      "class": "X",
+      "rollNo": 6,
+      "subjectsCount": 10
+    },
+    {
+      "id": "259",
+      "name": "Mayank Mishra",
+      "class": "X",
+      "rollNo": 7,
+      "subjectsCount": 10
+    },
+    {
+      "id": "260",
+      "name": "Niskersh Sen",
+      "class": "X",
+      "rollNo": 8,
+      "subjectsCount": 10
+    },
+    {
+      "id": "261",
+      "name": "Payal",
+      "class": "X",
+      "rollNo": 9,
+      "subjectsCount": 10
+    },
+    {
+      "id": "263",
+      "name": "Raveena",
+      "class": "X",
+      "rollNo": 10,
+      "subjectsCount": 10
+    },
+    {
+      "id": "264",
+      "name": "Ritesh Yadav",
+      "class": "X",
+      "rollNo": 11,
+      "subjectsCount": 10
+    },
+    {
+      "id": "265",
+      "name": "Rudransh Pandey",
+      "class": "X",
+      "rollNo": 12,
+      "subjectsCount": 10
+    },
+    {
+      "id": "262",
+      "name": "Rameswar Tiwari",
+      "class": "X",
+      "rollNo": 13,
+      "subjectsCount": 10
+    },
+    {
+      "id": "266",
+      "name": "Shagun Sharma",
+      "class": "X",
+      "rollNo": 14,
+      "subjectsCount": 10
+    },
+    {
+      "id": "267",
+      "name": "Shashwat Yadav",
+      "class": "X",
+      "rollNo": 15,
+      "subjectsCount": 10
+    },
+    {
+      "id": "269",
+      "name": "Shaurya Mishra",
+      "class": "X",
+      "rollNo": 16,
+      "subjectsCount": 10
+    },
+    {
+      "id": "268",
+      "name": "Shaksham Gupta",
+      "class": "X",
+      "rollNo": 17,
+      "subjectsCount": 10
+    },
+    {
+      "id": "335",
+      "name": "VANSH",
+      "class": "X",
+      "rollNo": 18,
+      "subjectsCount": 10
+    },
+    {
+      "id": "279",
+      "name": "AKSHITA SHRIVASTAVA",
+      "class": "XI",
+      "rollNo": 1,
+      "subjectsCount": 6
+    },
+    {
+      "id": "278",
+      "name": "ANIKA GUPTA",
+      "class": "XI",
+      "rollNo": 2,
+      "subjectsCount": 6
+    },
+    {
+      "id": "287",
+      "name": "ASHNA YADAV",
+      "class": "XI",
+      "rollNo": 3,
+      "subjectsCount": 6
+    },
+    {
+      "id": "275",
+      "name": "KANIKA DWIVEDI",
+      "class": "XI",
+      "rollNo": 4,
+      "subjectsCount": 6
+    },
+    {
+      "id": "283",
+      "name": "KHUSHI YADAV",
+      "class": "XI",
+      "rollNo": 5,
+      "subjectsCount": 6
+    },
+    {
+      "id": "282",
+      "name": "KHUSHBU YADAV",
+      "class": "XI",
+      "rollNo": 6,
+      "subjectsCount": 6
+    },
+    {
+      "id": "281",
+      "name": "LAVI MISHRA",
+      "class": "XI",
+      "rollNo": 7,
+      "subjectsCount": 6
+    },
+    {
+      "id": "288",
+      "name": "PALLAVI SINGH",
+      "class": "XI",
+      "rollNo": 8,
+      "subjectsCount": 6
+    },
+    {
+      "id": "272",
+      "name": "RITIKA RANJAN",
+      "class": "XI",
+      "rollNo": 9,
+      "subjectsCount": 6
+    },
+    {
+      "id": "284",
+      "name": "SANSKRITI TIWARI",
+      "class": "XI",
+      "rollNo": 10,
+      "subjectsCount": 6
+    },
+    {
+      "id": "276",
+      "name": "SHIKHA VERMA",
+      "class": "XI",
+      "rollNo": 11,
+      "subjectsCount": 6
+    },
+    {
+      "id": "271",
+      "name": "SONY GOSWAMI",
+      "class": "XI",
+      "rollNo": 12,
+      "subjectsCount": 6
+    },
+    {
+      "id": "274",
+      "name": "SHANI YADAV",
+      "class": "XI",
+      "rollNo": 13,
+      "subjectsCount": 6
+    },
+    {
+      "id": "280",
+      "name": "SHAIL BALENDU SINGH",
+      "class": "XI",
+      "rollNo": 14,
+      "subjectsCount": 6
+    },
+    {
+      "id": "285",
+      "name": "UJJWAL YADAV",
+      "class": "XI",
+      "rollNo": 15,
+      "subjectsCount": 6
+    },
+    {
+      "id": "277",
+      "name": "VASU KUMAR",
+      "class": "XI",
+      "rollNo": 16,
+      "subjectsCount": 7
+    },
+    {
+      "id": "286",
+      "name": "VIVEK SINGH",
+      "class": "XI",
+      "rollNo": 17,
+      "subjectsCount": 6
+    },
+    {
+      "id": "318",
+      "name": "Anshika Gupta",
+      "class": "XI",
+      "rollNo": 18,
+      "subjectsCount": 6
+    },
+    {
+      "id": "290",
+      "name": "Amit Yadav",
+      "class": "XII",
+      "rollNo": 1,
+      "subjectsCount": 6
+    },
+    {
+      "id": "294",
+      "name": "Ananya Singh",
+      "class": "XII",
+      "rollNo": 2,
+      "subjectsCount": 6
+    },
+    {
+      "id": "291",
+      "name": "Anshika Yadav",
+      "class": "XII",
+      "rollNo": 3,
+      "subjectsCount": 6
+    },
+    {
+      "id": "316",
+      "name": "Harsh Manjhi",
+      "class": "XII",
+      "rollNo": 4,
+      "subjectsCount": 6
+    },
+    {
+      "id": "299",
+      "name": "Kashish Srivastava",
+      "class": "XII",
+      "rollNo": 5,
+      "subjectsCount": 6
+    },
+    {
+      "id": "293",
+      "name": "Khushboo",
+      "class": "XII",
+      "rollNo": 6,
+      "subjectsCount": 6
+    },
+    {
+      "id": "289",
+      "name": "Krishna Mishra",
+      "class": "XII",
+      "rollNo": 7,
+      "subjectsCount": 6
+    },
+    {
+      "id": "300",
+      "name": "Mansi Pandey",
+      "class": "XII",
+      "rollNo": 8,
+      "subjectsCount": 6
+    },
+    {
+      "id": "S242",
+      "name": "Rishi Patel",
+      "class": "XII",
+      "rollNo": 9,
+      "subjectsCount": 7
+    },
+    {
+      "id": "3171",
+      "name": "Sanidhya",
+      "class": "XII",
+      "rollNo": 10,
+      "subjectsCount": 6
+    },
+    {
+      "id": "298",
+      "name": "Suprabhat Upadhyay",
+      "class": "XII",
+      "rollNo": 11,
+      "subjectsCount": 6
+    },
+    {
+      "id": "297",
+      "name": "Supriya Upadhyay",
+      "class": "XII",
+      "rollNo": 12,
+      "subjectsCount": 6
+    },
+    {
+      "id": "295",
+      "name": "Sweksha Pandey",
+      "class": "XII",
+      "rollNo": 13,
+      "subjectsCount": 6
+    },
+    {
+      "id": "296",
+      "name": "Vandana Yadav",
+      "class": "XII",
+      "rollNo": 14,
+      "subjectsCount": 6
+    }
+  ]
+}
