@@ -33,3 +33,8 @@ migration-report.json
 affected-students.csv
 approved-groups.json
 backup-before-migration-*.json
+nursery-import-report.json
+nursery-needs-review.csv
+nursery-backup-*.json
+name-overrides.json
+
