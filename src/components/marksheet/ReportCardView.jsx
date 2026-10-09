@@ -353,7 +353,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
             <table className="w-full border-collapse border border-slate-900 text-center text-[9px]">
               <thead>
                 <tr className="bg-slate-50 font-bold border-b border-slate-900 text-slate-900">
-                  <th rowSpan={2} className="border border-slate-900 p-1 w-36 text-left uppercase">
+                  <th rowSpan={3} className="border border-slate-900 p-1 w-36 text-left uppercase">
                     Subject
                   </th>
                   <th colSpan={5} className="border border-slate-900 p-0.5 uppercase">
@@ -440,7 +440,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
             <table className="w-full border-collapse border border-slate-900 text-center text-[8.5px]">
               <thead>
                 <tr className="bg-slate-50 font-bold border-b border-slate-900 text-slate-900">
-                  <th rowSpan={2} className="border border-slate-900 p-1 w-32 text-left uppercase">
+                  <th rowSpan={3} className="border border-slate-900 p-1 w-32 text-left uppercase">
                     Subject
                   </th>
                   <th colSpan={5} className="border border-slate-900 p-0.5 uppercase">
