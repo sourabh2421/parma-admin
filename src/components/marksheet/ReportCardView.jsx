@@ -368,15 +368,15 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                   <th colSpan={2} className="border border-slate-900 px-0.5 py-0.5 uppercase">HALF YEARLY</th>
                   <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Total</th>
 
-                  <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Max Marks</th>
                   <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Scored</th>
+                  <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Max Marks</th>
                   <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Grade</th>
                 </tr>
                 <tr className="bg-slate-50 text-[7.5px] border-b border-slate-900 text-slate-800">
-                  <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Marks Obt.</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Marks Obt.</th>
+                  <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                 </tr>
               </thead>
               <tbody>
@@ -385,9 +385,8 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                     <td className="border border-slate-900 p-1 text-left font-bold uppercase text-slate-900">
                       {sub.name}
                     </td>
-                    <td className="border border-slate-900 p-0.5">{sub.t1InternalMax}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">{sub.t1InternalObt}</td>
-                    <td className="border border-slate-900 p-0.5">{sub.sa1Max}</td>
+                    <td className="border border-slate-900 p-0.5">{sub.t1InternalMax}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">
                       {sub.isSa1Pending ? (
                         <span className="text-amber-800 font-bold italic">Pending</span>
@@ -397,6 +396,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                         sub.sa1Obt
                       )}
                     </td>
+                    <td className="border border-slate-900 p-0.5">{sub.sa1Max}</td>
                     <td className="border border-slate-900 p-0.5 font-bold">
                       {sub.isSa1Pending ? (
                         <span className="text-amber-800 font-bold italic">Incomplete</span>
@@ -405,10 +405,10 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                       )}
                     </td>
 
-                    <td className="border border-slate-900 p-0.5 font-bold">{sub.rowMax}</td>
                     <td className="border border-slate-900 p-0.5 font-bold">
                       {sub.isSa1Pending ? '—' : sub.rowScored}
                     </td>
+                    <td className="border border-slate-900 p-0.5 font-bold">{sub.rowMax}</td>
                     <td className="border border-slate-900 p-0.5 font-bold">
                       {sub.isSa1Pending ? '—' : sub.overallRowGrade}
                     </td>
@@ -417,20 +417,20 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                 {/* Total Row */}
                 <tr className="bg-slate-50 font-bold border-t-2 border-slate-900 text-[8.5px]">
                   <td className="border border-slate-900 p-1 text-left uppercase">Total</td>
+                  <td className="border border-slate-900 p-0.5 font-semibold">{totalT1InternalObt}</td>
                   <td className="border border-slate-900 p-0.5">{totalT1InternalMax}</td>
-                  <td className="border border-slate-900 p-0.5">{totalT1InternalObt}</td>
-                  <td className="border border-slate-900 p-0.5">{totalSa1Max}</td>
                   <td className="border border-slate-900 p-0.5 font-semibold">
                     {hasPendingT1 ? <span className="text-amber-800 italic">Pending</span> : totalSa1Obt}
                   </td>
+                  <td className="border border-slate-900 p-0.5">{totalSa1Max}</td>
                   <td className="border border-slate-900 p-0.5 font-black">
                     {hasPendingT1 ? <span className="text-amber-800 italic">Incomplete</span> : totalT1Obt}
                   </td>
 
-                  <td className="border border-slate-900 p-0.5 font-black">{grandTotalMax}</td>
                   <td className="border border-slate-900 p-0.5 font-black">
                     {hasPendingT1 ? <span className="text-amber-800 italic">Incomplete</span> : grandTotalScored}
                   </td>
+                  <td className="border border-slate-900 p-0.5 font-black">{grandTotalMax}</td>
                   <td className="border border-slate-900 p-0.5 font-black">{overallGrade}</td>
                 </tr>
               </tbody>
@@ -462,20 +462,20 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                   <th colSpan={2} className="border border-slate-900 px-0.5 py-0.5 uppercase">ANNUAL</th>
                   <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Total</th>
 
-                  <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Max Marks</th>
                   <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Scored</th>
+                  <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Max Marks</th>
                   <th rowSpan={2} className="border border-slate-900 px-0.5 py-0.5">Grade</th>
                 </tr>
                 <tr className="bg-slate-50 text-[7px] border-b border-slate-900 text-slate-800">
-                  <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Marks Obt.</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Marks Obt.</th>
+                  <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
 
-                  <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Marks Obt.</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                   <th className="border border-slate-900 px-0.5 py-0.5">Marks Obt.</th>
+                  <th className="border border-slate-900 px-0.5 py-0.5">Max. Marks</th>
                 </tr>
               </thead>
               <tbody>
@@ -485,46 +485,46 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                       {sub.name}
                     </td>
                     {/* TERM-1 Internal */}
-                    <td className="border border-slate-900 p-0.5">{sub.t1InternalMax}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">{sub.t1InternalObt}</td>
+                    <td className="border border-slate-900 p-0.5">{sub.t1InternalMax}</td>
                     {/* TERM-1 Half Yearly */}
-                    <td className="border border-slate-900 p-0.5">{sub.sa1Max}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">{sub.isSa1Special ? sub.sa1Raw : sub.sa1Obt}</td>
+                    <td className="border border-slate-900 p-0.5">{sub.sa1Max}</td>
                     {/* TERM-1 Total */}
                     <td className="border border-slate-900 p-0.5 font-bold">{sub.t1Obt}</td>
 
                     {/* TERM-2 Internal */}
-                    <td className="border border-slate-900 p-0.5">{sub.t2InternalMax}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">{sub.t2InternalObt}</td>
+                    <td className="border border-slate-900 p-0.5">{sub.t2InternalMax}</td>
                     {/* TERM-2 Annual */}
-                    <td className="border border-slate-900 p-0.5">{sub.sa2Max}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">{sub.isSa2Special ? sub.sa2Raw : sub.sa2Obt}</td>
+                    <td className="border border-slate-900 p-0.5">{sub.sa2Max}</td>
                     {/* TERM-2 Total */}
                     <td className="border border-slate-900 p-0.5 font-bold">{sub.t2Obt}</td>
 
                     {/* Grand Total */}
-                    <td className="border border-slate-900 p-0.5 font-bold">{sub.rowMax}</td>
                     <td className="border border-slate-900 p-0.5 font-bold">{sub.rowScored}</td>
+                    <td className="border border-slate-900 p-0.5 font-bold">{sub.rowMax}</td>
                     <td className="border border-slate-900 p-0.5 font-bold">{sub.overallRowGrade}</td>
                   </tr>
                 ))}
                 {/* Total Row */}
                 <tr className="bg-slate-50 font-bold border-t-2 border-slate-900 text-[8px]">
                   <td className="border border-slate-900 p-0.5 text-left uppercase">Total</td>
+                  <td className="border border-slate-900 p-0.5 font-semibold">{totalT1InternalObt}</td>
                   <td className="border border-slate-900 p-0.5">{totalT1InternalMax}</td>
-                  <td className="border border-slate-900 p-0.5">{totalT1InternalObt}</td>
+                  <td className="border border-slate-900 p-0.5 font-semibold">{totalSa1Obt}</td>
                   <td className="border border-slate-900 p-0.5">{totalSa1Max}</td>
-                  <td className="border border-slate-900 p-0.5">{totalSa1Obt}</td>
                   <td className="border border-slate-900 p-0.5 font-black">{totalT1Obt}</td>
 
+                  <td className="border border-slate-900 p-0.5 font-semibold">{totalT2InternalObt}</td>
                   <td className="border border-slate-900 p-0.5">{totalT2InternalMax}</td>
-                  <td className="border border-slate-900 p-0.5">{totalT2InternalObt}</td>
+                  <td className="border border-slate-900 p-0.5 font-semibold">{totalSa2Obt}</td>
                   <td className="border border-slate-900 p-0.5">{totalSa2Max}</td>
-                  <td className="border border-slate-900 p-0.5">{totalSa2Obt}</td>
                   <td className="border border-slate-900 p-0.5 font-black">{totalT2Obt}</td>
 
-                  <td className="border border-slate-900 p-0.5 font-black">{grandTotalMax}</td>
                   <td className="border border-slate-900 p-0.5 font-black">{grandTotalScored}</td>
+                  <td className="border border-slate-900 p-0.5 font-black">{grandTotalMax}</td>
                   <td className="border border-slate-900 p-0.5 font-black">{overallGrade}</td>
                 </tr>
               </tbody>
