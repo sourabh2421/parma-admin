@@ -159,10 +159,31 @@ describe('Marksheet Calculations & Logical Integrity Test Suite', () => {
   // =========================================================
   describe('7. Excel Workbook Syllabus Evaluation System (All 6 Sheets)', () => {
 
-    // ---- Sheet 1: NUR to UKG ----
-    it('NUR-UKG: standard subject (Dictation+Oral, divisor=3) — (FA1+FA2+Dictation+Oral)/3 + SA => Internal 20, SA 80', () => {
+    // ---- Nursery Rule (New Class-Based Scheme) ----
+    it('Nursery: FA1 (20) + FA2 (20) = Internal Assessment (40), SA-1 (60) => Total (100) without division', () => {
+      const eng = calculateTermMarks(20, 20, 60, 20, 20, 60, 0, 0, 0, 0, 'Nursery', 'English Written')
+      expect(eng.internalObt).toBe(40)
+      expect(eng.internalMax).toBe(40)
+      expect(eng.saObt).toBe(60)
+      expect(eng.isSaPending).toBe(false)
+      expect(eng.totalObt).toBe(100)
+      expect(eng.maxMarks).toBe(100)
+    })
+
+    it('Nursery: when SA-1 is empty/null, shows internal 40 and SA-1 as pending', () => {
+      const math = calculateTermMarks(18, 17, null, 20, 20, 60, 0, 0, 0, 0, 'Nursery', 'Maths Written')
+      expect(math.internalObt).toBe(35)
+      expect(math.internalMax).toBe(40)
+      expect(math.saObt).toBeNull()
+      expect(math.isSaPending).toBe(true)
+      expect(math.totalObt).toBeNull()
+      expect(math.maxMarks).toBe(100)
+    })
+
+    // ---- Other Pre-Primary Classes (Playgroup, LKG, UKG) Keep Standard Syllabus ----
+    it('Pre-Primary (LKG/UKG): standard subject (Dictation+Oral, divisor=3) — (FA1+FA2+Dictation+Oral)/3 + SA => Internal 20, SA 80', () => {
       // (20+20+10+10)/3 = 20 => Internal=20, SA=80 => Total=100
-      const eng = calculateTermMarks(20, 20, 80, 20, 20, 80, 10, 10, 10, 10, 'Nursery', 'English Written')
+      const eng = calculateTermMarks(20, 20, 80, 20, 20, 80, 10, 10, 10, 10, 'LKG', 'English Written')
       expect(eng.internalObt).toBe(20)
       expect(eng.internalMax).toBe(20)
       expect(eng.totalObt).toBe(100)

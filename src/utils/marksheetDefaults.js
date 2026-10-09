@@ -72,9 +72,76 @@ export const CO_SCHOLASTIC_SKILLS = [
 ]
 
 /**
+ * Class-based scheme configurations for classes with custom evaluation models.
+ * For class Nursery:
+ *   - F.A.-1 max 20, F.A.-2 max 20
+ *   - Internal Assessment total = F.A.-1 + F.A.-2 (max 40). No halving, no assignment, no dictation, no oral.
+ *   - S.A.-1 (Half Yearly, Term I) max 60.
+ *   - Term-I total = Internal Assessment (40) + S.A.-1 (60) = 100.
+ * Classes not defined here fall through untouched to standard evaluation schemes.
+ */
+export const CLASS_MARK_SCHEMES = {
+  Nursery: {
+    className: 'Nursery',
+    description: 'Nursery 2026-27: FA-1 (max 20) + FA-2 (max 20) = Internal Assessment (max 40). SA-1 (max 60). Term Total (max 100). No Dictation, Oral or Assignment components.',
+    components: ['FA-1', 'FA-2', 'SA-1'],
+    hasAssignment: false,
+    hasOral: false,
+    faMax: 20,
+    assignMax: 0,
+    oralMax: 0,
+    internalMax: 40,
+    theoryMax: 60,
+    termMax: 100,
+    annualMax: 200,
+    divisor: 1,
+    getSubjectConfig: () => ({
+      isPrePrimary: true,
+      isNurseryScheme: true,
+      isPractical: false,
+      hasAssignment: false,
+      hasOral: false,
+      assignLabel: '',
+      oralLabel: '',
+      faMax: 20,
+      assignMax: 0,
+      oralMax: 0,
+      divisor: 1,
+      internalMax: 40,
+      theoryMax: 60,
+      termMax: 100,
+      annualMax: 200,
+    }),
+    calculateTerm: (faAObt, faBObt, saObt) => {
+      const faA = Number(faAObt) || 0
+      const faB = Number(faBObt) || 0
+      const internalObt = faA + faB
+      const isSaPending = saObt === null || saObt === undefined || saObt === ''
+      const sa = isSaPending ? null : (Number(saObt) || 0)
+      const totalObt = isSaPending ? null : (internalObt + sa)
+      return {
+        faWeighted: internalObt,
+        internalObt,
+        internalMax: 40,
+        saObt: sa,
+        isSaPending,
+        totalObt,
+        maxMarks: 100,
+      }
+    },
+  },
+}
+
+export function getClassMarkScheme(clsKey) {
+  const normKey = matchClassKey(clsKey) || clsKey
+  return CLASS_MARK_SCHEMES[normKey] || null
+}
+
+/**
  * Get Mark Evaluation Configuration for a specific Subject in a Class.
  * Adheres strictly to the 6 Excel sheets of the 2026-27 academic syllabus:
- * - Pre-Primary (NUR to UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100. (Drawing & EVS: FA1 + FA2 / 2 = 20)
+ * - Nursery: FA1 (20) + FA2 (20) => Internal = 40, Half Yearly / Annual = 60 => Total = 100 (Class-based scheme).
+ * - Pre-Primary (Playgroup, LKG, UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100. (Drawing & EVS: FA1 + FA2 / 2 = 20)
  * - 11 & 12 Practicals (Physics, Chemistry, Biology, Physical Education): FA (10) + Assign (10) + Oral/Prc (10) = 30, Half Yearly = 70 => Total = 100.
  * - 11 & 12 Non-Practicals: FA (10) + Assign (5) + Oral/Prc (5) = 20, Half Yearly = 80 => Total = 100.
  * - 50-mark subjects in 1 to 8 (Sanskrit, GK, Computer, Drawing): FA (10) + Assign (5) + Oral (5) = 20, Half Yearly = 30 => Total = 50. (Drawing: Assign/Oral NA)
@@ -82,12 +149,19 @@ export const CO_SCHOLASTIC_SKILLS = [
  */
 export function getSubjectMarkConfig(clsKey, subjectName = '') {
   const normCls = matchClassKey(clsKey) || clsKey || 'I'
+
+  // Class-based scheme config check
+  const classScheme = getClassMarkScheme(normCls)
+  if (classScheme) {
+    return classScheme.getSubjectConfig(subjectName)
+  }
+
   const sub = String(subjectName || '').trim().toLowerCase()
-  const isPrePrimary = ['Playgroup', 'Nursery', 'LKG', 'UKG'].includes(normCls)
+  const isPrePrimary = ['Playgroup', 'LKG', 'UKG'].includes(normCls)
   const isClass1To8 = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'].includes(normCls)
   const is11_12 = normCls.startsWith('XI') || normCls.startsWith('XII')
 
-  // 1. Pre-Primary (NUR to UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100
+  // 1. Pre-Primary (Playgroup, LKG, UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100
   if (isPrePrimary) {
     const isDrawingOrEvs = sub.includes('drawing') || sub.includes('e.v.s') || sub.includes('evs')
     return {
@@ -390,6 +464,12 @@ export function calculateTermMarks(
   clsKey = null,
   subjectName = null
 ) {
+  const normCls = matchClassKey(clsKey) || clsKey
+  const classScheme = getClassMarkScheme(normCls)
+  if (classScheme) {
+    return classScheme.calculateTerm(faAObt, faBObt, saObt)
+  }
+
   const faA = Number(faAObt) || 0
   const faB = Number(faBObt) || 0
   const sa = Number(saObt) || 0
@@ -482,7 +562,7 @@ export function createScholasticTemplateForClass(clsKey) {
       fa2Max: 20, fa2Obt: 0,   // F.A.-2 (July)
       sa1AssignMax: config.assignMax, sa1AssignObt: 0, // Assignment / Dictation
       sa1OralMax: config.oralMax, sa1OralObt: 0,       // Oral / Practical / Game
-      sa1Max: config.theoryMax, sa1Obt: 0,             // S.A.-1 Half-Yearly Theory (September)
+      sa1Max: config.theoryMax, sa1Obt: config.isNurseryScheme ? null : 0,             // S.A.-1 Half-Yearly Theory (September)
       // Term 2 — Annual
       fa3Max: 20, fa3Obt: 0,   // F.A.-3 (November)
       fa4Max: 20, fa4Obt: 0,   // F.A.-4 (January)
