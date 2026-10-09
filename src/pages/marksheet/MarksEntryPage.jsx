@@ -99,6 +99,26 @@ export default function MarksEntryPage() {
           ...first,
           fatherName: resolveFatherName(first.id || first.studentId, first.name, first.fatherName),
         })
+      } else {
+        // Sync record with freshly loaded Firestore marksheet data
+        setRecord((prev) => {
+          if (!prev) {
+            return {
+              ...exists,
+              fatherName: resolveFatherName(exists.id || exists.studentId, exists.name, exists.fatherName),
+            }
+          }
+          const prevId = String(prev.id || prev.studentId || '').trim().toLowerCase()
+          const existsId = String(exists.id || exists.studentId || '').trim().toLowerCase()
+          if (prevId === existsId) {
+            return {
+              ...prev,
+              ...exists,
+              fatherName: resolveFatherName(exists.id || exists.studentId, exists.name, exists.fatherName, prev.fatherName),
+            }
+          }
+          return prev
+        })
       }
     } else {
       const draft = createEmptyMarksheetForStudent({
