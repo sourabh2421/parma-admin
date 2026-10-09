@@ -153,8 +153,9 @@ export default function SubjectsMasterPage() {
             type="text"
             placeholder="Add new subject name (e.g. Environmental Studies, Sanskrit)"
             value={newSubjectName}
+            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
             onChange={(e) => setNewSubjectName(e.target.value)}
-            className="flex-1 rounded-xl border border-[#333538] bg-[#252627] px-4 py-2.5 text-xs font-semibold text-[#fff9fb] placeholder-[#d3d4d9]/50 focus:border-[#4b88a2] focus:outline-none"
+            className="flex-1 rounded-xl border border-[#333538] bg-[#252627] px-4 py-2.5 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#4b88a2] focus:outline-none"
           />
           <button
             type="submit"

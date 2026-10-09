@@ -728,6 +728,7 @@ export default function MarksEntryPage() {
               type="text"
               readOnly={!isAdminUnlocked}
               value={record.session || '2026-27'}
+              style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
               onChange={(e) => setRecord({ ...record, session: e.target.value })}
               className={!isAdminUnlocked
                 ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3.5 py-2 text-xs font-bold text-white cursor-not-allowed select-none"
@@ -775,6 +776,7 @@ export default function MarksEntryPage() {
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.name || ''}
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                 onChange={(e) => setRecord({ ...record, name: e.target.value })}
                 className={!isAdminUnlocked
                   ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
@@ -789,6 +791,7 @@ export default function MarksEntryPage() {
                 readOnly={!isAdminUnlocked}
                 value={record.dob || ''}
                 placeholder="DD/MM/YYYY"
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                 onChange={(e) => setRecord({ ...record, dob: e.target.value })}
                 className={!isAdminUnlocked
                   ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
@@ -802,6 +805,7 @@ export default function MarksEntryPage() {
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.fatherName || ''}
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                 onChange={(e) => setRecord({ ...record, fatherName: e.target.value })}
                 className={!isAdminUnlocked
                   ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
@@ -815,6 +819,7 @@ export default function MarksEntryPage() {
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.class || ''}
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                 onChange={(e) => setRecord({ ...record, class: e.target.value })}
                 className={!isAdminUnlocked
                   ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
@@ -828,6 +833,7 @@ export default function MarksEntryPage() {
                 type="text"
                 readOnly={!isAdminUnlocked}
                 value={record.studentId || record.id || ''}
+                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                 onChange={(e) => setRecord({ ...record, studentId: e.target.value })}
                 className={!isAdminUnlocked
                   ? "w-full rounded-xl border border-slate-700/60 bg-[#18191a] px-3 py-2 text-white font-bold cursor-not-allowed select-none"
@@ -931,6 +937,7 @@ export default function MarksEntryPage() {
                                 readOnly={isTheoryLocked}
                                 value={sub.sa1Obt ?? ''}
                                 placeholder="0"
+                                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                                 onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
                                 onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                 className={isTheoryLocked
@@ -954,6 +961,7 @@ export default function MarksEntryPage() {
                                     readOnly={isAssignLocked}
                                     value={sub.sa1AssignObt ?? ''}
                                     placeholder="0"
+                                    style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                                     onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
                                     onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                     className={isAssignLocked
@@ -981,11 +989,12 @@ export default function MarksEntryPage() {
                                     readOnly={isOralLocked}
                                     value={sub.sa1OralObt ?? ''}
                                     placeholder="0"
+                                    style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                                     onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
                                     onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                     className={isOralLocked
-                                      ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
-                                      : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                      ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-white text-xs cursor-not-allowed opacity-90"
+                                      : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-white text-xs focus:border-[#4b88a2] focus:outline-none"
                                     }
                                   />
                                   <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
@@ -1112,11 +1121,12 @@ export default function MarksEntryPage() {
                                 readOnly={isTheoryLocked}
                                 value={sub.sa2Obt ?? ''}
                                 placeholder="0"
+                                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                                 onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
                                 onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                 className={isTheoryLocked
-                                  ? "w-20 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-2 py-1 text-center font-bold text-slate-300 text-sm cursor-not-allowed opacity-90"
-                                  : "w-20 rounded-lg border border-[#bb0a21]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-[#fff9fb] text-sm focus:border-[#bb0a21] focus:ring-1 focus:ring-[#bb0a21] focus:outline-none"
+                                  ? "w-20 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-2 py-1 text-center font-extrabold text-white text-sm cursor-not-allowed opacity-95"
+                                  : "w-20 rounded-lg border border-[#bb0a21]/60 bg-[#252627] px-2 py-1 text-center font-extrabold text-white text-sm focus:border-[#bb0a21] focus:ring-1 focus:ring-[#bb0a21] focus:outline-none"
                                 }
                               />
                               <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5 font-semibold">
@@ -1134,11 +1144,12 @@ export default function MarksEntryPage() {
                                   readOnly={isAssignLocked}
                                   value={sub.sa2AssignObt ?? ''}
                                   placeholder="0"
+                                  style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                                   onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
                                   onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                   className={isAssignLocked
-                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
-                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                    ? "w-16 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-white text-xs cursor-not-allowed opacity-95"
+                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-white text-xs focus:border-[#bb0a21] focus:outline-none"
                                   }
                                 />
                                 <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
@@ -1159,11 +1170,12 @@ export default function MarksEntryPage() {
                                   readOnly={isOralLocked}
                                   value={sub.sa2OralObt ?? ''}
                                   placeholder="0"
+                                  style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                                   onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
                                   onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                                   className={isOralLocked
-                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
-                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#bb0a21] focus:outline-none"
+                                    ? "w-16 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-white text-xs cursor-not-allowed opacity-95"
+                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-white text-xs focus:border-[#bb0a21] focus:outline-none"
                                   }
                                 />
                                 <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
@@ -1263,6 +1275,7 @@ export default function MarksEntryPage() {
                               readOnly={isObtLocked}
                               value={sub[fields.obt] ?? ''}
                               placeholder="0"
+                              style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                               onChange={(e) => handleScholasticChange(idx, fields.obt, e.target.value)}
                               onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                               className={isObtLocked
@@ -1276,6 +1289,7 @@ export default function MarksEntryPage() {
                               type="text"
                               readOnly={isObtLocked}
                               value={sub[fields.max] ?? 20}
+                              style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                               onChange={(e) => handleScholasticChange(idx, fields.max, e.target.value)}
                               onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
                               className="w-20 rounded-lg border border-[#333538] bg-[#252627]/60 px-2 py-1.5 text-center text-white font-bold focus:outline-none"
@@ -1392,6 +1406,7 @@ export default function MarksEntryPage() {
                           type="text"
                           readOnly={isFa1Locked}
                           value={sub.fa1Obt ?? ''}
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                           onChange={(e) => handleScholasticChange(idx, 'fa1Obt', e.target.value)}
                           className={isFa1Locked
                             ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1406,6 +1421,7 @@ export default function MarksEntryPage() {
                           type="text"
                           readOnly={isFa2Locked}
                           value={sub.fa2Obt ?? ''}
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                           onChange={(e) => handleScholasticChange(idx, 'fa2Obt', e.target.value)}
                           className={isFa2Locked
                             ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1422,6 +1438,7 @@ export default function MarksEntryPage() {
                               type="text"
                               readOnly={isSa1AssignLocked}
                               value={sub.sa1AssignObt ?? ''}
+                              style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                               onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
                               className={isSa1AssignLocked
                                 ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1442,6 +1459,7 @@ export default function MarksEntryPage() {
                               type="text"
                               readOnly={isSa1OralLocked}
                               value={sub.sa1OralObt ?? ''}
+                              style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                               onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
                               className={isSa1OralLocked
                                 ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1460,6 +1478,7 @@ export default function MarksEntryPage() {
                           type="text"
                           readOnly={isSa1ThLocked}
                           value={sub.sa1Obt ?? ''}
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                           onChange={(e) => handleScholasticChange(idx, 'sa1Obt', e.target.value)}
                           className={isSa1ThLocked
                             ? "w-14 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1474,6 +1493,7 @@ export default function MarksEntryPage() {
                           type="text"
                           readOnly={isFa3Locked}
                           value={sub.fa3Obt ?? ''}
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                           onChange={(e) => handleScholasticChange(idx, 'fa3Obt', e.target.value)}
                           className={isFa3Locked
                             ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1488,6 +1508,7 @@ export default function MarksEntryPage() {
                           type="text"
                           readOnly={isFa4Locked}
                           value={sub.fa4Obt ?? ''}
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                           onChange={(e) => handleScholasticChange(idx, 'fa4Obt', e.target.value)}
                           className={isFa4Locked
                             ? "w-12 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1503,6 +1524,7 @@ export default function MarksEntryPage() {
                             type="text"
                             readOnly={isSa2AssignLocked}
                             value={sub.sa2AssignObt ?? ''}
+                            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             onChange={(e) => handleScholasticChange(idx, 'sa2AssignObt', e.target.value)}
                             className={isSa2AssignLocked
                               ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1521,6 +1543,7 @@ export default function MarksEntryPage() {
                             type="text"
                             readOnly={isSa2OralLocked}
                             value={sub.sa2OralObt ?? ''}
+                            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             onChange={(e) => handleScholasticChange(idx, 'sa2OralObt', e.target.value)}
                             className={isSa2OralLocked
                               ? "w-10 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
@@ -1538,10 +1561,11 @@ export default function MarksEntryPage() {
                           type="text"
                           readOnly={isSa2ThLocked}
                           value={sub.sa2Obt ?? ''}
+                          style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                           onChange={(e) => handleScholasticChange(idx, 'sa2Obt', e.target.value)}
                           className={isSa2ThLocked
-                            ? "w-14 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                            : "w-14 rounded-lg border border-[#bb0a21]/50 bg-[#252627] px-1 py-1 text-center font-bold text-[#bb0a21] text-xs focus:border-[#bb0a21] focus:outline-none"
+                            ? "w-14 rounded-lg border border-slate-600/70 bg-[#1b1c1e] px-1 py-1 text-center font-extrabold text-white text-xs cursor-not-allowed opacity-95"
+                            : "w-14 rounded-lg border border-[#bb0a21]/50 bg-[#252627] px-1 py-1 text-center font-bold text-white text-xs focus:border-[#bb0a21] focus:outline-none"
                           }
                         />
                       </td>
@@ -1641,6 +1665,7 @@ export default function MarksEntryPage() {
                           <input
                             type="number"
                             value={record.attendanceHalfYearly?.attended ?? 103}
+                            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             onChange={(e) =>
                               setRecord({
                                 ...record,
@@ -1650,7 +1675,7 @@ export default function MarksEntryPage() {
                                 },
                               })
                             }
-                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-white focus:border-[#4b88a2] focus:outline-none"
                           />
                         </div>
                         <div className="flex-1">
@@ -1658,6 +1683,7 @@ export default function MarksEntryPage() {
                           <input
                             type="number"
                             value={record.attendanceHalfYearly?.total ?? 110}
+                            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             onChange={(e) =>
                               setRecord({
                                 ...record,
@@ -1667,7 +1693,7 @@ export default function MarksEntryPage() {
                                 },
                               })
                             }
-                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-white focus:border-[#4b88a2] focus:outline-none"
                           />
                         </div>
                       </div>
@@ -1683,7 +1709,7 @@ export default function MarksEntryPage() {
                         <select
                           value={record.disciplineAnnual || 'A'}
                           onChange={(e) => setRecord({ ...record, disciplineAnnual: e.target.value })}
-                          className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-1.5 font-bold text-[#fff9fb] focus:border-[#bb0a21] focus:outline-none"
+                          className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3 py-1.5 font-bold text-white focus:border-[#bb0a21] focus:outline-none"
                         >
                           <option value="A">A</option>
                           <option value="B">B</option>
@@ -1696,6 +1722,7 @@ export default function MarksEntryPage() {
                           <input
                             type="number"
                             value={record.attendanceAnnual?.attended ?? 195}
+                            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             onChange={(e) =>
                               setRecord({
                                 ...record,
@@ -1705,7 +1732,7 @@ export default function MarksEntryPage() {
                                 },
                               })
                             }
-                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-white focus:border-[#4b88a2] focus:outline-none"
                           />
                         </div>
                         <div className="flex-1">
@@ -1713,6 +1740,7 @@ export default function MarksEntryPage() {
                           <input
                             type="number"
                             value={record.attendanceAnnual?.total ?? 215}
+                            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             onChange={(e) =>
                               setRecord({
                                 ...record,
@@ -1722,7 +1750,7 @@ export default function MarksEntryPage() {
                                 },
                               })
                             }
-                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                            className="w-full rounded-xl border border-[#333538] bg-[#252627] px-2 py-1.5 font-bold text-white focus:border-[#4b88a2] focus:outline-none"
                           />
                         </div>
                       </div>
@@ -1742,8 +1770,9 @@ export default function MarksEntryPage() {
                     <input
                       type="text"
                       value={record.teacherRemarksHalfYearly || 'Good performance.'}
+                      style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                       onChange={(e) => setRecord({ ...record, teacherRemarksHalfYearly: e.target.value })}
-                      className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                      className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 font-bold text-white focus:border-[#4b88a2] focus:outline-none"
                     />
                   </div>
                 )}
@@ -1755,8 +1784,9 @@ export default function MarksEntryPage() {
                       <input
                         type="text"
                         value={record.teacherRemarksAnnual || 'Excellent performance and regular attendance.'}
+                        style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                         onChange={(e) => setRecord({ ...record, teacherRemarksAnnual: e.target.value })}
-                        className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 font-bold text-[#fff9fb] focus:border-[#bb0a21] focus:outline-none"
+                        className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 font-bold text-white focus:border-[#bb0a21] focus:outline-none"
                       />
                     </div>
 
@@ -1765,8 +1795,9 @@ export default function MarksEntryPage() {
                       <input
                         type="text"
                         value={record.promotedClass || 'Promoted to next higher class'}
+                        style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                         onChange={(e) => setRecord({ ...record, promotedClass: e.target.value })}
-                        className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 font-bold text-[#fff9fb] focus:border-[#4b88a2] focus:outline-none"
+                        className="w-full rounded-xl border border-[#333538] bg-[#252627] px-3.5 py-2 font-bold text-white focus:border-[#4b88a2] focus:outline-none"
                       />
                     </div>
                   </>

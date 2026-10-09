@@ -31,23 +31,48 @@ body {
   color: #d3d4d9;
 }
 
-/* Ensure all form inputs on light backgrounds (fee modal, etc.) have readable dark text by default */
-:not(.marksheet-portal) input:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
-:not(.marksheet-portal) select:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
-:not(.marksheet-portal) textarea:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
-:not(.marksheet-portal) option:not([class*="text-white"]):not([class*="text-[#fff9fb]"]) {
-  color: #0f172a;
+/* Default all inputs, selects, textareas, and options to bright readable white text */
+input,
+select,
+textarea,
+option,
+input:read-only,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
 }
 
-:not(.marksheet-portal) input:not([class*="text-white"])::placeholder,
-:not(.marksheet-portal) textarea:not([class*="text-white"])::placeholder {
-  color: #64748b;
-  opacity: 1;
+select option {
+  background-color: #252627 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
-:not(.marksheet-portal) select option {
-  background-color: #ffffff;
-  color: #0f172a;
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Light backgrounds only (e.g. print views or white modal containers): use dark text */
+.bg-white input:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+.bg-white select:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+.bg-white textarea:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+.bg-white option:not([class*="text-white"]):not([class*="text-[#fff9fb]"]),
+.bg-white input:read-only,
+.bg-white input:disabled {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.bg-white select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
 }
 
 /* ==========================================================================
@@ -55,18 +80,15 @@ body {
    Ensure every font, label, heading, input, select, option, and table cell
    is pure crisp white across the marksheet portal
    ========================================================================== */
-.marksheet-portal {
-  color: #ffffff !important;
+.marksheet-portal,
+.marksheet-portal * {
+  /* Inherit high contrast white text by default */
 }
 
 .marksheet-portal input,
 .marksheet-portal select,
 .marksheet-portal textarea,
-.marksheet-portal option {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
+.marksheet-portal option,
 .marksheet-portal input:read-only,
 .marksheet-portal input:disabled,
 .marksheet-portal select:disabled,
@@ -84,8 +106,8 @@ body {
 
 .marksheet-portal input::placeholder,
 .marksheet-portal textarea::placeholder {
-  color: rgba(255, 255, 255, 0.65) !important;
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.65) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
   opacity: 1 !important;
 }
 
