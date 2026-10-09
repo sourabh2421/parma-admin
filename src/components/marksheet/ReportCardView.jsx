@@ -331,12 +331,34 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
             </div>
 
             {/* Student Photo Section */}
-            <div className="h-20 w-16 border border-slate-400 bg-slate-100 flex flex-col items-center justify-center text-[7.5px] text-slate-500 text-center font-sans shrink-0 overflow-hidden">
+            <div className="h-20 w-16 border border-slate-400 bg-slate-100 flex flex-col items-center justify-center text-[7.5px] text-slate-500 text-center font-sans shrink-0 overflow-hidden relative">
               {data.photoUrl ? (
-                <img src={data.photoUrl} alt={data.name} className="h-full w-full object-cover" />
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-              )}
+                <img
+                  src={data.photoUrl}
+                  alt={data.name}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    const fallbackEl = e.currentTarget.parentElement?.querySelector('.photo-silhouette-fallback')
+                    if (fallbackEl) fallbackEl.classList.remove('hidden')
+                  }}
+                />
+              ) : null}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`photo-silhouette-fallback text-slate-400 ${data.photoUrl ? 'hidden' : 'block'}`}
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+              </svg>
             </div>
           </div>
         </div>

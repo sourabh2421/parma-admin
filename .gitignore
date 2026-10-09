@@ -41,9 +41,8 @@ name-overrides.json
 # Student Photo Import & Privacy-Protected Data
 data-import/
 ID card photo/
-*photo*
-*photo-import*
-*photo-needs-review*
+photo-import-report.json
+photo-needs-review.csv
 photo-overrides.json
 All student ID card list.xlsx
 *.jpg.jpg

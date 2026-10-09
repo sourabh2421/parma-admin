@@ -486,9 +486,14 @@ export function getMergedStudentsList(studentsFromRepo = [], firestoreMarks = nu
           name: s.name || existing.name,
           fatherName: resolveFatherName(rawId, s.name, existing.fatherName, safeFather),
           class: s.class || existing.class,
+          photoUrl: existing.photoUrl || s.photoUrl || null,
         })
       } else {
-        dedupeMap.set(key, createEmptyMarksheetForStudent(s))
+        const empty = createEmptyMarksheetForStudent(s)
+        dedupeMap.set(key, {
+          ...empty,
+          photoUrl: s.photoUrl || null,
+        })
       }
     }
     return Array.from(dedupeMap.values())

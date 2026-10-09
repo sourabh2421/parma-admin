@@ -1,0 +1,36 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'vatsalrai76652@gmail.com' ||
+        request.auth.token.email == 'parma.academy.2004@gmail.com'
+      );
+    }
+
+    function isFeeAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'office@parma.com' ||
+        isSuperAdmin()
+      );
+    }
+
+    function isMarksheetAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'teacher@parma.com' ||
+        isSuperAdmin()
+      );
+    }
+
+    // Student photos: Readable strictly by authenticated staff, writable by admins
+    match /student-photos/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if isMarksheetAdmin() || isFeeAdmin();
+    }
+  }
+}

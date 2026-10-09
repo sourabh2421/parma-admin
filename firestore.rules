@@ -43,6 +43,12 @@ service cloud.firestore {
       allow write: if isFeeAdmin();
     }
 
+    // Student Photos (Fallback photo collection: staff read-only, admin write)
+    match /studentPhotos/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if isMarksheetAdmin() || isFeeAdmin();
+    }
+
     // Fees & Fee Records (fee admin & super admin only)
     match /fees/{feeId} {
       allow read, write: if isFeeAdmin();
