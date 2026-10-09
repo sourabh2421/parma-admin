@@ -86,6 +86,8 @@ export default function MarksEntryPage() {
     return filterStudentsByClass(allMergedStudents, selectedClass)
   }, [allMergedStudents, selectedClass])
 
+  const isNursery = matchClassKey(selectedClass) === 'Nursery'
+
   // Initialize or update selection when class or merged list changes
   useEffect(() => {
     if (classStudents.length > 0) {
@@ -237,10 +239,90 @@ export default function MarksEntryPage() {
     }
   }
 
+  const validateSubjectMarks = (sub, examType) => {
+    if (!sub) return null
+    const config = getSubjectMarkConfig(selectedClass, sub.name)
+    const checkNum = (val, max, label) => {
+      if (val === undefined || val === null || val === '') return null
+      const s = String(val).trim()
+      if (s === 'NA' || s === 'AB' || s === 'ML' || s === 'M/L') return null
+      const n = Number(s)
+      if (isNaN(n) || !Number.isFinite(n) || n < 0 || n > max) {
+        return `${sub.name}: ${label} must be a number from 0 to ${max}.`
+      }
+      return null
+    }
+
+    if (examType === 'FA-1') return checkNum(sub.fa1Obt, sub.fa1Max || 20, 'FA-1')
+    if (examType === 'FA-2') return checkNum(sub.fa2Obt, sub.fa2Max || 20, 'FA-2')
+    if (examType === 'SA-1') {
+      const errTh = checkNum(sub.sa1Obt, sub.sa1Max || config.theoryMax, 'SA-1 Theory')
+      if (errTh) return errTh
+      if (config.hasAssignment) {
+        const errAs = checkNum(sub.sa1AssignObt, config.assignMax, config.assignLabel)
+        if (errAs) return errAs
+      }
+      if (config.hasOral) {
+        const errOr = checkNum(sub.sa1OralObt, config.oralMax, config.oralLabel)
+        if (errOr) return errOr
+      }
+      return null
+    }
+    if (examType === 'FA-3') return checkNum(sub.fa3Obt, sub.fa3Max || 20, 'FA-3')
+    if (examType === 'FA-4') return checkNum(sub.fa4Obt, sub.fa4Max || 20, 'FA-4')
+    if (examType === 'SA-2') {
+      const errTh = checkNum(sub.sa2Obt, sub.sa2Max || config.theoryMax, 'SA-2 Theory')
+      if (errTh) return errTh
+      if (config.hasAssignment) {
+        const errAs = checkNum(sub.sa2AssignObt, config.assignMax, config.assignLabel)
+        if (errAs) return errAs
+      }
+      if (config.hasOral) {
+        const errOr = checkNum(sub.sa2OralObt, config.oralMax, config.oralLabel)
+        if (errOr) return errOr
+      }
+      return null
+    }
+    if (examType === 'ALL') {
+      const err1 = checkNum(sub.fa1Obt, sub.fa1Max || 20, 'FA-1')
+      if (err1) return err1
+      const err2 = checkNum(sub.fa2Obt, sub.fa2Max || 20, 'FA-2')
+      if (err2) return err2
+      const errTh1 = checkNum(sub.sa1Obt, sub.sa1Max || config.theoryMax, 'SA-1 Theory')
+      if (errTh1) return errTh1
+      if (config.hasAssignment) {
+        const errAs1 = checkNum(sub.sa1AssignObt, config.assignMax, config.assignLabel)
+        if (errAs1) return errAs1
+        const errAs2 = checkNum(sub.sa2AssignObt, config.assignMax, config.assignLabel)
+        if (errAs2) return errAs2
+      }
+      if (config.hasOral) {
+        const errOr1 = checkNum(sub.sa1OralObt, config.oralMax, config.oralLabel)
+        if (errOr1) return errOr1
+        const errOr2 = checkNum(sub.sa2OralObt, config.oralMax, config.oralLabel)
+        if (errOr2) return errOr2
+      }
+      const err3 = checkNum(sub.fa3Obt, sub.fa3Max || 20, 'FA-3')
+      if (err3) return err3
+      const err4 = checkNum(sub.fa4Obt, sub.fa4Max || 20, 'FA-4')
+      if (err4) return err4
+      const errTh2 = checkNum(sub.sa2Obt, sub.sa2Max || config.theoryMax, 'SA-2 Theory')
+      if (errTh2) return errTh2
+    }
+    return null
+  }
+
   const handleSaveSubject = async (idx, subjectName) => {
     if (!record) return
     const subData = record.scholastic?.[idx]
     if (!subData) return
+
+    const valErr = validateSubjectMarks(subData, selectedExam)
+    if (valErr) {
+      setStatusMessage(`Validation error: ${valErr}`)
+      return
+    }
+
     setSavingSubject(subjectName)
     try {
       await saveSubjectMarks(record, selectedExam, subjectName, subData)
@@ -257,6 +339,13 @@ export default function MarksEntryPage() {
     if (!record) return
     const subData = record.scholastic?.[idx]
     if (!subData) return
+
+    const valErr = validateSubjectMarks(subData, selectedExam)
+    if (valErr) {
+      setStatusMessage(`Validation error: ${valErr}`)
+      return
+    }
+
     setSavingSubject(subjectName)
     try {
       await saveSubjectMarks(record, selectedExam, subjectName, subData)
@@ -295,6 +384,15 @@ export default function MarksEntryPage() {
   const handleSave = async (e, shouldGoNext = false) => {
     if (e) e.preventDefault()
     if (!record) return
+
+    for (const sub of record.scholastic || []) {
+      const valErr = validateSubjectMarks(sub, selectedExam)
+      if (valErr) {
+        setStatusMessage(`Validation error: ${valErr}`)
+        return
+      }
+    }
+
     setIsSaving(true)
     try {
       if (selectedExam === 'ALL') {
@@ -761,8 +859,8 @@ export default function MarksEntryPage() {
                     <tr className="border-b border-[#333538] text-[#d3d4d9] uppercase text-[10px] font-bold">
                       <th className="py-2.5 px-3">Subject Name</th>
                       <th className="py-2.5 px-2 text-center w-28">SA-1 Theory</th>
-                      <th className="py-2.5 px-2 text-center w-28">Assignment</th>
-                      <th className="py-2.5 px-2 text-center w-28">Oral / Practical</th>
+                      {!isNursery && <th className="py-2.5 px-2 text-center w-28">Assignment</th>}
+                      {!isNursery && <th className="py-2.5 px-2 text-center w-28">Oral / Practical</th>}
                       <th className="py-2.5 px-2 text-center w-24">Internal Total</th>
                       <th className="py-2.5 px-2 text-center w-28 font-extrabold text-[#4b88a2]">Term 1 Total</th>
                       <th className="py-2.5 px-2 text-center w-24">Action</th>
@@ -827,54 +925,58 @@ export default function MarksEntryPage() {
                           </td>
 
                           {/* Assignment / Dictation */}
-                          <td className="py-2.5 px-2 text-center">
-                            {config.hasAssignment ? (
-                              <div className="inline-flex flex-col items-center">
-                                <input
-                                  type="text"
-                                  readOnly={isAssignLocked}
-                                  value={sub.sa1AssignObt ?? ''}
-                                  placeholder="0"
-                                  onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
-                                  onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
-                                  className={isAssignLocked
-                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
-                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
-                                  }
-                                />
-                                <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
-                                  {config.assignLabel} (/{config.assignMax})
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
-                            )}
-                          </td>
+                          {!isNursery && (
+                            <td className="py-2.5 px-2 text-center">
+                              {config.hasAssignment ? (
+                                <div className="inline-flex flex-col items-center">
+                                  <input
+                                    type="text"
+                                    readOnly={isAssignLocked}
+                                    value={sub.sa1AssignObt ?? ''}
+                                    placeholder="0"
+                                    onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
+                                    onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                    className={isAssignLocked
+                                      ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
+                                      : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                    }
+                                  />
+                                  <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                    {config.assignLabel} (/{config.assignMax})
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                              )}
+                            </td>
+                          )}
 
                           {/* Oral / Practical */}
-                          <td className="py-2.5 px-2 text-center">
-                            {config.hasOral ? (
-                              <div className="inline-flex flex-col items-center">
-                                <input
-                                  type="text"
-                                  readOnly={isOralLocked}
-                                  value={sub.sa1OralObt ?? ''}
-                                  placeholder="0"
-                                  onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
-                                  onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
-                                  className={isOralLocked
-                                    ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
-                                    : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
-                                  }
-                                />
-                                <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
-                                  {config.oralLabel} (/{config.oralMax})
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
-                            )}
-                          </td>
+                          {!isNursery && (
+                            <td className="py-2.5 px-2 text-center">
+                              {config.hasOral ? (
+                                <div className="inline-flex flex-col items-center">
+                                  <input
+                                    type="text"
+                                    readOnly={isOralLocked}
+                                    value={sub.sa1OralObt ?? ''}
+                                    placeholder="0"
+                                    onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
+                                    onKeyDown={(e) => handleSubjectInputKeyDown(e, idx, sub.name)}
+                                    className={isOralLocked
+                                      ? "w-16 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1.5 py-1 text-center font-bold text-slate-300 text-xs cursor-not-allowed opacity-90"
+                                      : "w-16 rounded-lg border border-[#333538] bg-[#252627] px-1.5 py-1 text-center font-bold text-[#fff9fb] text-xs focus:border-[#4b88a2] focus:outline-none"
+                                    }
+                                  />
+                                  <span className="text-[9px] text-[#d3d4d9]/70 mt-0.5">
+                                    {config.oralLabel} (/{config.oralMax})
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-[11px] font-bold text-[#d3d4d9]/40">NA</span>
+                              )}
+                            </td>
+                          )}
 
                           {/* Calculated Internal Total */}
                           <td className="py-2.5 px-2 text-center">
@@ -885,9 +987,15 @@ export default function MarksEntryPage() {
 
                           {/* Calculated Term 1 Total */}
                           <td className="py-2.5 px-2 text-center">
-                            <span className="inline-block rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 px-3 py-1 font-mono font-black text-sm text-[#4b88a2]">
-                              {calc.totalObt} <span className="text-[10px] font-bold text-[#d3d4d9]">/{calc.maxMarks}</span>
-                            </span>
+                            {calc.isSaPending ? (
+                              <span className="inline-block rounded-md bg-amber-500/10 border border-amber-500/30 px-2 py-1 font-mono font-bold text-xs text-amber-300">
+                                Pending
+                              </span>
+                            ) : (
+                              <span className="inline-block rounded-lg bg-[#4b88a2]/20 border border-[#4b88a2]/50 px-3 py-1 font-mono font-black text-sm text-[#4b88a2]">
+                                {calc.totalObt} <span className="text-[10px] font-bold text-[#d3d4d9]">/{calc.maxMarks}</span>
+                              </span>
+                            )}
                           </td>
 
                           {/* Save Single Subject Action */}
@@ -1213,8 +1321,8 @@ export default function MarksEntryPage() {
                 <tr className="border-b border-[#333538] text-[#d3d4d9] text-[10px]">
                   <th className="py-1 px-1.5 text-center">FA-1</th>
                   <th className="py-1 px-1.5 text-center">FA-2</th>
-                  <th className="py-1 px-1.5 text-center">Assign</th>
-                  <th className="py-1 px-1.5 text-center">Oral</th>
+                  {!isNursery && <th className="py-1 px-1.5 text-center">Assign</th>}
+                  {!isNursery && <th className="py-1 px-1.5 text-center">Oral</th>}
                   <th className="py-1 px-1.5 text-center">SA-1 (Th)</th>
 
                   <th className="py-1 px-1.5 text-center">FA-3</th>
@@ -1287,40 +1395,44 @@ export default function MarksEntryPage() {
                       </td>
 
                       {/* SA-1 Assign */}
-                      <td className="py-2 px-1 text-center">
-                        {config.hasAssignment ? (
-                          <input
-                            type="text"
-                            readOnly={isSa1AssignLocked}
-                            value={sub.sa1AssignObt ?? ''}
-                            onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
-                            className={isSa1AssignLocked
-                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
-                            }
-                          />
-                        ) : (
-                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
-                        )}
-                      </td>
+                      {!isNursery && (
+                        <td className="py-2 px-1 text-center">
+                          {config.hasAssignment ? (
+                            <input
+                              type="text"
+                              readOnly={isSa1AssignLocked}
+                              value={sub.sa1AssignObt ?? ''}
+                              onChange={(e) => handleScholasticChange(idx, 'sa1AssignObt', e.target.value)}
+                              className={isSa1AssignLocked
+                                ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                                : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                              }
+                            />
+                          ) : (
+                            <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                          )}
+                        </td>
+                      )}
 
                       {/* SA-1 Oral */}
-                      <td className="py-2 px-1 text-center">
-                        {config.hasOral ? (
-                          <input
-                            type="text"
-                            readOnly={isSa1OralLocked}
-                            value={sub.sa1OralObt ?? ''}
-                            onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
-                            className={isSa1OralLocked
-                              ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
-                              : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
-                            }
-                          />
-                        ) : (
-                          <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
-                        )}
-                      </td>
+                      {!isNursery && (
+                        <td className="py-2 px-1 text-center">
+                          {config.hasOral ? (
+                            <input
+                              type="text"
+                              readOnly={isSa1OralLocked}
+                              value={sub.sa1OralObt ?? ''}
+                              onChange={(e) => handleScholasticChange(idx, 'sa1OralObt', e.target.value)}
+                              className={isSa1OralLocked
+                                ? "w-10 rounded-lg border border-slate-600/50 bg-[#1b1c1e] px-1 py-1 text-center font-bold text-slate-400 text-xs cursor-not-allowed"
+                                : "w-10 rounded-lg border border-[#333538] bg-[#252627] px-1 py-1 text-center font-bold text-[#d3d4d9] text-xs focus:border-[#4b88a2] focus:outline-none"
+                              }
+                            />
+                          ) : (
+                            <span className="text-[10px] text-[#d3d4d9]/40">NA</span>
+                          )}
+                        </td>
+                      )}
 
                       {/* SA-1 Theory */}
                       <td className="py-2 px-1 text-center">

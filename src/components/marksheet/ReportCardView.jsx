@@ -64,6 +64,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
 
   let grandTotalMax = 0
   let grandTotalScored = 0
+  let hasPendingT1 = false
 
   const processedScholastic = (data.scholastic || []).map((sub) => {
     // Term 1 components
@@ -74,8 +75,9 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     const fa2Obt = sub.fa2Obt !== undefined && sub.fa2Obt !== '' ? parseSafeNum(sub.fa2Obt, 0) : 0
 
     const isSa1Special = isSpecialNote(sub.sa1Obt)
+    const isSa1Entered = !isSa1Special && sub.sa1Obt !== undefined && sub.sa1Obt !== null && sub.sa1Obt !== ''
     const sa1Max = sub.sa1Max !== undefined && sub.sa1Max !== '' ? parseSafeNum(sub.sa1Max, 80) : (sub.t1MainMax !== undefined ? parseSafeNum(sub.t1MainMax, 80) : 80)
-    const sa1Obt = isSa1Special ? 0 : (sub.sa1Obt !== undefined && sub.sa1Obt !== '' ? parseSafeNum(sub.sa1Obt, 0) : (sub.t1MainObt !== undefined ? parseSafeNum(sub.t1MainObt, 0) : 0))
+    const sa1Obt = isSa1Special ? 0 : (isSa1Entered ? parseSafeNum(sub.sa1Obt, 0) : null)
 
     // Term 1 Total: SA-1 Theory + Internal Assessment (FA1 + FA2 + Assignment + Oral according to syllabus)
     const t1Calc = calculateTermMarks(
@@ -92,10 +94,11 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
       data.class,
       sub.name
     )
+    const isSa1Pending = Boolean(t1Calc.isSaPending)
     const t1Max = t1Calc.maxMarks
-    const t1Obt = isSa1Special ? roundClean(t1Calc.internalObt) : t1Calc.totalObt
-    const t1Percent = t1Max > 0 ? (t1Obt / t1Max) * 100 : 0
-    const t1Grade = calculateScholasticGrade(t1Percent)
+    const t1Obt = isSa1Pending ? null : (isSa1Special ? roundClean(t1Calc.internalObt) : t1Calc.totalObt)
+    const t1Percent = !isSa1Pending && t1Max > 0 ? (t1Obt / t1Max) * 100 : 0
+    const t1Grade = isSa1Pending ? '—' : calculateScholasticGrade(t1Percent)
 
     // Term 2 components
     const fa3Max = sub.fa3Max !== undefined && sub.fa3Max !== '' ? parseSafeNum(sub.fa3Max, 20) : (sub.t2IntMax !== undefined ? parseSafeNum(sub.t2IntMax, 20) : 20)
@@ -132,16 +135,19 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     const annualCalc = calculateAnnualSubjectMarks(t1Obt, t2Obt, t1Max, t2Max)
     const rowMax = isHalfYearly ? t1Max : annualCalc.maxMarks
     const rowScored = isHalfYearly ? t1Obt : annualCalc.totalObt
-    const overallPercent = rowMax > 0 ? (rowScored / rowMax) * 100 : 0
-    const overallRowGrade = calculateScholasticGrade(overallPercent)
+    const overallPercent = !isSa1Pending && rowMax > 0 ? (rowScored / rowMax) * 100 : 0
+    const overallRowGrade = isSa1Pending ? '—' : calculateScholasticGrade(overallPercent)
 
     // Accumulate
     totalT1InternalMax += t1Calc.internalMax
     totalT1InternalObt += t1Calc.internalObt
     totalSa1Max += sa1Max
-    totalSa1Obt += sa1Obt
-    totalT1Max += t1Max
-    totalT1Obt += t1Obt
+    if (isSa1Pending) {
+      hasPendingT1 = true
+    } else {
+      totalSa1Obt += sa1Obt
+      totalT1Obt += t1Obt
+    }
 
     totalT2InternalMax += t2Calc.internalMax
     totalT2InternalObt += t2Calc.internalObt
@@ -151,20 +157,23 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     totalT2Obt += t2Obt
 
     grandTotalMax += rowMax
-    grandTotalScored += rowScored
+    if (!isSa1Pending) {
+      grandTotalScored += rowScored
+    }
 
     return {
       name: sub.name,
       sa1Max, sa1Obt, isSa1Special, sa1Raw: sub.sa1Obt,
+      isSa1Pending,
       t1InternalObt: roundDisplay(t1Calc.internalObt),
       t1InternalMax: t1Calc.internalMax,
-      t1Max, t1Obt: roundDisplay(t1Obt), t1Grade,
+      t1Max, t1Obt: isSa1Pending ? null : roundDisplay(t1Obt), t1Grade,
       sa2Max, sa2Obt, isSa2Special, sa2Raw: sub.sa2Obt || sub.t2MainObt,
       t2InternalObt: roundDisplay(t2Calc.internalObt),
       t2InternalMax: t2Calc.internalMax,
       t2Max, t2Obt: roundDisplay(t2Obt), t2Grade,
       rowMax,
-      rowScored: roundDisplay(rowScored),
+      rowScored: isSa1Pending ? null : roundDisplay(rowScored),
       overallRowGrade,
     }
   })
@@ -181,9 +190,9 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
 
   grandTotalScored = roundDisplay(grandTotalScored)
 
-  const overallPercentage = grandTotalMax > 0 ? (grandTotalScored / grandTotalMax) * 100 : 0
-  const overallGrade = calculateScholasticGrade(overallPercentage)
-  const overallDivision = calculateDivision(overallPercentage)
+  const overallPercentage = !hasPendingT1 && grandTotalMax > 0 ? (grandTotalScored / grandTotalMax) * 100 : 0
+  const overallGrade = hasPendingT1 ? 'Pending' : calculateScholasticGrade(overallPercentage)
+  const overallDivision = hasPendingT1 ? 'Pending' : calculateDivision(overallPercentage)
 
   const coScholasticT1 = data.coScholasticHalfYearly || data.coScholasticTerm1 || {}
   const coScholasticT2 = data.coScholasticAnnual || data.coScholasticTerm2 || {}
@@ -379,12 +388,30 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                     <td className="border border-slate-900 p-0.5">{sub.t1InternalMax}</td>
                     <td className="border border-slate-900 p-0.5 font-semibold">{sub.t1InternalObt}</td>
                     <td className="border border-slate-900 p-0.5">{sub.sa1Max}</td>
-                    <td className="border border-slate-900 p-0.5 font-semibold">{sub.isSa1Special ? sub.sa1Raw : sub.sa1Obt}</td>
-                    <td className="border border-slate-900 p-0.5 font-bold">{sub.t1Obt}</td>
+                    <td className="border border-slate-900 p-0.5 font-semibold">
+                      {sub.isSa1Pending ? (
+                        <span className="text-amber-800 font-bold italic">Pending</span>
+                      ) : sub.isSa1Special ? (
+                        sub.sa1Raw
+                      ) : (
+                        sub.sa1Obt
+                      )}
+                    </td>
+                    <td className="border border-slate-900 p-0.5 font-bold">
+                      {sub.isSa1Pending ? (
+                        <span className="text-amber-800 font-bold italic">Incomplete</span>
+                      ) : (
+                        sub.t1Obt
+                      )}
+                    </td>
 
                     <td className="border border-slate-900 p-0.5 font-bold">{sub.rowMax}</td>
-                    <td className="border border-slate-900 p-0.5 font-bold">{sub.rowScored}</td>
-                    <td className="border border-slate-900 p-0.5 font-bold">{sub.overallRowGrade}</td>
+                    <td className="border border-slate-900 p-0.5 font-bold">
+                      {sub.isSa1Pending ? '—' : sub.rowScored}
+                    </td>
+                    <td className="border border-slate-900 p-0.5 font-bold">
+                      {sub.isSa1Pending ? '—' : sub.overallRowGrade}
+                    </td>
                   </tr>
                 ))}
                 {/* Total Row */}
@@ -393,11 +420,17 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
                   <td className="border border-slate-900 p-0.5">{totalT1InternalMax}</td>
                   <td className="border border-slate-900 p-0.5">{totalT1InternalObt}</td>
                   <td className="border border-slate-900 p-0.5">{totalSa1Max}</td>
-                  <td className="border border-slate-900 p-0.5">{totalSa1Obt}</td>
-                  <td className="border border-slate-900 p-0.5 font-black">{totalT1Obt}</td>
+                  <td className="border border-slate-900 p-0.5 font-semibold">
+                    {hasPendingT1 ? <span className="text-amber-800 italic">Pending</span> : totalSa1Obt}
+                  </td>
+                  <td className="border border-slate-900 p-0.5 font-black">
+                    {hasPendingT1 ? <span className="text-amber-800 italic">Incomplete</span> : totalT1Obt}
+                  </td>
 
                   <td className="border border-slate-900 p-0.5 font-black">{grandTotalMax}</td>
-                  <td className="border border-slate-900 p-0.5 font-black">{grandTotalScored}</td>
+                  <td className="border border-slate-900 p-0.5 font-black">
+                    {hasPendingT1 ? <span className="text-amber-800 italic">Incomplete</span> : grandTotalScored}
+                  </td>
                   <td className="border border-slate-900 p-0.5 font-black">{overallGrade}</td>
                 </tr>
               </tbody>
