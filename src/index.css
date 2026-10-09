@@ -111,36 +111,112 @@ textarea::placeholder {
   opacity: 1 !important;
 }
 
-.marksheet-portal label,
-.marksheet-portal th,
-.marksheet-portal td,
-.marksheet-portal p,
-.marksheet-portal h1,
-.marksheet-portal h2,
-.marksheet-portal h3,
-.marksheet-portal h4,
-.marksheet-portal h5,
-.marksheet-portal strong {
+.marksheet-portal label:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal th:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal td:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal p:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal h1:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal h2:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal h3:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal h4:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal h5:not(.printable-card-wrapper *):not(#printable-report-card *),
+.marksheet-portal strong:not(.printable-card-wrapper *):not(#printable-report-card *) {
   color: #ffffff;
 }
 
-/* Retain explicit status/accent highlight colors */
-.marksheet-portal .text-amber-300,
-.marksheet-portal .text-amber-400 {
+/* ==========================================================================
+   PRINTABLE REPORT CARDS (LIGHT / WHITE PAPER STYLING)
+   Must ALWAYS render crisp dark text (#0f172a) on white paper backgrounds,
+   even when embedded within the dark .marksheet-portal preview layout
+   ========================================================================== */
+.printable-card-wrapper,
+.printable-card-wrapper th,
+.printable-card-wrapper td,
+.printable-card-wrapper p,
+.printable-card-wrapper strong,
+.printable-card-wrapper span,
+#printable-report-card,
+#printable-report-card th,
+#printable-report-card td,
+#printable-report-card p,
+#printable-report-card strong,
+#printable-report-card span,
+.marksheet-portal .printable-card-wrapper th,
+.marksheet-portal .printable-card-wrapper td,
+.marksheet-portal .printable-card-wrapper p,
+.marksheet-portal .printable-card-wrapper strong,
+.marksheet-portal .printable-card-wrapper span,
+.marksheet-portal #printable-report-card th,
+.marksheet-portal #printable-report-card td,
+.marksheet-portal #printable-report-card p,
+.marksheet-portal #printable-report-card strong,
+.marksheet-portal #printable-report-card span {
+  color: #0f172a;
+}
+
+/* Report Card Status & Typography Specific Colors */
+.marksheet-portal .printable-card-wrapper .text-amber-800,
+.marksheet-portal #printable-report-card .text-amber-800 {
+  color: #92400e !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-red-700,
+.marksheet-portal #printable-report-card .text-red-700 {
+  color: #b91c1c !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-emerald-900,
+.marksheet-portal #printable-report-card .text-emerald-900 {
+  color: #064e3b !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-blue-900,
+.marksheet-portal #printable-report-card .text-blue-900 {
+  color: #1e3a8a !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-blue-950,
+.marksheet-portal #printable-report-card .text-blue-950 {
+  color: #172554 !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-slate-700,
+.marksheet-portal #printable-report-card .text-slate-700 {
+  color: #334155 !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-slate-800,
+.marksheet-portal #printable-report-card .text-slate-800 {
+  color: #1e293b !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-slate-900,
+.marksheet-portal #printable-report-card .text-slate-900 {
+  color: #0f172a !important;
+}
+
+.marksheet-portal .printable-card-wrapper .text-slate-500,
+.marksheet-portal #printable-report-card .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Retain explicit dark theme status/accent highlight colors */
+.marksheet-portal:not(.printable-card-wrapper) .text-amber-300,
+.marksheet-portal:not(.printable-card-wrapper) .text-amber-400 {
   color: #fcd34d !important;
   -webkit-text-fill-color: #fcd34d !important;
 }
-.marksheet-portal .text-emerald-300,
-.marksheet-portal .text-emerald-400 {
+.marksheet-portal:not(.printable-card-wrapper) .text-emerald-300,
+.marksheet-portal:not(.printable-card-wrapper) .text-emerald-400 {
   color: #34d399 !important;
   -webkit-text-fill-color: #34d399 !important;
 }
-.marksheet-portal .text-red-400,
-.marksheet-portal [class*="text-[#bb0a21]"] {
+.marksheet-portal:not(.printable-card-wrapper) .text-red-400,
+.marksheet-portal:not(.printable-card-wrapper) [class*="text-[#bb0a21]"] {
   color: #f87171 !important;
   -webkit-text-fill-color: #f87171 !important;
 }
-.marksheet-portal [class*="text-[#4b88a2]"] {
+.marksheet-portal:not(.printable-card-wrapper) [class*="text-[#4b88a2]"] {
   color: #79b7d3 !important;
   -webkit-text-fill-color: #79b7d3 !important;
 }

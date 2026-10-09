@@ -536,11 +536,15 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
         <div className="mt-1 border border-slate-900 p-1 bg-slate-50/50 flex flex-wrap justify-between items-center text-[9px] font-bold">
           <div>
             <span>Overall Marks : </span>
-            <span className="font-extrabold">{grandTotalScored.toFixed(2)} / {grandTotalMax.toFixed(2)}</span>
+            <span className="font-extrabold">
+              {hasPendingT1 ? `Incomplete (${totalT1InternalObt} / ${totalT1InternalMax} IA scored)` : `${grandTotalScored.toFixed(2)} / ${grandTotalMax.toFixed(2)}`}
+            </span>
           </div>
           <div>
             <span>Percentage : </span>
-            <span className="font-extrabold">{overallPercentage.toFixed(2)} %</span>
+            <span className="font-extrabold">
+              {hasPendingT1 ? `${totalT1InternalMax > 0 ? ((totalT1InternalObt / totalT1InternalMax) * 100).toFixed(2) : '0.00'} % (IA)` : `${overallPercentage.toFixed(2)} %`}
+            </span>
           </div>
           <div>
             <span>Grade : </span>
