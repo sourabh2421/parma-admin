@@ -161,9 +161,18 @@ export function subscribeMarksheetRecords(onSuccess, onError) {
         })
 
         if (records.length > 0) {
-          // Cache to localStorage
+          // Cache to localStorage (strip heavy base64 photoUrl to prevent QuotaExceededError on 5MB limit)
           if (typeof window !== 'undefined') {
-            window.localStorage.setItem(LOCAL_STORAGE_MARKS_KEY, JSON.stringify(records))
+            try {
+              const lightRecords = records.map((r) => {
+                if (!r || !r.photoUrl) return r
+                const { photoUrl, ...rest } = r
+                return rest
+              })
+              window.localStorage.setItem(LOCAL_STORAGE_MARKS_KEY, JSON.stringify(lightRecords))
+            } catch (storageErr) {
+              console.warn('LocalStorage marksheet cache notice:', storageErr?.message)
+            }
           }
         }
 
@@ -260,7 +269,16 @@ export async function saveStudentMarksheet(record) {
   }
 
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(LOCAL_STORAGE_MARKS_KEY, JSON.stringify(newList))
+    try {
+      const lightList = newList.map((r) => {
+        if (!r || !r.photoUrl) return r
+        const { photoUrl, ...rest } = r
+        return rest
+      })
+      window.localStorage.setItem(LOCAL_STORAGE_MARKS_KEY, JSON.stringify(lightList))
+    } catch (storageErr) {
+      console.warn('LocalStorage marksheet cache notice:', storageErr?.message)
+    }
   }
 
   const db = getFirebaseDb()
@@ -487,12 +505,16 @@ export function getMergedStudentsList(studentsFromRepo = [], firestoreMarks = nu
           fatherName: resolveFatherName(rawId, s.name, existing.fatherName, safeFather),
           class: s.class || existing.class,
           photoUrl: existing.photoUrl || s.photoUrl || null,
+          hasPhoto: existing.hasPhoto || s.hasPhoto || false,
+          photoPath: existing.photoPath || s.photoPath || null,
         })
       } else {
         const empty = createEmptyMarksheetForStudent(s)
         dedupeMap.set(key, {
           ...empty,
           photoUrl: s.photoUrl || null,
+          hasPhoto: s.hasPhoto || false,
+          photoPath: s.photoPath || null,
         })
       }
     }
@@ -520,7 +542,16 @@ export function getMergedStudentsList(studentsFromRepo = [], firestoreMarks = nu
 
 export function filterStudentsByClass(students = [], selectedClassKey = 'ALL') {
   if (!selectedClassKey || selectedClassKey === 'ALL') return students
-  return students.filter((s) => matchClassKey(s.class) === selectedClassKey)
+  return students.filter((s) => {
+    const matched = matchClassKey(s.class)
+    if (selectedClassKey === 'XI' || selectedClassKey === '11') {
+      return matched === 'XI' || matched === 'XI Science' || matched === 'XI Commerce' || matched === 'XI Humanities'
+    }
+    if (selectedClassKey === 'XII' || selectedClassKey === '12') {
+      return matched === 'XII' || matched === 'XII Science' || matched === 'XII Commerce' || matched === 'XII Humanities'
+    }
+    return matched === selectedClassKey
+  })
 }
 
 export function createEmptyMarksheetForStudent(student) {

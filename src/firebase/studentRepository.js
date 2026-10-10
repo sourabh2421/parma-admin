@@ -59,7 +59,7 @@ export function mapStudentDoc(snapshot) {
   const parentName = resolvedParent ? resolvedParent.toUpperCase() : ''
   const studentClass = String(d.class ?? '').trim().toUpperCase()
 
-  return {
+  const studentObj = {
     id,
     name,
     parentName,
@@ -67,6 +67,10 @@ export function mapStudentDoc(snapshot) {
     createdAt: coerceTimestampToIso(d.createdAt),
     updatedAt: coerceTimestampToIso(d.updatedAt),
   }
+  if (d.hasPhoto !== undefined) studentObj.hasPhoto = d.hasPhoto === true
+  if (d.photoPath !== undefined) studentObj.photoPath = d.photoPath || null
+  if (d.photoUrl !== undefined) studentObj.photoUrl = d.photoUrl || null
+  return studentObj
 }
 
 export function studentToFirestoreWrite(student) {

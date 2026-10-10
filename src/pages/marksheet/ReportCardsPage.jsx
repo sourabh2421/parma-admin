@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { doc, getDoc } from 'firebase/firestore'
+import { getFirebaseDb } from '../../firebase/config.js'
 import ReportCardView from '../../components/marksheet/ReportCardView.jsx'
 import {
   filterStudentsByClass,
@@ -10,12 +12,38 @@ import { subscribeStudents } from '../../firebase/studentRepository.js'
 import { ALL_CLASSES } from '../../utils/marksheetDefaults.js'
 import { FileText, Printer, Users, User, CheckCircle2 } from 'lucide-react'
 
+const REPORT_CARD_CLASSES = [
+  'Playgroup',
+  'Nursery',
+  'LKG',
+  'UKG',
+  'I',
+  'II',
+  'III',
+  'IV',
+  'V',
+  'VI',
+  'VII',
+  'VIII',
+  'IX',
+  'X',
+  'XI',
+  'XII',
+  'XI Science',
+  'XI Commerce',
+  'XI Humanities',
+  'XII Science',
+  'XII Commerce',
+  'XII Humanities',
+]
+
 export default function ReportCardsPage() {
   const [studentsFromRepo, setStudentsFromRepo] = useState([])
   const [firestoreMarks, setFirestoreMarks] = useState([])
   const [selectedStudentId, setSelectedStudentId] = useState('')
   const [filterClass, setFilterClass] = useState('ALL')
   const [reportType, setReportType] = useState('annual') // 'half-yearly' | 'annual'
+  const [activePhotoUrl, setActivePhotoUrl] = useState(null)
 
   // 1. Load students from studentRepository
   useEffect(() => {
@@ -70,6 +98,44 @@ export default function ReportCardsPage() {
       setSelectedStudentId(currentStudent.id)
     }
   }, [currentStudent, selectedStudentId])
+
+  // On-demand photo loader for currentStudent if photoUrl is not in marksheet record
+  useEffect(() => {
+    setActivePhotoUrl(null)
+    const studentId = currentStudent?.id || currentStudent?.studentId
+    if (!currentStudent || currentStudent.photoUrl || !studentId) {
+      return
+    }
+
+    let isMounted = true
+    const fetchPhoto = async () => {
+      try {
+        const db = getFirebaseDb()
+        if (!db) return
+        const pRef = doc(db, 'studentPhotos', String(studentId))
+        const pSnap = await getDoc(pRef)
+        if (pSnap.exists() && isMounted) {
+          const d = pSnap.data()
+          if (d?.dataUrl) {
+            setActivePhotoUrl(d.dataUrl)
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load student photo on demand:', err?.message)
+      }
+    }
+    fetchPhoto()
+    return () => {
+      isMounted = false
+    }
+  }, [currentStudent?.id, currentStudent?.studentId, currentStudent?.photoUrl])
+
+  const studentToRender = useMemo(() => {
+    if (!currentStudent) return null
+    if (currentStudent.photoUrl) return currentStudent
+    if (activePhotoUrl) return { ...currentStudent, photoUrl: activePhotoUrl }
+    return currentStudent
+  }, [currentStudent, activePhotoUrl])
 
   // Unified Print Handler: Single Student or Bulk Class Printing
   const printReportCards = (studentsToPrint, titleSuffix = '') => {
@@ -174,16 +240,35 @@ export default function ReportCardsPage() {
   }
 
   const handlePrintSingle = () => {
-    if (currentStudent) {
-      printReportCards([currentStudent], `${currentStudent.name} (Class ${currentStudent.class})`)
+    if (studentToRender) {
+      printReportCards([studentToRender], `${studentToRender.name} (Class ${studentToRender.class})`)
     }
   }
 
-  const handlePrintAllClass = () => {
-    if (filteredStudents.length > 0) {
-      const classLabel = filterClass === 'ALL' ? 'All Classes' : `Class ${filterClass}`
-      printReportCards(filteredStudents, `${classLabel} (${filteredStudents.length} Students)`)
-    }
+  const handlePrintAllClass = async () => {
+    if (filteredStudents.length === 0) return
+    const classLabel = filterClass === 'ALL' ? 'All Classes' : `Class ${filterClass}`
+
+    // Ensure all students in print batch have photos loaded
+    const db = getFirebaseDb()
+    const enriched = await Promise.all(
+      filteredStudents.map(async (s) => {
+        if (s.photoUrl) return s
+        if (!db) return s
+        try {
+          const pRef = doc(db, 'studentPhotos', String(s.id || s.studentId))
+          const pSnap = await getDoc(pRef)
+          if (pSnap.exists()) {
+            const dataUrl = pSnap.data()?.dataUrl
+            if (dataUrl) return { ...s, photoUrl: dataUrl }
+          }
+        } catch {
+          // ignore error
+        }
+        return s
+      })
+    )
+    printReportCards(enriched, `${classLabel} (${enriched.length} Students)`)
   }
 
   return (
@@ -281,8 +366,11 @@ export default function ReportCardsPage() {
               className="w-full rounded-xl border border-[#4b88a2]/60 bg-[#252627] px-3.5 py-2 text-xs font-bold text-white focus:border-[#4b88a2] focus:outline-none"
             >
               <option value="ALL">All Classes ({allMergedStudents.length} Students)</option>
-              {ALL_CLASSES.map((cls) => {
+              {REPORT_CARD_CLASSES.map((cls) => {
                 const count = filterStudentsByClass(allMergedStudents, cls).length
+                if (count === 0 && (cls.includes('Commerce') || cls.includes('Humanities'))) {
+                  return null
+                }
                 return (
                   <option key={cls} value={cls}>
                     Class {cls} ({count} Students)
@@ -313,8 +401,8 @@ export default function ReportCardsPage() {
 
       {/* Live Printable Preview Container */}
       <div className="overflow-x-auto p-2 print:p-0 print:m-0 print:overflow-visible">
-        {currentStudent ? (
-          <ReportCardView data={currentStudent} reportType={reportType} />
+        {studentToRender ? (
+          <ReportCardView data={studentToRender} reportType={reportType} />
         ) : (
           <div className="no-print text-center py-12 text-[#d3d4d9] text-xs">
             No student marksheet records found for the selected class filter.
