@@ -187,10 +187,14 @@ async function main() {
     })
 
     if (verification.isApproved) {
+      const targetDbStudent = verification.targetStudentId
+        ? (dbStudentsById.get(verification.targetStudentId) || dbStud)
+        : dbStud
+
       approvedMatches.push({
         ...p,
         excel: excelRow,
-        dbStudent: dbStud || dbStudentsById.get(verification.targetStudentId),
+        dbStudent: targetDbStudent,
         verification,
       })
     } else {
