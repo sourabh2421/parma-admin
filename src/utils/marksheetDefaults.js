@@ -472,7 +472,8 @@ export function calculateTermMarks(
 
   const faA = Number(faAObt) || 0
   const faB = Number(faBObt) || 0
-  const sa = Number(saObt) || 0
+  const isSaPending = saObt === null || saObt === undefined || saObt === ''
+  const sa = isSaPending ? null : (Number(saObt) || 0)
 
   // If class/subject or assignment/oral context is present, use the exact Excel system
   if (clsKey || subjectName || (assignObt !== null && assignObt !== undefined) || (oralObt !== null && oralObt !== undefined)) {
@@ -489,14 +490,16 @@ export function calculateTermMarks(
     const divisor = config.divisor || 3
     const internalObt = (faA + faB + assign + oral) / divisor
 
-    const totalObt = internalObt + sa
+    const totalObt = isSaPending ? null : (internalObt + sa)
     const cleanInternalObt = Number.isInteger(internalObt) ? internalObt : Number(internalObt.toFixed(4))
-    const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(4))
+    const cleanTotalObt = isSaPending ? null : (Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(4)))
 
     return {
       faWeighted: (faA + faB) / 2,
       internalObt: cleanInternalObt,
       internalMax: config.internalMax,
+      saObt: sa,
+      isSaPending,
       totalObt: cleanTotalObt,
       maxMarks: effectiveTermMax,
     }
@@ -504,14 +507,16 @@ export function calculateTermMarks(
 
   // Fallback / legacy calculation when no class/subject context is provided
   const faWeighted = (faA + faB) / 2
-  const totalObt = sa + faWeighted
+  const totalObt = isSaPending ? null : (sa + faWeighted)
   const maxMarks = (Number(saMax) || 80) + ((Number(faAMax) || 20) + (Number(faBMax) || 20)) / 2
-  const cleanTotalObt = Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(4))
+  const cleanTotalObt = isSaPending ? null : (Number.isInteger(totalObt) ? totalObt : Number(totalObt.toFixed(4)))
 
   return {
     faWeighted,
     internalObt: faWeighted,
     internalMax: ((Number(faAMax) || 20) + (Number(faBMax) || 20)) / 2,
+    saObt: sa,
+    isSaPending,
     totalObt: cleanTotalObt,
     maxMarks: maxMarks || 100,
   }
@@ -562,7 +567,7 @@ export function createScholasticTemplateForClass(clsKey) {
       fa2Max: 20, fa2Obt: 0,   // F.A.-2 (July)
       sa1AssignMax: config.assignMax, sa1AssignObt: 0, // Assignment / Dictation
       sa1OralMax: config.oralMax, sa1OralObt: 0,       // Oral / Practical / Game
-      sa1Max: config.theoryMax, sa1Obt: config.isNurseryScheme ? null : 0,             // S.A.-1 Half-Yearly Theory (September)
+      sa1Max: config.theoryMax, sa1Obt: (config.isNurseryScheme || config.isPrePrimary) ? null : 0, // S.A.-1 Half-Yearly Theory (pending for Pre-Primary)
       // Term 2 — Annual
       fa3Max: 20, fa3Obt: 0,   // F.A.-3 (November)
       fa4Max: 20, fa4Obt: 0,   // F.A.-4 (January)

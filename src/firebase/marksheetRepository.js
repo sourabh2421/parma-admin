@@ -499,11 +499,17 @@ export function getMergedStudentsList(studentsFromRepo = [], firestoreMarks = nu
       const safeFather = resolveFatherName(rawId, s.name, s.fatherName, s.parentName)
       if (storedMap.has(key)) {
         const existing = storedMap.get(key)
+        const empty = createEmptyMarksheetForStudent(s)
         dedupeMap.set(key, {
+          ...empty,
           ...existing,
           name: s.name || existing.name,
           fatherName: resolveFatherName(rawId, s.name, existing.fatherName, safeFather),
           class: s.class || existing.class,
+          session: existing.session || CURRENT_ACADEMIC_SESSION,
+          scholastic: (existing.scholastic && existing.scholastic.length > 0)
+            ? existing.scholastic
+            : empty.scholastic,
           photoUrl: existing.photoUrl || s.photoUrl || null,
           hasPhoto: existing.hasPhoto || s.hasPhoto || false,
           photoPath: existing.photoPath || s.photoPath || null,

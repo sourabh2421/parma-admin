@@ -4,6 +4,7 @@ import {
   calculateDivision,
   calculateScholasticGrade,
   calculateTermMarks,
+  CURRENT_ACADEMIC_SESSION,
 } from '../../utils/marksheetDefaults.js'
 import { resolveFatherName } from '../../firebase/marksheetRepository.js'
 
@@ -281,7 +282,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
               {isHalfYearly ? 'HALF-YEARLY REPORT CARD' : 'REPORT CARD'}
             </h2>
             <div className="text-[10.5px] font-bold text-slate-900">
-              Academic Session : {data.session || '2025-2026'}
+              Academic Session : {data.session || CURRENT_ACADEMIC_SESSION}
             </div>
           </div>
         </div>
