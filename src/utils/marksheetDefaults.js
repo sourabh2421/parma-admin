@@ -168,22 +168,22 @@ export function getSubjectMarkConfig(clsKey, subjectName = '') {
   const isClass1To8 = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'].includes(normCls)
   const is11_12 = normCls.startsWith('XI') || normCls.startsWith('XII')
 
-  // 1. Pre-Primary (Playgroup, LKG, UKG): FA1 (20) + FA2 (20) + Dictation (10) + Oral (10) / 3 => Internal = 20, Half Yearly / Annual = 80 => Total = 100
-  if (isPrePrimary) {
-    const isDrawingOrEvs = sub.includes('drawing') || sub.includes('e.v.s') || sub.includes('evs')
+  // 1. Pre-Primary (Playgroup, Nursery, LKG, UKG): FA1 (20) + FA2 (20) => Internal = 40, Half Yearly / Annual = 60 => Total = 100
+  if (isPrePrimary || normCls === 'Nursery' || normCls === 'Playgroup' || normCls === 'LKG' || normCls === 'UKG') {
     return {
       isPrePrimary: true,
+      isNurseryScheme: true,
       isPractical: false,
-      hasAssignment: !isDrawingOrEvs,
-      hasOral: !isDrawingOrEvs,
-      assignLabel: 'Dictation',
-      oralLabel: 'Oral',
+      hasAssignment: false,
+      hasOral: false,
+      assignLabel: '',
+      oralLabel: '',
       faMax: 20,
-      assignMax: isDrawingOrEvs ? 0 : 10,
-      oralMax: isDrawingOrEvs ? 0 : 10,
-      divisor: isDrawingOrEvs ? 2 : 3,
-      internalMax: 20,
-      theoryMax: 80,
+      assignMax: 0,
+      oralMax: 0,
+      divisor: 1,
+      internalMax: 40,
+      theoryMax: 60,
       termMax: 100,
       annualMax: 200,
     }

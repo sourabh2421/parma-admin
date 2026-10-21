@@ -80,6 +80,8 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     const sa1Max = sub.sa1Max !== undefined && sub.sa1Max !== '' ? parseSafeNum(sub.sa1Max, 80) : (sub.t1MainMax !== undefined ? parseSafeNum(sub.t1MainMax, 80) : 80)
     const sa1Obt = isSa1Special ? 0 : (isSa1Entered ? parseSafeNum(sub.sa1Obt, 0) : null)
 
+    const resolvedClass = data?.class || data?.className || data?.classSection || data?.standard || data?.studentClass || ''
+
     // Term 1 Total: SA-1 Theory + Internal Assessment (FA1 + FA2 + Assignment + Oral according to syllabus)
     const t1Calc = calculateTermMarks(
       fa1Obt,
@@ -92,7 +94,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
       sub.sa1OralObt,
       sub.sa1AssignMax,
       sub.sa1OralMax,
-      data.class,
+      resolvedClass,
       sub.name
     )
     const isSa1Pending = Boolean(t1Calc.isSaPending)
@@ -124,7 +126,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
       sub.sa2OralObt,
       sub.sa2AssignMax,
       sub.sa2OralMax,
-      data.class,
+      resolvedClass,
       sub.name
     )
     const t2Max = t2Calc.maxMarks
