@@ -3,7 +3,7 @@
  * Pre-Primary (Playgroup, Nursery, LKG, UKG) + Class I to XII (Science, Commerce, Humanities)
  */
 export const DEFAULT_CLASS_SUBJECTS = {
-  'Playgroup': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
+  'Playgroup': ['English Written', 'English Oral', 'Hindi Written', 'Hindi Oral', 'Maths Written', 'Maths Oral', 'Drawing'],
   'Nursery': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
   'LKG': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
   'UKG': ['English Written', 'English Oral', 'English Dictation', 'Hindi Written', 'Hindi Oral', 'Hindi Dictation', 'Maths Written', 'Maths Oral', 'E.V.S.', 'Drawing'],
@@ -73,17 +73,17 @@ export const CO_SCHOLASTIC_SKILLS = [
 
 /**
  * Class-based scheme configurations for classes with custom evaluation models.
- * For class Nursery:
+ * For Pre-Primary classes (Playgroup, Nursery, LKG, UKG):
  *   - F.A.-1 max 20, F.A.-2 max 20
  *   - Internal Assessment total = F.A.-1 + F.A.-2 (max 40). No halving, no assignment, no dictation, no oral.
  *   - S.A.-1 (Half Yearly, Term I) max 60.
  *   - Term-I total = Internal Assessment (40) + S.A.-1 (60) = 100.
  * Classes not defined here fall through untouched to standard evaluation schemes.
  */
-export const CLASS_MARK_SCHEMES = {
-  Nursery: {
-    className: 'Nursery',
-    description: 'Nursery 2026-27: FA-1 (max 20) + FA-2 (max 20) = Internal Assessment (max 40). SA-1 (max 60). Term Total (max 100). No Dictation, Oral or Assignment components.',
+function makePrePrimaryScheme(className) {
+  return {
+    className,
+    description: `${className} 2026-27: FA-1 (max 20) + FA-2 (max 20) = Internal Assessment (max 40). SA-1 (max 60). Term Total (max 100). No Dictation, Oral or Assignment components.`,
     components: ['FA-1', 'FA-2', 'SA-1'],
     hasAssignment: false,
     hasOral: false,
@@ -113,12 +113,12 @@ export const CLASS_MARK_SCHEMES = {
       annualMax: 200,
     }),
     calculateTerm: (faAObt, faBObt, saObt) => {
-      const faA = Number(faAObt) || 0
-      const faB = Number(faBObt) || 0
-      const internalObt = faA + faB
+      const faA = Math.round(Number(faAObt) || 0)
+      const faB = Math.round(Number(faBObt) || 0)
+      const internalObt = Math.round(faA + faB)
       const isSaPending = saObt === null || saObt === undefined || saObt === ''
-      const sa = isSaPending ? null : (Number(saObt) || 0)
-      const totalObt = isSaPending ? null : (internalObt + sa)
+      const sa = isSaPending ? null : Math.round(Number(saObt) || 0)
+      const totalObt = isSaPending ? null : Math.round(internalObt + sa)
       return {
         faWeighted: internalObt,
         internalObt,
@@ -129,7 +129,14 @@ export const CLASS_MARK_SCHEMES = {
         maxMarks: 100,
       }
     },
-  },
+  }
+}
+
+export const CLASS_MARK_SCHEMES = {
+  Playgroup: makePrePrimaryScheme('Playgroup'),
+  Nursery: makePrePrimaryScheme('Nursery'),
+  LKG: makePrePrimaryScheme('LKG'),
+  UKG: makePrePrimaryScheme('UKG'),
 }
 
 export function getClassMarkScheme(clsKey) {

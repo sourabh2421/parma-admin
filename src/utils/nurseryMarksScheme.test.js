@@ -9,22 +9,21 @@ import {
 
 describe('Nursery Marks Scheme & Matching Rules (Ground Rules Test Suite)', () => {
   describe('1. Class-Based Scheme Config for Nursery', () => {
-    it('defines Nursery in CLASS_MARK_SCHEMES with expected maxima and components', () => {
-      const scheme = getClassMarkScheme('Nursery')
-      expect(scheme).toBeDefined()
-      expect(scheme.faMax).toBe(20)
-      expect(scheme.internalMax).toBe(40)
-      expect(scheme.theoryMax).toBe(60)
-      expect(scheme.termMax).toBe(100)
-      expect(scheme.hasAssignment).toBe(false)
-      expect(scheme.hasOral).toBe(false)
-      expect(scheme.components).toEqual(['FA-1', 'FA-2', 'SA-1'])
+    it('defines Nursery, LKG, UKG, and Playgroup in CLASS_MARK_SCHEMES with expected maxima and components', () => {
+      for (const cls of ['Playgroup', 'Nursery', 'LKG', 'UKG']) {
+        const scheme = getClassMarkScheme(cls)
+        expect(scheme).toBeDefined()
+        expect(scheme.faMax).toBe(20)
+        expect(scheme.internalMax).toBe(40)
+        expect(scheme.theoryMax).toBe(60)
+        expect(scheme.termMax).toBe(100)
+        expect(scheme.hasAssignment).toBe(false)
+        expect(scheme.hasOral).toBe(false)
+        expect(scheme.components).toEqual(['FA-1', 'FA-2', 'SA-1'])
+      }
     })
 
-    it('returns null custom scheme for non-Nursery classes so they fall through', () => {
-      expect(getClassMarkScheme('Playgroup')).toBeNull()
-      expect(getClassMarkScheme('LKG')).toBeNull()
-      expect(getClassMarkScheme('UKG')).toBeNull()
+    it('returns null custom scheme for non-Pre-Primary classes so they fall through', () => {
       expect(getClassMarkScheme('I')).toBeNull()
       expect(getClassMarkScheme('V')).toBeNull()
       expect(getClassMarkScheme('X')).toBeNull()
@@ -114,19 +113,19 @@ describe('Nursery Marks Scheme & Matching Rules (Ground Rules Test Suite)', () =
   })
 
   describe('3. Unchanged Behavior for Non-Nursery Classes (Regression Guard)', () => {
-    it('LKG and UKG still divide by 3 for standard subjects and divide by 2 for Drawing/EVS', () => {
+    it('LKG and UKG use the Pre-Primary 40 IA and 60 Theory scheme', () => {
       const lkg = getSubjectMarkConfig('LKG', 'English Written')
-      expect(lkg.isNurseryScheme).toBeUndefined()
-      expect(lkg.divisor).toBe(3)
-      expect(lkg.internalMax).toBe(20)
-      expect(lkg.theoryMax).toBe(80)
-      expect(lkg.hasAssignment).toBe(true)
-      expect(lkg.hasOral).toBe(true)
+      expect(lkg.isNurseryScheme).toBe(true)
+      expect(lkg.divisor).toBe(1)
+      expect(lkg.internalMax).toBe(40)
+      expect(lkg.theoryMax).toBe(60)
+      expect(lkg.hasAssignment).toBe(false)
+      expect(lkg.hasOral).toBe(false)
 
       const ukgEvs = getSubjectMarkConfig('UKG', 'E.V.S.')
-      expect(ukgEvs.divisor).toBe(2)
-      expect(ukgEvs.internalMax).toBe(20)
-      expect(ukgEvs.theoryMax).toBe(80)
+      expect(ukgEvs.divisor).toBe(1)
+      expect(ukgEvs.internalMax).toBe(40)
+      expect(ukgEvs.theoryMax).toBe(60)
       expect(ukgEvs.hasAssignment).toBe(false)
       expect(ukgEvs.hasOral).toBe(false)
     })

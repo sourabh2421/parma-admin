@@ -43,15 +43,15 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     if (num === null || num === undefined) return 0
     const n = Number(num)
     if (isNaN(n)) return 0
-    return Number.isInteger(n) ? n : Number(n.toFixed(4))
+    return Math.round(n)
   }
 
-  // Round to 2 decimal places for display only
+  // Round to integer for display (no decimals)
   const roundDisplay = (num) => {
     if (num === null || num === undefined) return 0
     const n = Number(num)
     if (isNaN(n)) return 0
-    return Number.isInteger(n) ? n : Number(n.toFixed(2))
+    return Math.round(n)
   }
 
   // Calculate totals and grades for each scholastic row
@@ -98,7 +98,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     const isSa1Pending = Boolean(t1Calc.isSaPending)
     const t1Max = t1Calc.maxMarks
     const t1Obt = isSa1Pending ? null : (isSa1Special ? roundClean(t1Calc.internalObt) : t1Calc.totalObt)
-    const t1Percent = !isSa1Pending && t1Max > 0 ? (t1Obt / t1Max) * 100 : 0
+    const t1Percent = !isSa1Pending && t1Max > 0 ? Math.round((t1Obt / t1Max) * 100) : 0
     const t1Grade = isSa1Pending ? '—' : calculateScholasticGrade(t1Percent)
 
     // Term 2 components
@@ -129,14 +129,14 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
     )
     const t2Max = t2Calc.maxMarks
     const t2Obt = isSa2Special ? roundClean(t2Calc.internalObt) : t2Calc.totalObt
-    const t2Percent = t2Max > 0 ? (t2Obt / t2Max) * 100 : 0
+    const t2Percent = t2Max > 0 ? Math.round((t2Obt / t2Max) * 100) : 0
     const t2Grade = calculateScholasticGrade(t2Percent)
 
     // Full Year Total (Half-Yearly: out of 100 | Annual / Final: out of 200)
     const annualCalc = calculateAnnualSubjectMarks(t1Obt, t2Obt, t1Max, t2Max)
     const rowMax = isHalfYearly ? t1Max : annualCalc.maxMarks
     const rowScored = isHalfYearly ? t1Obt : annualCalc.totalObt
-    const overallPercent = !isSa1Pending && rowMax > 0 ? (rowScored / rowMax) * 100 : 0
+    const overallPercent = !isSa1Pending && rowMax > 0 ? Math.round((rowScored / rowMax) * 100) : 0
     const overallRowGrade = isSa1Pending ? '—' : calculateScholasticGrade(overallPercent)
 
     // Accumulate
@@ -191,7 +191,7 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
 
   grandTotalScored = roundDisplay(grandTotalScored)
 
-  const overallPercentage = !hasPendingT1 && grandTotalMax > 0 ? (grandTotalScored / grandTotalMax) * 100 : 0
+  const overallPercentage = !hasPendingT1 && grandTotalMax > 0 ? Math.round((grandTotalScored / grandTotalMax) * 100) : 0
   const overallGrade = hasPendingT1 ? 'Pending' : calculateScholasticGrade(overallPercentage)
   const overallDivision = hasPendingT1 ? 'Pending' : calculateDivision(overallPercentage)
 
@@ -560,13 +560,13 @@ export default function ReportCardView({ data, reportType = 'annual' }) {
           <div>
             <span>Overall Marks : </span>
             <span className="font-extrabold">
-              {hasPendingT1 ? `Incomplete (${totalT1InternalObt} / ${totalT1InternalMax} IA scored)` : `${grandTotalScored.toFixed(2)} / ${grandTotalMax.toFixed(2)}`}
+              {hasPendingT1 ? `Incomplete (${roundDisplay(totalT1InternalObt)} / ${roundDisplay(totalT1InternalMax)} IA scored)` : `${roundDisplay(grandTotalScored)} / ${roundDisplay(grandTotalMax)}`}
             </span>
           </div>
           <div>
             <span>Percentage : </span>
             <span className="font-extrabold">
-              {hasPendingT1 ? `${totalT1InternalMax > 0 ? ((totalT1InternalObt / totalT1InternalMax) * 100).toFixed(2) : '0.00'} % (IA)` : `${overallPercentage.toFixed(2)} %`}
+              {hasPendingT1 ? `${totalT1InternalMax > 0 ? roundDisplay((totalT1InternalObt / totalT1InternalMax) * 100) : 0} % (IA)` : `${roundDisplay(overallPercentage)} %`}
             </span>
           </div>
           <div>
