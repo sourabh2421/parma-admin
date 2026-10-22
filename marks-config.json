@@ -1,0 +1,188 @@
+{
+  "academicSession": "2026-27",
+  "rounding": "half-up-2-decimals",
+  "schemes": {
+    "STD_80_20": {
+      "id": "STD_80_20",
+      "description": "Standard 80 Exam + 20 Internal (div 3)",
+      "components": [
+        { "name": "FA 1 / FA 3", "term1Key": "fa1", "term2Key": "fa3", "max": 20 },
+        { "name": "FA 2 / FA 4", "term1Key": "fa2", "term2Key": "fa4", "max": 20 },
+        { "name": "Assignment", "term1Key": "assignment", "term2Key": "assignment", "max": 10 },
+        { "name": "Oral / Practical / Game", "term1Key": "oral", "term2Key": "oral", "max": 10 }
+      ],
+      "internalRawMax": 60,
+      "internalMax": 20,
+      "examMax": 80,
+      "termMax": 100,
+      "subjectMax": 200
+    },
+    "PRACTICAL_70_30": {
+      "id": "PRACTICAL_70_30",
+      "description": "Practical 70 Exam + 30 Internal (div 2)",
+      "components": [
+        { "name": "FA 1 / FA 3", "term1Key": "fa1", "term2Key": "fa3", "max": 20 },
+        { "name": "FA 2 / FA 4", "term1Key": "fa2", "term2Key": "fa4", "max": 20 },
+        { "name": "Assignment", "term1Key": "assignment", "term2Key": "assignment", "max": 10 },
+        { "name": "Oral / Practical / Game", "term1Key": "oral", "term2Key": "oral", "max": 10 }
+      ],
+      "internalRawMax": 60,
+      "internalMax": 30,
+      "examMax": 70,
+      "termMax": 100,
+      "subjectMax": 200
+    },
+    "HALF_30_20": {
+      "id": "HALF_30_20",
+      "description": "50-mark subject (30 Exam + 20 Internal div 3)",
+      "components": [
+        { "name": "FA 1 / FA 3", "term1Key": "fa1", "term2Key": "fa3", "max": 20 },
+        { "name": "FA 2 / FA 4", "term1Key": "fa2", "term2Key": "fa4", "max": 20 },
+        { "name": "Assignment", "term1Key": "assignment", "term2Key": "assignment", "max": 10 },
+        { "name": "Oral / Practical / Game", "term1Key": "oral", "term2Key": "oral", "max": 10 }
+      ],
+      "internalRawMax": 60,
+      "internalMax": 20,
+      "examMax": 30,
+      "termMax": 50,
+      "subjectMax": 100
+    },
+    "DRAWING_30_20": {
+      "id": "DRAWING_30_20",
+      "description": "50-mark Drawing (30 Exam + 20 Internal div 2, no assignment/oral)",
+      "components": [
+        { "name": "FA 1 / FA 3", "term1Key": "fa1", "term2Key": "fa3", "max": 20 },
+        { "name": "FA 2 / FA 4", "term1Key": "fa2", "term2Key": "fa4", "max": 20 }
+      ],
+      "internalRawMax": 40,
+      "internalMax": 20,
+      "examMax": 30,
+      "termMax": 50,
+      "subjectMax": 100
+    },
+    "EARLY_60_40": {
+      "id": "EARLY_60_40",
+      "description": "Pre-primary 4-component (60 Exam + 40 Internal div 2)",
+      "components": [
+        { "name": "FA 1 / FA 3", "term1Key": "fa1", "term2Key": "fa3", "max": 20 },
+        { "name": "FA 2 / FA 4", "term1Key": "fa2", "term2Key": "fa4", "max": 20 },
+        { "name": "Dictation", "term1Key": "dictation", "term2Key": "dictation", "max": 20 },
+        { "name": "Oral", "term1Key": "oral", "term2Key": "oral", "max": 20 }
+      ],
+      "internalRawMax": 80,
+      "internalMax": 40,
+      "examMax": 60,
+      "termMax": 100,
+      "subjectMax": 200
+    },
+    "EARLY_NO_DIV_60_40": {
+      "id": "EARLY_NO_DIV_60_40",
+      "description": "Pre-primary EVS/Drawing (60 Exam + 40 Internal no division)",
+      "components": [
+        { "name": "FA 1 / FA 3", "term1Key": "fa1", "term2Key": "fa3", "max": 20 },
+        { "name": "FA 2 / FA 4", "term1Key": "fa2", "term2Key": "fa4", "max": 20 }
+      ],
+      "internalRawMax": 40,
+      "internalMax": 40,
+      "examMax": 60,
+      "termMax": 100,
+      "subjectMax": 200
+    }
+  },
+  "classGroups": {
+    "NUR_UKG": {
+      "classes": ["Playgroup", "PG", "Nursery", "NUR", "LKG", "UKG"],
+      "subjects": {
+        "English Written": "EARLY_60_40",
+        "English Oral": "EARLY_60_40",
+        "English Dictation": "EARLY_60_40",
+        "Hindi Written": "EARLY_60_40",
+        "Hindi Oral": "EARLY_60_40",
+        "Hindi Dictation": "EARLY_60_40",
+        "Maths Written": "EARLY_60_40",
+        "Maths Oral": "EARLY_60_40",
+        "E.V.S.": "EARLY_NO_DIV_60_40",
+        "Drawing": "EARLY_NO_DIV_60_40"
+      }
+    },
+    "1_2": {
+      "classes": ["I", "II", "Class 1", "Class 2", "1", "2"],
+      "subjects": {
+        "English-I": "STD_80_20",
+        "English-II": "STD_80_20",
+        "Hindi": "STD_80_20",
+        "Maths": "STD_80_20",
+        "E.V.S.": "STD_80_20",
+        "G.K.": "HALF_30_20",
+        "Computer": "HALF_30_20",
+        "Drawing": "DRAWING_30_20"
+      }
+    },
+    "3_5": {
+      "classes": ["III", "IV", "V", "Class 3", "Class 4", "Class 5", "3", "4", "5"],
+      "subjects": {
+        "English-I": "STD_80_20",
+        "English-II": "STD_80_20",
+        "Hindi": "STD_80_20",
+        "Maths": "STD_80_20",
+        "Science": "STD_80_20",
+        "Social Studies": "STD_80_20",
+        "Sanskrit": "HALF_30_20",
+        "G.K.": "HALF_30_20",
+        "Computer": "HALF_30_20",
+        "Drawing": "DRAWING_30_20"
+      }
+    },
+    "6_8": {
+      "classes": ["VI", "VII", "VIII", "Class 6", "Class 7", "Class 8", "6", "7", "8"],
+      "subjects": {
+        "English-I": "STD_80_20",
+        "English-II": "STD_80_20",
+        "Hindi": "STD_80_20",
+        "Maths": "STD_80_20",
+        "Physics": "STD_80_20",
+        "Chemistry": "STD_80_20",
+        "Biology": "STD_80_20",
+        "History & Civics": "STD_80_20",
+        "Geography": "STD_80_20",
+        "Sanskrit": "HALF_30_20",
+        "G.K.": "HALF_30_20",
+        "Computer": "HALF_30_20",
+        "Drawing": "DRAWING_30_20"
+      }
+    },
+    "9_10": {
+      "classes": ["IX", "X", "Class 9", "Class 10", "9", "10"],
+      "subjects": {
+        "English-I": "STD_80_20",
+        "English-II": "STD_80_20",
+        "Hindi": "STD_80_20",
+        "Maths": "STD_80_20",
+        "Physics": "STD_80_20",
+        "Chemistry": "STD_80_20",
+        "Biology": "STD_80_20",
+        "History & Civics": "STD_80_20",
+        "Geography": "STD_80_20",
+        "Physical Education": "STD_80_20"
+      }
+    },
+    "11_12": {
+      "classes": ["XI Science", "XI Commerce", "XI Humanities", "XII Science", "XII Commerce", "XII Humanities", "XI", "XII", "11", "12"],
+      "subjects": {
+        "English-I": "STD_80_20",
+        "English-II": "STD_80_20",
+        "Hindi": "STD_80_20",
+        "Maths": "STD_80_20",
+        "History & Civics": "STD_80_20",
+        "Political Science": "STD_80_20",
+        "Commerce": "STD_80_20",
+        "Accounts": "STD_80_20",
+        "Economics": "STD_80_20",
+        "Physics": "PRACTICAL_70_30",
+        "Chemistry": "PRACTICAL_70_30",
+        "Biology": "PRACTICAL_70_30",
+        "Physical Education": "PRACTICAL_70_30"
+      }
+    }
+  }
+}
